@@ -3,1062 +3,367 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Godmode Network — NextGen Social UI</title>
+  <title>Godmode Network</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <!-- Supabase JS Client -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
       --bg-main: #0a0d14;
       --bg-card: rgba(18, 24, 38, 0.75);
-      --bg-card-hover: rgba(26, 35, 56, 0.85);
       --accent-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
-      --accent-blue: #3b82f6;
-      --accent-purple: #8b5cf6;
-      --accent-pink: #ec4899;
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
-      --owner-red: #ef4444;
-      --owner-bg: rgba(239, 68, 68, 0.15);
-      --verified-blue: #38bdf8;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
-    }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
     body {
-      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       background-color: var(--bg-main);
       color: var(--text-main);
       display: flex;
       justify-content: center;
       min-height: 100vh;
-      background-image: 
-        radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
-        radial-gradient(circle at 90% 80%, rgba(236, 72, 153, 0.12) 0%, transparent 40%);
-      background-attachment: fixed;
     }
 
     .app-container {
       width: 100%;
       max-width: 460px;
-      background: rgba(13, 17, 26, 0.85);
-      backdrop-filter: blur(20px);
+      background: rgba(13, 17, 26, 0.95);
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
       position: relative;
-      padding-bottom: 84px;
-      box-shadow: 0 0 50px rgba(0,0,0,0.8);
+      padding-bottom: 80px;
       border-left: 1px solid rgba(255, 255, 255, 0.05);
       border-right: 1px solid rgba(255, 255, 255, 0.05);
-      overflow-x: hidden;
     }
 
-    /* --- ХЕДЕР --- */
     .tg-header {
-      height: 64px;
+      height: 60px;
       padding: 0 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: rgba(13, 17, 26, 0.7);
-      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       position: sticky;
       top: 0;
-      z-index: 30;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: #0d111a;
+      z-index: 10;
     }
 
     .tg-header-title {
-      font-size: 19px;
       font-weight: 800;
       background: var(--accent-gradient);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      letter-spacing: 0.8px;
     }
 
-    .header-actions {
-      display: flex;
-      gap: 10px;
-    }
-
-    .icon-btn {
-      background: rgba(255, 255, 255, 0.06);
-      color: var(--text-main);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      width: 38px;
-      height: 38px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .btn-sm {
+      background: rgba(255,255,255,0.1);
+      border: none;
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 8px;
       cursor: pointer;
-      transition: all 0.2s ease;
+      font-size: 12px;
     }
 
-    .icon-btn:active {
-      transform: scale(0.92);
-      background: rgba(255, 255, 255, 0.15);
+    .banner {
+      width: 100%;
+      height: 140px;
+      background: linear-gradient(135deg, #3b82f6, #ec4899);
+      background-size: cover;
+      background-position: center;
+      cursor: pointer;
+      display: flex;
+      align-items: flex-end;
+      padding: 10px;
     }
 
-    /* --- НАВИГАЦИЯ --- */
+    .profile-sec { padding: 0 20px; position: relative; }
+    .avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 3px solid var(--bg-main);
+      margin-top: -40px;
+      object-fit: cover;
+      background: #1e293b;
+      cursor: pointer;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 15px 0;
+    }
+    .stat-card {
+      background: var(--bg-card);
+      padding: 10px;
+      border-radius: 12px;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .post-box, .post-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 12px;
+      margin: 10px 20px;
+    }
+
+    textarea, input {
+      width: 100%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #fff;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      outline: none;
+    }
+
+    .btn-main {
+      width: 100%;
+      background: var(--accent-gradient);
+      border: none;
+      color: #fff;
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
     .nav-bar {
       position: fixed;
       bottom: 0;
       width: 100%;
       max-width: 460px;
-      height: 72px;
-      background: rgba(13, 17, 26, 0.85);
-      backdrop-filter: blur(20px);
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      height: 60px;
+      background: #0d111a;
+      border-top: 1px solid rgba(255,255,255,0.08);
       display: flex;
       justify-content: space-around;
       align-items: center;
-      z-index: 40;
-      padding: 0 10px;
     }
+    .nav-item { color: var(--text-muted); background: none; border: none; cursor: pointer; font-size: 13px; }
+    .nav-item.active { color: #fff; font-weight: 700; }
 
-    .nav-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      color: var(--text-muted);
-      background: none;
-      border: none;
-      font-size: 11px;
-      font-weight: 600;
-      cursor: pointer;
-      padding: 8px 12px;
-      border-radius: 14px;
-      transition: all 0.25s ease;
-      width: 22%;
+    .modal {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+      display: none; align-items: center; justify-content: center; z-index: 100;
     }
-
-    .nav-item svg {
-      width: 22px;
-      height: 22px;
-      stroke: currentColor;
-      stroke-width: 2;
-      fill: none;
-      transition: transform 0.2s ease;
-    }
-
-    .nav-item.active {
-      color: #ffffff;
-      background: rgba(99, 102, 241, 0.15);
-    }
-
-    .nav-item.active svg {
-      stroke: var(--accent-pink);
-      transform: translateY(-2px);
-    }
-
-    .tab-content {
-      display: none;
-      animation: fadeIn 0.3s ease;
-    }
-
-    .tab-content.active {
-      display: block;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* --- БАННЕР И АВАТАР --- */
-    .banner-container {
-      position: relative;
-      width: 100%;
-      height: 160px;
-      background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);
-      background-size: 200% 200%;
-      animation: gradientBG 8s ease infinite;
-      cursor: pointer;
-      overflow: hidden;
-      background-position: center;
-      background-size: cover;
-    }
-
-    @keyframes gradientBG {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
-    .banner-overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.3);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      transition: opacity 0.2s ease;
-    }
-
-    .banner-container:hover .banner-overlay, .banner-container:active .banner-overlay {
-      opacity: 1;
-    }
-
-    .banner-badge {
-      background: rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(10px);
-      border-radius: 20px;
-      padding: 8px 16px;
-      font-size: 13px;
-      font-weight: 600;
-      color: #fff;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .profile-section {
-      padding: 0 20px;
-      position: relative;
-    }
-
-    .avatar-wrapper {
-      position: relative;
-      width: 96px;
-      height: 96px;
-      margin-top: -48px;
-      margin-bottom: 14px;
-      cursor: pointer;
-    }
-
-    .avatar-img {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 4px solid var(--bg-main);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-      background: #1e293b;
-    }
-
-    .avatar-cam-icon {
-      position: absolute;
-      bottom: 2px;
-      right: 2px;
-      background: var(--accent-gradient);
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 2px solid var(--bg-main);
-    }
-
-    .user-fullname-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .user-fullname {
-      font-size: 22px;
-      font-weight: 800;
-      color: #ffffff;
-    }
-
-    .owner-badge {
-      font-size: 10px;
-      font-weight: 800;
-      color: var(--owner-red);
-      background: var(--owner-bg);
-      border: 1.5px solid var(--owner-red);
-      padding: 2px 7px;
-      border-radius: 6px;
-      letter-spacing: 0.8px;
-      text-transform: uppercase;
-      box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
-      display: inline-flex;
-      align-items: center;
-    }
-
-    .verified-icon {
-      width: 19px;
-      height: 19px;
-      fill: var(--verified-blue);
-      filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.4));
-    }
-
-    .user-status {
-      font-size: 13px;
-      color: #10b981;
-      margin-top: 4px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .user-status::before {
-      content: '';
-      width: 7px;
-      height: 7px;
-      background-color: #10b981;
-      border-radius: 50%;
-      box-shadow: 0 0 8px #10b981;
-    }
-
-    /* --- СТАТИСТИКА --- */
-    .profile-stats-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin: 18px 0;
-    }
-
-    .stat-card {
-      background: var(--bg-card);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      padding: 12px;
-      border-radius: 16px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .stat-card:active {
-      transform: scale(0.96);
-      background: var(--bg-card-hover);
-    }
-
-    .stat-value {
-      font-size: 18px;
-      font-weight: 800;
-      color: #fff;
-    }
-
-    .stat-label {
-      font-size: 11px;
-      color: var(--text-muted);
-      margin-top: 2px;
-      font-weight: 500;
-    }
-
-    /* --- ИНФО-КАРТОЧКИ --- */
-    .info-group {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      padding: 0 20px;
-      margin-top: 10px;
-    }
-
-    .info-card {
-      background: var(--bg-card);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      padding: 14px 16px;
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .info-icon-box {
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
-      background: rgba(99, 102, 241, 0.12);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .info-icon-box svg {
-      width: 20px;
-      height: 20px;
-      stroke: var(--accent-pink);
-      stroke-width: 2;
-      fill: none;
-    }
-
-    .info-content {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      flex-grow: 1;
-    }
-
-    .info-value {
-      font-size: 14px;
-      color: #ffffff;
-      font-weight: 600;
-      line-height: 1.3;
-    }
-
-    .info-label {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-
-    .create-post-box {
-      margin: 15px 20px;
-      background: var(--bg-card);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 16px;
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .create-post-box textarea {
-      width: 100%;
-      background: transparent;
-      border: none;
-      color: #fff;
-      resize: none;
-      outline: none;
-      font-size: 14px;
-      font-family: inherit;
-    }
-
-    .post-card {
-      background: var(--bg-card);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 16px;
-      padding: 14px;
-      margin: 0 20px 12px 20px;
-    }
-
-    .post-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 8px;
-    }
-
-    .post-time {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-
-    .friends-tabs {
-      display: flex;
-      padding: 16px 20px 8px;
-      gap: 12px;
-    }
-
-    .f-tab-btn {
-      flex: 1;
-      padding: 8px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      color: var(--text-muted);
-      border-radius: 12px;
-      font-weight: 600;
-      font-size: 13px;
-      cursor: pointer;
-    }
-
-    .f-tab-btn.active {
-      background: rgba(99, 102, 241, 0.2);
-      color: #fff;
-      border-color: var(--accent-purple);
-    }
-
-    .user-list {
-      padding: 10px 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .user-card-item {
-      background: var(--bg-card);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      padding: 12px;
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .action-btn-sm {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      color: #fff;
-      padding: 6px 12px;
-      border-radius: 10px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .action-btn-sm.primary {
-      background: var(--accent-gradient);
-      border: none;
-    }
-
-    /* --- МОДАЛЬНЫЕ ОКНА --- */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(8px);
-      z-index: 120;
-      display: flex;
-      align-items: flex-end;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.25s ease;
-    }
-
-    .modal-overlay.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .modal-card {
-      width: 100%;
-      max-width: 460px;
-      margin: 0 auto;
-      background: #121826;
-      border-top-left-radius: 24px;
-      border-top-right-radius: 24px;
-      padding: 24px 20px 36px 20px;
-      transform: translateY(100%);
-      transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
-      border-top: 1px solid rgba(255, 255, 255, 0.15);
-      max-height: 85vh;
-      overflow-y: auto;
-    }
-
-    .modal-overlay.active .modal-card {
-      transform: translateY(0);
-    }
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-
-    .modal-title {
-      font-size: 18px;
-      font-weight: 800;
-    }
-
-    .modal-close {
-      background: rgba(255, 255, 255, 0.1);
-      border: none;
-      color: #fff;
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      cursor: pointer;
-    }
-
-    .form-field {
-      margin-bottom: 14px;
-    }
-
-    .form-field label {
-      display: block;
-      font-size: 12px;
-      color: var(--text-muted);
-      margin-bottom: 6px;
-      font-weight: 600;
-    }
-
-    .form-field input, .form-field textarea {
-      width: 100%;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      padding: 12px;
-      color: #ffffff;
-      font-size: 14px;
-      outline: none;
-    }
-
-    .save-btn {
-      width: 100%;
-      background: var(--accent-gradient);
-      color: #ffffff;
-      border: none;
-      padding: 14px;
-      border-radius: 14px;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      margin-top: 10px;
-      box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
-    }
-
-    .hidden-input {
-      display: none !important;
-    }
+    .modal.active { display: flex; }
+    .modal-content { background: #121826; padding: 20px; border-radius: 16px; width: 90%; max-width: 400px; }
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
 
-  <div class="app-container">
-
-    <!-- ХЕДЕР -->
-    <header class="tg-header">
-      <div class="tg-header-title">GODMODE NETWORK</div>
-      <div class="header-actions">
-        <button class="icon-btn" onclick="shareProfile()" title="Поделиться профилем">🔗</button>
-        <button class="icon-btn" onclick="openModal('modal-edit-profile')">
-          <svg style="width:18px; height:18px; stroke:currentColor; fill:none;" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-        </button>
-      </div>
-    </header>
-
-    <!-- ВКЛАДКА 1: ПРОФИЛЬ -->
-    <main id="tab-profile" class="tab-content active">
-      <!-- Баннер -->
-      <div id="profile-banner" class="banner-container" onclick="document.getElementById('banner-input').click()">
-        <div class="banner-overlay">
-          <div class="banner-badge">📷 Изменить баннер</div>
-        </div>
-      </div>
-      <input type="file" id="banner-input" class="hidden-input" accept="image/*" onchange="uploadImage(event, 'banner')">
-
-      <!-- Инфо Профиля -->
-      <div class="profile-section">
-        <div class="avatar-wrapper" onclick="document.getElementById('avatar-input').click()">
-          <img id="profile-avatar" class="avatar-img" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80" alt="Аватар">
-          <div class="avatar-cam-icon">
-            <svg style="width:14px; height:14px; stroke:#fff; fill:none; stroke-width:2;" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-          </div>
-        </div>
-        <input type="file" id="avatar-input" class="hidden-input" accept="image/*" onchange="uploadImage(event, 'avatar')">
-
-        <div class="user-fullname-row">
-          <span id="display-fullname" class="user-fullname">Пользователь</span>
-          <span id="display-owner-badge" class="owner-badge" style="display:none;">OWNER</span>
-          <svg id="display-verified-badge" class="verified-icon" style="display:none;" viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-1.9 14.7L6 12.6l1.5-1.4 2.6 2.6 6.8-6.8 1.5 1.4-8.5 8.3z"/></svg>
-        </div>
-        <div class="user-status">в сети</div>
-
-        <!-- Статистика (без накрученных цифр) -->
-        <div class="profile-stats-grid">
-          <div class="stat-card" onclick="switchTab('friends')">
-            <div class="stat-value" id="stat-friends-count">0</div>
-            <div class="stat-label">Друзей</div>
-          </div>
-          <div class="stat-card" onclick="switchTab('friends')">
-            <div class="stat-value" id="stat-subs-count">0</div>
-            <div class="stat-label">Подписчиков</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-value" id="stat-posts-count">0</div>
-            <div class="stat-label">Постов</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Создание поста -->
-      <div class="create-post-box">
-        <textarea id="postInput" placeholder="Что у вас нового?" rows="2"></textarea>
-        <button class="save-btn" style="margin-top:0; padding:10px;" onclick="createPost()">Опубликовать</button>
-      </div>
-
-      <!-- Детали Профиля -->
-      <div class="info-group">
-        <div class="info-card">
-          <div class="info-icon-box">
-            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          </div>
-          <div class="info-content">
-            <div class="info-value" id="display-username">@username</div>
-            <div class="info-label">Имя пользователя</div>
-          </div>
-        </div>
-
-        <div class="info-card">
-          <div class="info-icon-box">
-            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-          </div>
-          <div class="info-content">
-            <div class="info-value" id="display-bio">Описание не указано.</div>
-            <div class="info-label">О себе</div>
-          </div>
-        </div>
-
-        <div class="info-card">
-          <div class="info-icon-box">
-            <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          </div>
-          <div class="info-content">
-            <div class="info-value" id="display-city">Не указан</div>
-            <div class="info-label">Город</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Публикации -->
-      <div style="margin: 20px 20px 10px 20px; font-weight: 800; font-size: 16px;">Мои публикации</div>
-      <div id="myPostsList"></div>
-    </main>
-
-    <!-- ВКЛАДКА 2: ДРУЗЬЯ И ПОДПИСЧИКИ -->
-    <main id="tab-friends" class="tab-content">
-      <div class="friends-tabs">
-        <button class="f-tab-btn active" onclick="toggleFriendsSubTab('friends', this)">Друзья</button>
-        <button class="f-tab-btn" onclick="toggleFriendsSubTab('subs', this)">Подписчики</button>
-      </div>
-
-      <!-- Список Друзей -->
-      <div id="friends-list-container" class="user-list">
-        <p style="color:var(--text-muted); font-size:13px;">У вас пока нет друзей</p>
-      </div>
-
-      <!-- Список Подписчиков -->
-      <div id="subs-list-container" class="user-list" style="display: none;">
-        <p style="color:var(--text-muted); font-size:13px;">У вас пока нет подписчиков</p>
-      </div>
-    </main>
-
-    <!-- НИЖНЯЯ НАВИГАЦИЯ -->
-    <nav class="nav-bar">
-      <button class="nav-item active" onclick="switchTab('profile', this)">
-        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        <span>Профиль</span>
-      </button>
-      <button class="nav-item" onclick="switchTab('friends', this)">
-        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-3-3.87"/><path d="M9 21v-2a4 4 0 0 1 3-3.87"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><circle cx="19" cy="11" r="2"/></svg>
-        <span>Друзья</span>
-      </button>
-      <button class="nav-item" onclick="openModal('modal-auth')">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        <span>Аккаунт</span>
-      </button>
-    </nav>
-  </div>
-
-  <!-- МОДАЛКА: АВТОРИЗАЦИЯ И РЕГИСТРАЦИЯ -->
-  <div id="modal-auth" class="modal-overlay">
-    <div class="modal-card">
-      <div class="modal-header">
-        <div class="modal-title" id="auth-title">Вход / Регистрация</div>
-        <button class="modal-close" onclick="closeModal('modal-auth')">✕</button>
-      </div>
-
-      <div class="form-field">
-        <label>Email</label>
-        <input type="email" id="auth-email" placeholder="example@mail.com">
-      </div>
-      <div class="form-field">
-        <label>Пароль</label>
-        <input type="password" id="auth-password" placeholder="••••••••">
-      </div>
-      <div class="form-field">
-        <label>Имя пользователя (только при регистрации)</label>
-        <input type="text" id="auth-username" placeholder="@nickname">
-      </div>
-
-      <button class="save-btn" onclick="handleAuth('login')">Войти</button>
-      <button class="save-btn" style="background: rgba(255,255,255,0.1); margin-top: 8px;" onclick="handleAuth('signup')">Зарегистрироваться</button>
+<div class="app-container">
+  <header class="tg-header">
+    <div class="tg-header-title">GODMODE NETWORK</div>
+    <div>
+      <button class="btn-sm" onclick="openModal('modal-edit')">Редактировать</button>
+      <button class="btn-sm" onclick="logout()">Выход</button>
     </div>
-  </div>
+  </header>
 
-  <!-- МОДАЛКА: РЕДАКТИРОВАНИЕ ПРОФИЛЯ -->
-  <div id="modal-edit-profile" class="modal-overlay">
-    <div class="modal-card">
-      <div class="modal-header">
-        <div class="modal-title">Редактировать профиль</div>
-        <button class="modal-close" onclick="closeModal('modal-edit-profile')">✕</button>
-      </div>
-
-      <div class="form-field">
-        <label>Имя и Фамилия</label>
-        <input type="text" id="input-fullname">
-      </div>
-      <div class="form-field">
-        <label>Юзернейм (уникальный)</label>
-        <input type="text" id="input-username">
-      </div>
-      <div class="form-field">
-        <label>О себе</label>
-        <textarea id="input-bio" rows="2"></textarea>
-      </div>
-      <div class="form-field">
-        <label>Город</label>
-        <input type="text" id="input-city">
-      </div>
-
-      <button class="save-btn" onclick="saveProfile()">Сохранить изменения</button>
+  <!-- ВКЛАДКА ПРОФИЛЬ -->
+  <div id="tab-profile">
+    <div id="banner" class="banner" onclick="document.getElementById('banner-file').click()">
+      <span style="background:rgba(0,0,0,0.6); font-size:11px; padding:4px 8px; border-radius:6px;">📷 Нажмите для смены баннера</span>
     </div>
+    <input type="file" id="banner-file" class="hidden" accept="image/*" onchange="uploadImg(event, 'banner')">
+
+    <div class="profile-sec">
+      <img id="avatar" class="avatar" src="https://via.placeholder.com/150" onclick="document.getElementById('avatar-file').click()">
+      <input type="file" id="avatar-file" class="hidden" accept="image/*" onchange="uploadImg(event, 'avatar')">
+
+      <h2 id="disp-fullname" style="margin-top:8px;">Гость</h2>
+      <div id="disp-username" style="color:var(--text-muted); font-size:14px;">@guest</div>
+      <p id="disp-bio" style="margin-top:6px; font-size:13px; color:#cbd5e1;">Описание не заполнено</p>
+
+      <div class="stats">
+        <div class="stat-card"><b id="cnt-friends">0</b><div style="font-size:11px; color:var(--text-muted);">Друзей</div></div>
+        <div class="stat-card"><b id="cnt-subs">0</b><div style="font-size:11px; color:var(--text-muted);">Подписчиков</div></div>
+        <div class="stat-card"><b id="cnt-posts">0</b><div style="font-size:11px; color:var(--text-muted);">Постов</div></div>
+      </div>
+    </div>
+
+    <div class="post-box">
+      <textarea id="post-text" placeholder="Написать пост..." rows="2"></textarea>
+      <button class="btn-main" onclick="addPost()">Опубликовать</button>
+    </div>
+
+    <div id="posts-list"></div>
   </div>
 
-  <script>
-    /* --- НАСТРОЙКА SUPABASE ---
-       Замените эти строки на ваши ключи из консоли Supabase (supabase.com)
-    */
-    const SUPABASE_URL = 'https://YOUR_SUPABASE_PROJECT.supabase.co';
-    const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  <!-- ВКЛАДКА ДРУЗЬЯ -->
+  <div id="tab-friends" class="hidden" style="padding:20px;">
+    <h3>Список друзей</h3>
+    <p style="color:var(--text-muted); font-size:13px; margin-top:10px;">Список друзей пуст</p>
+  </div>
 
-    let currentUser = null;
-    let userPosts = [];
+  <nav class="nav-bar">
+    <button class="nav-item active" onclick="switchTab('profile', this)">Профиль</button>
+    <button class="nav-item" onclick="switchTab('friends', this)">Друзья</button>
+  </nav>
+</div>
 
-    window.onload = async () => {
-      // 1. Проверяем сессию при загрузке
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (session) {
-        currentUser = session.user;
-        await loadUserProfile(currentUser.id);
-      } else {
-        openModal('modal-auth');
+<!-- МОДАЛКА ВХОДА -->
+<div id="modal-auth" class="modal active">
+  <div class="modal-content">
+    <h3 style="margin-bottom:12px;">Вход / Регистрация</h3>
+    <input type="text" id="auth-name" placeholder="Имя и Фамилия">
+    <input type="text" id="auth-nick" placeholder="Юзернейм (например @godmode)">
+    <button class="btn-main" onclick="login()">Войти</button>
+  </div>
+</div>
+
+<!-- МОДАЛКА РЕДАКТИРОВАНИЯ -->
+<div id="modal-edit" class="modal">
+  <div class="modal-content">
+    <h3 style="margin-bottom:12px;">Редактировать профиль</h3>
+    <input type="text" id="edit-fullname" placeholder="Имя">
+    <input type="text" id="edit-username" placeholder="Юзернейм">
+    <textarea id="edit-bio" placeholder="О себе" rows="2"></textarea>
+    <button class="btn-main" onclick="saveProfile()">Сохранить</button>
+    <button class="btn-sm" style="width:100%; margin-top:8px;" onclick="closeModal('modal-edit')">Отмена</button>
+  </div>
+</div>
+
+<script>
+  let state = {
+    user: null,
+    posts: []
+  };
+
+  window.onload = () => {
+    const savedData = localStorage.getItem('godmode_app');
+    if (savedData) {
+      state = JSON.parse(savedData);
+      if (state.user) {
+        closeModal('modal-auth');
+        renderProfile();
       }
+    }
+  };
 
-      // 2. Проверяем, перешел ли кто-то по ссылке вида ?user=@username
-      const urlParams = new URLSearchParams(window.location.search);
-      const requestedUsername = urlParams.get('user');
-      if (requestedUsername) {
-        loadProfileByUsername(requestedUsername);
-      }
+  function saveData() {
+    localStorage.setItem('godmode_app', JSON.stringify(state));
+  }
+
+  function login() {
+    const name = document.getElementById('auth-name').value.trim();
+    let nick = document.getElementById('auth-nick').value.trim();
+    if (!name || !nick) return alert('Заполните поля!');
+
+    if (!nick.startsWith('@')) nick = '@' + nick;
+
+    state.user = {
+      fullname: name,
+      username: nick,
+      bio: 'Разработчик / Создатель',
+      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
+      banner: ''
     };
+    saveData();
+    closeModal('modal-auth');
+    renderProfile();
+  }
 
-    /* --- АУТЕНТИФИКАЦИЯ --- */
-    async function handleAuth(type) {
-      const email = document.getElementById('auth-email').value.trim();
-      const password = document.getElementById('auth-password').value.trim();
-      let username = document.getElementById('auth-username').value.trim();
+  function logout() {
+    state.user = null;
+    saveData();
+    openModal('modal-auth');
+  }
 
-      if (!email || !password) return alert('Заполните Email и Пароль');
+  function renderProfile() {
+    if (!state.user) return;
+    document.getElementById('disp-fullname').innerText = state.user.fullname;
+    document.getElementById('disp-username').innerText = state.user.username;
+    document.getElementById('disp-bio').innerText = state.user.bio || 'Нет описания';
+    
+    if (state.user.avatar) document.getElementById('avatar').src = state.user.avatar;
+    if (state.user.banner) document.getElementById('banner').style.backgroundImage = `url('${state.user.banner}')`;
 
-      if (type === 'signup') {
-        if (!username) return alert('Введите желаемый юзернейм!');
-        if (!username.startsWith('@')) username = '@' + username;
+    renderPosts();
+  }
 
-        // Проверка уникальности юзернейма в БД Supabase
-        const { data: existingUser } = await supabase
-          .from('profiles')
-          .select('username')
-          .eq('username', username)
-          .single();
+  function saveProfile() {
+    let newNick = document.getElementById('edit-username').value.trim();
+    if (!newNick.startsWith('@')) newNick = '@' + newNick;
 
-        if (existingUser) {
-          return alert('Этот юзернейм уже занят. Выберите другой!');
-        }
+    state.user.fullname = document.getElementById('edit-fullname').value.trim();
+    state.user.username = newNick;
+    state.user.bio = document.getElementById('edit-bio').value.trim();
 
-        const { data, error } = await supabase.auth.signUp({ email, password });
-        if (error) return alert(error.message);
+    saveData();
+    renderProfile();
+    closeModal('modal-edit');
+  }
 
-        // Создаем профиль в базе
-        await supabase.from('profiles').insert([{
-          id: data.user.id,
-          username: username,
-          fullname: 'Новый Пользователь',
-          bio: '',
-          city: '',
-          avatar_url: '',
-          banner_url: ''
-        }]);
+  function uploadImg(e, type) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      if (type === 'avatar') state.user.avatar = evt.target.result;
+      if (type === 'banner') state.user.banner = evt.target.result;
+      saveData();
+      renderProfile();
+    };
+    reader.readAsDataURL(file);
+  }
 
-        alert('Успешная регистрация!');
-        currentUser = data.user;
-        closeModal('modal-auth');
-        loadUserProfile(currentUser.id);
+  function addPost() {
+    const txt = document.getElementById('post-text').value.trim();
+    if (!txt) return;
+    state.posts.unshift({ text: txt, date: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
+    document.getElementById('post-text').value = '';
+    saveData();
+    renderPosts();
+  }
 
-      } else {
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) return alert(error.message);
-
-        currentUser = data.user;
-        closeModal('modal-auth');
-        loadUserProfile(currentUser.id);
-      }
+  function renderPosts() {
+    document.getElementById('cnt-posts').innerText = state.posts.length;
+    const container = document.getElementById('posts-list');
+    if (state.posts.length === 0) {
+      container.innerHTML = '<p style="padding:0 20px; color:var(--text-muted); font-size:13px;">Постов пока нет.</p>';
+      return;
     }
-
-    /* --- ЗАГРУЗКА И ОТОБРАЖЕНИЕ ПРОФИЛЯ --- */
-    async function loadUserProfile(userId) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-
-      if (profile) {
-        document.getElementById('display-fullname').innerText = profile.fullname || 'Без имени';
-        document.getElementById('display-username').innerText = profile.username;
-        document.getElementById('display-bio').innerText = profile.bio || 'Описание не указано.';
-        document.getElementById('display-city').innerText = profile.city || 'Не указан';
-        
-        if (profile.avatar_url) document.getElementById('profile-avatar').src = profile.avatar_url;
-        if (profile.banner_url) document.getElementById('profile-banner').style.backgroundImage = `url('${profile.banner_url}')`;
-
-        loadPosts(userId);
-      }
-    }
-
-    async function loadProfileByUsername(username) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('username', username)
-        .single();
-
-      if (profile) {
-        loadUserProfile(profile.id);
-      }
-    }
-
-    /* --- ИЗМЕНЕНИЕ И СОХРАНЕНИЕ ПРОФИЛЯ С ПРОВЕРКОЙ ЮЗЕРНЕЙМА --- */
-    async function saveProfile() {
-      if (!currentUser) return;
-
-      const newFullname = document.getElementById('input-fullname').value.trim();
-      let newUsername = document.getElementById('input-username').value.trim();
-      const newBio = document.getElementById('input-bio').value.trim();
-      const newCity = document.getElementById('input-city').value.trim();
-
-      if (!newUsername.startsWith('@')) newUsername = '@' + newUsername;
-
-      // Проверка: занимает ли кто-то другой этот юзернейм
-      const { data: existing } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('username', newUsername)
-        .neq('id', currentUser.id)
-        .single();
-
-      if (existing) {
-        return alert('Этот юзернейм уже занят другим пользователем!');
-      }
-
-      const { error } = await supabase.from('profiles').update({
-        fullname: newFullname,
-        username: newUsername,
-        bio: newBio,
-        city: newCity
-      }).eq('id', currentUser.id);
-
-      if (!error) {
-        closeModal('modal-edit-profile');
-        loadUserProfile(currentUser.id);
-      } else {
-        alert('Ошибка при сохранении!');
-      }
-    }
-
-    /* --- ЗАГРУЗКА КАРТИНОК И ВЕРСТКА ПОСТОВ --- */
-    async function uploadImage(event, type) {
-      const file = event.target.files[0];
-      if (!file || !currentUser) return;
-
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const base64Image = reader.result;
-        const updateField = type === 'avatar' ? { avatar_url: base64Image } : { banner_url: base64Image };
-
-        await supabase.from('profiles').update(updateField).eq('id', currentUser.id);
-        
-        if (type === 'avatar') {
-          document.getElementById('profile-avatar').src = base64Image;
-        } else {
-          document.getElementById('profile-banner').style.backgroundImage = `url('${base64Image}')`;
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-
-    async function createPost() {
-      const input = document.getElementById('postInput');
-      if (!input.value.trim() || !currentUser) return;
-
-      await supabase.from('posts').insert([{
-        user_id: currentUser.id,
-        content: input.value,
-        created_at: new Date()
-      }]);
-
-      input.value = '';
-      loadPosts(currentUser.id);
-    }
-
-    async function loadPosts(userId) {
-      const { data: posts } = await supabase
-        .from('posts')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false });
-
-      const container = document.getElementById('myPostsList');
-      document.getElementById('stat-posts-count').innerText = posts ? posts.length : 0;
-
-      if (!posts || posts.length === 0) {
-        container.innerHTML = '<p style="padding:0 20px; color:var(--text-muted); font-size:13px;">У вас пока нет публикаций.</p>';
-        return;
-      }
-
-      container.innerHTML = posts.map(post => `
-        <div class="post-card">
-          <div class="post-header">
-            <div style="font-weight:700; font-size:14px; flex:1;">${document.getElementById('display-fullname').innerText}</div>
-            <span class="post-time">${new Date(post.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-          </div>
-          <p style="font-size:14px; line-height:1.4;">${post.content}</p>
+    container.innerHTML = state.posts.map(p => `
+      <div class="post-card">
+        <div style="display:flex; justify-space-between; margin-bottom:6px;">
+          <b style="font-size:13px;">${state.user.fullname}</b>
+          <span style="font-size:11px; color:var(--text-muted);">${p.date}</span>
         </div>
-      `).join('');
+        <p style="font-size:14px;">${p.text}</p>
+      </div>
+    `).join('');
+  }
+
+  function switchTab(tab, btn) {
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    if (tab === 'profile') {
+      document.getElementById('tab-profile').classList.remove('hidden');
+      document.getElementById('tab-friends').classList.add('hidden');
+    } else {
+      document.getElementById('tab-profile').classList.add('hidden');
+      document.getElementById('tab-friends').classList.remove('hidden');
     }
+  }
 
-    /* --- ВСПУХАЮЩИЕ ИНТЕРФЕЙСЫ --- */
-    function shareProfile() {
-      const username = document.getElementById('display-username').innerText;
-      const shareUrl = `${window.location.origin}${window.location.pathname}?user=${encodeURIComponent(username)}`;
-      
-      navigator.clipboard.writeText(shareUrl);
-      alert(`Ссылка на профиль скопирована: ${shareUrl}`);
+  function openModal(id) {
+    if (id === 'modal-edit') {
+      document.getElementById('edit-fullname').value = state.user.fullname;
+      document.getElementById('edit-username').value = state.user.username;
+      document.getElementById('edit-bio').value = state.user.bio;
     }
-
-    function openModal(id) {
-      if (id === 'modal-edit-profile') {
-        document.getElementById('input-fullname').value = document.getElementById('display-fullname').innerText;
-        document.getElementById('input-username').value = document.getElementById('display-username').innerText;
-        document.getElementById('input-bio').value = document.getElementById('display-bio').innerText;
-        document.getElementById('input-city').value = document.getElementById('display-city').innerText;
-      }
-      document.getElementById(id).classList.add('active');
-    }
-
-    function closeModal(id) {
-      document.getElementById(id).classList.remove('active');
-    }
-
-    function switchTab(tabName, btnElement) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-
-      document.getElementById(`tab-${tabName}`).classList.add('active');
-      if (btnElement) btnElement.classList.add('active');
-    }
-
-    function toggleFriendsSubTab(type, btn) {
-      document.querySelectorAll('.f-tab-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-
-      if (type === 'friends') {
-        document.getElementById('friends-list-container').style.display = 'flex';
-        document.getElementById('subs-list-container').style.display = 'none';
-      } else {
-        document.getElementById('friends-list-container').style.display = 'none';
-        document.getElementById('subs-list-container').style.display = 'flex';
-      }
-    }
-  </script>
+    document.getElementById(id).classList.add('active');
+  }
+  function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+</script>
 </body>
 </html>
