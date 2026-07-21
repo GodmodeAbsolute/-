@@ -72,16 +72,14 @@
     </div>
 
     <script>
-        // Автоочистка старого битого кеша
-        if (!localStorage.getItem('cache_fixed_v3')) {
+        if (!localStorage.getItem('cache_fixed_v4')) {
             localStorage.clear();
-            localStorage.setItem('cache_fixed_v3', 'true');
+            localStorage.setItem('cache_fixed_v4', 'true');
         }
 
-        const SUPABASE_URL = 'https://ТВОЙ_ПРОЕКТ.supabase.co';
-        const SUPABASE_ANON_KEY = 'ТВОЙ_ANON_KEY';
+        const SUPABASE_URL = 'https://byniblcezicrvyyqbafc.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_exBhK1ZwxY3uSoErm0jVFA_gR97KaAy';
         
-        // Защита сетевых запросов от невалидных символов в заголовках
         const safeFetch = (url, options = {}) => {
             if (options && options.headers) {
                 for (let key in options.headers) {
