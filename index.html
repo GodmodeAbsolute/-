@@ -327,7 +327,7 @@
       <input type="file" id="avatar-file" class="hidden" accept="image/*" onchange="uploadImg(event, 'avatar')">
 
       <div class="user-title">
-        <span id="disp-fullname" class="user-name">Загрузка...</span>
+        <span id="disp-fullname" class="user-name">...</span>
         <span id="disp-owner-badge" class="owner-tag hidden">OWNER</span>
         <span id="disp-verified" class="verified-icon hidden">✔</span>
       </div>
@@ -462,13 +462,19 @@
   function getDatabase() {
     let users = {};
     try {
-      users = JSON.parse(localStorage.getItem('godmode_users')) || {};
+      const stored = localStorage.getItem('godmode_users');
+      if (stored) users = JSON.parse(stored);
     } catch(e) {
+      console.error('Ошибка чтения базы:', e);
       users = {};
     }
+    
+    // Гарантируем наличие владельца
     if (!users['@absolute_godmode']) {
       users['@absolute_godmode'] = OWNER_ACCOUNT;
-      localStorage.setItem('godmode_users', JSON.stringify(users));
+      try {
+        localStorage.setItem('godmode_users', JSON.stringify(users));
+      } catch(e){}
     }
     return users;
   }
@@ -479,16 +485,18 @@
 
   function checkAuthSession() {
     const users = getDatabase();
-    const sessionNick = localStorage.getItem('godmode_session');
+    let sessionNick = null;
+    
+    try {
+      sessionNick = localStorage.getItem('godmode_session');
+    } catch(e) {}
 
-    // Проверяем, что в сессии лежит реальный существующий юзер
-    if (sessionNick && users[sessionNick] && users[sessionNick].fullname && users[sessionNick].fullname !== '...') {
+    // Проверяем валидность аккаунта
+    if (sessionNick && users[sessionNick] && users[sessionNick].fullname) {
       currentUser = users[sessionNick];
       closeModal('modal-auth');
       renderProfile();
     } else {
-      // Сбрасываем битую сессию, если были сохранены точки или кривые данные
-      localStorage.removeItem('godmode_session');
       openModal('modal-auth');
     }
   }
@@ -539,17 +547,27 @@
         posts: []
       };
       users[nick] = currentUser;
-      localStorage.setItem('godmode_users', JSON.stringify(users));
+      
+      try {
+        localStorage.setItem('godmode_users', JSON.stringify(users));
+      } catch(e) {
+        alert('Не удалось сохранить в память браузера.');
+      }
     }
 
-    // Фиксируем сессию
-    localStorage.setItem('godmode_session', nick);
+    // Сохраняем активную сессию
+    try {
+      localStorage.setItem('godmode_session', nick);
+    } catch(e){}
+
     closeModal('modal-auth');
     renderProfile();
   }
 
   function logout() {
-    localStorage.removeItem('godmode_session');
+    try {
+      localStorage.removeItem('godmode_session');
+    } catch(e){}
     currentUser = null;
     document.getElementById('auth-nick').value = '';
     document.getElementById('auth-pass').value = '';
@@ -560,7 +578,9 @@
     if (!currentUser || !currentUser.username) return;
     let users = getDatabase();
     users[currentUser.username] = currentUser;
-    localStorage.setItem('godmode_users', JSON.stringify(users));
+    try {
+      localStorage.setItem('godmode_users', JSON.stringify(users));
+    } catch(e){}
   }
 
   function renderProfile() {
