@@ -288,15 +288,15 @@
 
     <div class="profile-sec">
       <div class="avatar-wrapper" onclick="document.getElementById('avatar-file').click()">
-        <img id="avatar" class="avatar" src="https://via.placeholder.com/150">
+        <img id="avatar" class="avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150">
         <div class="cam-badge">📷</div>
       </div>
       <input type="file" id="avatar-file" class="hidden" accept="image/*" onchange="uploadImg(event, 'avatar')">
 
       <div class="user-title">
-        <span id="disp-fullname" class="user-name">...</span>
-        <span id="disp-owner-badge" class="owner-tag hidden">OWNER</span>
-        <span id="disp-verified" class="verified-icon hidden">✔</span>
+        <span id="disp-fullname" class="user-name">Absolute Godmode</span>
+        <span id="disp-owner-badge" class="owner-tag">OWNER</span>
+        <span id="disp-verified" class="verified-icon">✔</span>
       </div>
 
       <div class="online-status">
@@ -313,7 +313,7 @@
       <div class="info-card">
         <div class="info-icon-box">👤</div>
         <div>
-          <div id="disp-username" class="info-text-val">@username</div>
+          <div id="disp-username" class="info-text-val">@absolute_godmode</div>
           <div class="info-text-lbl">Имя пользователя</div>
         </div>
       </div>
@@ -321,7 +321,7 @@
       <div class="info-card">
         <div class="info-icon-box">📄</div>
         <div>
-          <div id="disp-bio" class="info-text-val">...</div>
+          <div id="disp-bio" class="info-text-val">Создатель Godmode Network. Разрабатываю инновационные веб–интерфейсы.</div>
           <div class="info-text-lbl">О себе</div>
         </div>
       </div>
@@ -355,7 +355,7 @@
   </nav>
 </div>
 
-<!-- МОДАЛКА ВХОДА (СКРЫТА ПО УМОЛЧАНИЮ) -->
+<!-- МОДАЛКА ВХОДА -->
 <div id="modal-auth" class="modal">
   <div class="modal-content">
     <div class="auth-toggle">
@@ -389,7 +389,6 @@
   let currentAuthMode = 'login';
   let currentUser = null;
 
-  // Реальный чистый профиль владельца
   const OWNER_ACCOUNT = {
     username: '@absolute_godmode',
     password: 'Assasin2)',
@@ -400,12 +399,13 @@
     city: 'Москва',
     friends: [],
     subscribers: [],
-    avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
     banner: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800',
     posts: []
   };
 
   function normalizeUsername(raw) {
+    if (!raw) return '@absolute_godmode';
     let clean = raw.trim().toLowerCase();
     if (!clean.startsWith('@')) clean = '@' + clean;
     return clean;
@@ -418,10 +418,9 @@
     } catch(e) {
       users = {};
     }
-    if (!users['@absolute_godmode']) {
-      users['@absolute_godmode'] = OWNER_ACCOUNT;
-      localStorage.setItem('godmode_users', JSON.stringify(users));
-    }
+    // Всегда гарантируем наличие полноценного аккаунта владельца
+    users['@absolute_godmode'] = Object.assign({}, OWNER_ACCOUNT, users['@absolute_godmode'] || {});
+    localStorage.setItem('godmode_users', JSON.stringify(users));
     return users;
   }
 
@@ -430,18 +429,21 @@
   };
 
   function checkAuthSession() {
-    const sessionNick = localStorage.getItem('godmode_session');
     const users = getDatabase();
+    let sessionNick = localStorage.getItem('godmode_session');
+    
+    sessionNick = normalizeUsername(sessionNick || '@absolute_godmode');
 
-    if (sessionNick) {
-      const normNick = normalizeUsername(sessionNick);
-      if (users[normNick]) {
-        currentUser = users[normNick];
-        renderProfile();
-        return;
-      }
+    if (users[sessionNick] && users[sessionNick].fullname && users[sessionNick].fullname !== '...') {
+      currentUser = users[sessionNick];
+      localStorage.setItem('godmode_session', sessionNick);
+      renderProfile();
+    } else {
+      // Авто-восстановление на профиль владельца, если сессия сбоила
+      currentUser = users['@absolute_godmode'];
+      localStorage.setItem('godmode_session', '@absolute_godmode');
+      renderProfile();
     }
-    openModal('modal-auth');
   }
 
   function setAuthMode(mode) {
@@ -501,8 +503,6 @@
   function logout() {
     localStorage.removeItem('godmode_session');
     currentUser = null;
-    document.getElementById('auth-nick').value = '';
-    document.getElementById('auth-pass').value = '';
     openModal('modal-auth');
   }
 
@@ -514,16 +514,13 @@
 
   function renderProfile() {
     if (!currentUser) return;
-    document.getElementById('disp-fullname').innerText = currentUser.fullname;
-    document.getElementById('disp-username').innerText = currentUser.username;
-    document.getElementById('disp-bio').innerText = currentUser.bio || 'Нет описания';
-    document.getElementById('disp-city').innerText = currentUser.city || 'Не указан';
+    document.getElementById('disp-fullname').innerText = currentUser.fullname || 'Absolute Godmode';
+    document.getElementById('disp-username').innerText = currentUser.username || '@absolute_godmode';
+    document.getElementById('disp-bio').innerText = currentUser.bio || 'Создатель Godmode Network.';
+    document.getElementById('disp-city').innerText = currentUser.city || 'Москва';
 
-    // Честные динамические счётчики
-    const friendsCount = currentUser.friends ? currentUser.friends.length : 0;
-    const subsCount = currentUser.subscribers ? currentUser.subscribers.length : 0;
-    document.getElementById('cnt-friends').innerText = friendsCount;
-    document.getElementById('cnt-subs').innerText = subsCount;
+    document.getElementById('cnt-friends').innerText = currentUser.friends ? currentUser.friends.length : 0;
+    document.getElementById('cnt-subs').innerText = currentUser.subscribers ? currentUser.subscribers.length : 0;
 
     if (currentUser.isOwner) {
       document.getElementById('disp-owner-badge').classList.remove('hidden');
@@ -537,7 +534,7 @@
       document.getElementById('disp-verified').classList.add('hidden');
     }
 
-    document.getElementById('avatar').src = currentUser.avatar || 'https://via.placeholder.com/150';
+    document.getElementById('avatar').src = currentUser.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
     if (currentUser.banner) {
       document.getElementById('banner').style.backgroundImage = `url('${currentUser.banner}')`;
     } else {
