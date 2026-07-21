@@ -13,9 +13,11 @@
       --badge-owner: linear-gradient(135deg, #e11d48, #9333ea);
       --text-main: #f8fafc;
       --text-muted: #64748b;
+      --transition-speed: 0.25s ease;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
       background-color: #05070c;
@@ -36,6 +38,16 @@
       border-right: 1px solid rgba(255, 255, 255, 0.05);
     }
 
+    /* Анимации появление закладок */
+    .tab-content {
+      animation: fadeIn var(--transition-speed);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     .tg-header {
       height: 60px;
       padding: 0 20px;
@@ -45,8 +57,8 @@
       border-bottom: 1px solid rgba(255, 255, 255, 0.05);
       position: sticky;
       top: 0;
-      background: rgba(11, 15, 25, 0.9);
-      backdrop-filter: blur(10px);
+      background: rgba(11, 15, 25, 0.85);
+      backdrop-filter: blur(12px);
       z-index: 10;
     }
 
@@ -54,7 +66,7 @@
       font-weight: 800;
       font-size: 18px;
       letter-spacing: 0.5px;
-      background: linear-gradient(135deg, #a855f7, #ec4899);
+      background: var(--accent-gradient);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
@@ -70,16 +82,25 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
+      transition: all var(--transition-speed);
+    }
+
+    .header-btn:active {
+      transform: scale(0.92);
+      background: rgba(255, 255, 255, 0.15);
     }
 
     .banner {
       width: 100%;
       height: 160px;
-      background: #1e293b;
+      background: linear-gradient(135deg, #1e1b4b, #311042);
       background-size: cover;
       background-position: center;
       cursor: pointer;
+      transition: filter var(--transition-speed);
     }
+
+    .banner:hover { filter: brightness(1.1); }
 
     .profile-sec { padding: 0 16px; position: relative; }
 
@@ -89,6 +110,7 @@
       height: 96px;
       margin-top: -48px;
       display: inline-block;
+      cursor: pointer;
     }
 
     .avatar {
@@ -98,6 +120,11 @@
       border: 4px solid var(--bg-main);
       object-fit: cover;
       background: #1e293b;
+      transition: transform var(--transition-speed);
+    }
+
+    .avatar-wrapper:active .avatar {
+      transform: scale(0.95);
     }
 
     .cam-badge {
@@ -114,7 +141,7 @@
       border: 2px solid var(--bg-main);
       color: #fff;
       font-size: 13px;
-      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(217, 70, 239, 0.4);
     }
 
     .user-title {
@@ -139,12 +166,10 @@
       padding: 3px 8px;
       border-radius: 6px;
       letter-spacing: 0.5px;
+      box-shadow: 0 2px 8px rgba(225, 29, 72, 0.4);
     }
 
-    .verified-icon {
-      color: #38bdf8;
-      font-size: 15px;
-    }
+    .verified-icon { color: #38bdf8; font-size: 15px; }
 
     .online-status {
       display: flex;
@@ -161,6 +186,7 @@
       height: 7px;
       background: #10b981;
       border-radius: 50%;
+      box-shadow: 0 0 8px #10b981;
     }
 
     .stats {
@@ -176,7 +202,14 @@
       border-radius: 14px;
       text-align: center;
       border: 1px solid rgba(255,255,255,0.03);
+      transition: transform var(--transition-speed), border-color var(--transition-speed);
     }
+
+    .stat-card:hover {
+      border-color: rgba(168, 85, 247, 0.3);
+      transform: translateY(-2px);
+    }
+
     .stat-num { font-size: 18px; font-weight: 800; color: #fff; }
     .stat-lbl { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
@@ -224,6 +257,11 @@
       margin-bottom: 10px;
       outline: none;
       font-family: inherit;
+      transition: border-color var(--transition-speed);
+    }
+
+    textarea:focus, input:focus {
+      border-color: #a855f7;
     }
 
     .btn-main {
@@ -235,8 +273,15 @@
       border-radius: 10px;
       font-weight: 700;
       cursor: pointer;
+      transition: opacity var(--transition-speed), transform var(--transition-speed);
     }
 
+    .btn-main:active {
+      transform: scale(0.98);
+      opacity: 0.9;
+    }
+
+    /* Навигация */
     .nav-bar {
       position: fixed;
       bottom: 0;
@@ -244,21 +289,53 @@
       max-width: 460px;
       height: 60px;
       background: rgba(11, 15, 25, 0.95);
-      backdrop-filter: blur(10px);
+      backdrop-filter: blur(12px);
       border-top: 1px solid rgba(255,255,255,0.05);
       display: flex;
       justify-content: space-around;
       align-items: center;
+      z-index: 20;
     }
-    .nav-item { color: var(--text-muted); background: none; border: none; cursor: pointer; font-size: 13px; font-weight: 600; }
-    .nav-item.active { color: #fff; font-weight: 800; }
 
+    .nav-item {
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      transition: color var(--transition-speed), transform var(--transition-speed);
+    }
+
+    .nav-item.active {
+      color: #a855f7;
+      font-weight: 800;
+    }
+
+    .nav-item:active { transform: scale(0.9); }
+
+    /* Модалки */
     .modal {
       position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(6px);
       display: none; align-items: center; justify-content: center; z-index: 100;
+      animation: fadeIn var(--transition-speed);
     }
     .modal.active { display: flex; }
-    .modal-content { background: #0f172a; padding: 22px; border-radius: 20px; width: 90%; max-width: 400px; border: 1px solid rgba(255,255,255,0.08); }
+    .modal-content {
+      background: #0f172a;
+      padding: 22px;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 400px;
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    }
+
     .hidden { display: none !important; }
 
     .auth-toggle { display: flex; gap: 8px; margin-bottom: 14px; }
@@ -266,8 +343,13 @@
       flex: 1; padding: 10px; background: rgba(255,255,255,0.04);
       border: 1px solid rgba(255,255,255,0.08); color: var(--text-muted);
       border-radius: 10px; cursor: pointer; font-weight: 600;
+      transition: all var(--transition-speed);
     }
-    .auth-toggle button.active { background: rgba(255,255,255,0.15); color: #fff; }
+    .auth-toggle button.active {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      border-color: #a855f7;
+    }
   </style>
 </head>
 <body>
@@ -276,27 +358,27 @@
   <header class="tg-header">
     <div class="tg-header-title">GODMODE NETWORK</div>
     <div style="display:flex; gap:8px;">
-      <button class="header-btn" onclick="openModal('modal-edit')">✏️</button>
-      <button class="header-btn" onclick="logout()">🚪</button>
+      <button class="header-btn" title="Редактировать" onclick="openModal('modal-edit')">✏️</button>
+      <button class="header-btn" title="Выйти" onclick="logout()">🚪</button>
     </div>
   </header>
 
-  <!-- ВКЛАДКА ПРОФИЛЬ -->
-  <div id="tab-profile">
+  <!-- ВКЛАДКА: ПРОФИЛЬ -->
+  <div id="tab-profile" class="tab-content">
     <div id="banner" class="banner" onclick="document.getElementById('banner-file').click()"></div>
     <input type="file" id="banner-file" class="hidden" accept="image/*" onchange="uploadImg(event, 'banner')">
 
     <div class="profile-sec">
       <div class="avatar-wrapper" onclick="document.getElementById('avatar-file').click()">
-        <img id="avatar" class="avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150">
+        <img id="avatar" class="avatar" src="">
         <div class="cam-badge">📷</div>
       </div>
       <input type="file" id="avatar-file" class="hidden" accept="image/*" onchange="uploadImg(event, 'avatar')">
 
       <div class="user-title">
-        <span id="disp-fullname" class="user-name">Absolute Godmode</span>
-        <span id="disp-owner-badge" class="owner-tag">OWNER</span>
-        <span id="disp-verified" class="verified-icon">✔</span>
+        <span id="disp-fullname" class="user-name">...</span>
+        <span id="disp-owner-badge" class="owner-tag hidden">OWNER</span>
+        <span id="disp-verified" class="verified-icon hidden">✔</span>
       </div>
 
       <div class="online-status">
@@ -309,11 +391,10 @@
         <div class="stat-card"><div id="cnt-posts" class="stat-num">0</div><div class="stat-lbl">Постов</div></div>
       </div>
 
-      <!-- ИНФО-ПЛАШКИ -->
       <div class="info-card">
         <div class="info-icon-box">👤</div>
         <div>
-          <div id="disp-username" class="info-text-val">@absolute_godmode</div>
+          <div id="disp-username" class="info-text-val">@...</div>
           <div class="info-text-lbl">Имя пользователя</div>
         </div>
       </div>
@@ -321,7 +402,7 @@
       <div class="info-card">
         <div class="info-icon-box">📄</div>
         <div>
-          <div id="disp-bio" class="info-text-val">Создатель Godmode Network. Разрабатываю инновационные веб–интерфейсы.</div>
+          <div id="disp-bio" class="info-text-val">...</div>
           <div class="info-text-lbl">О себе</div>
         </div>
       </div>
@@ -329,7 +410,7 @@
       <div class="info-card">
         <div class="info-icon-box">📍</div>
         <div>
-          <div id="disp-city" class="info-text-val">Москва</div>
+          <div id="disp-city" class="info-text-val">...</div>
           <div class="info-text-lbl">Город</div>
         </div>
       </div>
@@ -343,19 +424,34 @@
     <div id="posts-list"></div>
   </div>
 
-  <!-- ВКЛАДКА ДРУЗЬЯ -->
-  <div id="tab-friends" class="hidden" style="padding:20px;">
-    <h3>Список друзей</h3>
+  <!-- ВКЛАДКА: ДРУЗЬЯ -->
+  <div id="tab-friends" class="tab-content hidden" style="padding:20px;">
+    <h3>Друзья</h3>
     <p style="color:var(--text-muted); font-size:13px; margin-top:10px;">У вас пока нет добавленных друзей.</p>
   </div>
 
+  <!-- ВКЛАДКА: ЧАТЫ -->
+  <div id="tab-chats" class="tab-content hidden" style="padding:20px;">
+    <h3>Сообщения</h3>
+    <p style="color:var(--text-muted); font-size:13px; margin-top:10px;">Диалоги отсутствуют.</p>
+  </div>
+
+  <!-- ВКЛАДКА: НАСТРОЙКИ -->
+  <div id="tab-settings" class="tab-content hidden" style="padding:20px;">
+    <h3 style="margin-bottom:15px;">Настройки</h3>
+    <button class="btn-main" style="background:#e11d48;" onclick="logout()">Выйти из аккаунта</button>
+  </div>
+
+  <!-- НАВИГАЦИОННАЯ ПАНЕЛЬ -->
   <nav class="nav-bar">
-    <button class="nav-item active" onclick="switchTab('profile', this)">Профиль</button>
-    <button class="nav-item" onclick="switchTab('friends', this)">Друзья</button>
+    <button class="nav-item active" onclick="switchTab('profile', this)"><span>👤</span>Профиль</button>
+    <button class="nav-item" onclick="switchTab('friends', this)"><span>👥</span>Друзья</button>
+    <button class="nav-item" onclick="switchTab('chats', this)"><span>💬</span>Чаты</button>
+    <button class="nav-item" onclick="switchTab('settings', this)"><span>⚙️</span>Настройки</button>
   </nav>
 </div>
 
-<!-- МОДАЛКА ВХОДА -->
+<!-- МОДАЛКА ВХОДА И РЕГИСТРАЦИИ -->
 <div id="modal-auth" class="modal">
   <div class="modal-content">
     <div class="auth-toggle">
@@ -366,7 +462,7 @@
     <div id="reg-name-field" class="hidden">
       <input type="text" id="auth-name" placeholder="Имя и Фамилия">
     </div>
-    <input type="text" id="auth-nick" placeholder="Юзернейм (@absolute_godmode)">
+    <input type="text" id="auth-nick" placeholder="Юзернейм (@username)">
     <input type="password" id="auth-pass" placeholder="Пароль">
 
     <button class="btn-main" id="btn-auth-submit" onclick="handleAuth()">Войти</button>
@@ -386,6 +482,9 @@
 </div>
 
 <script>
+  // Гарантированный локальный дефолтный аватар (SVG Data URL)
+  const DEFAULT_AVATAR = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='%2364748b'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/></svg>";
+
   let currentAuthMode = 'login';
   let currentUser = null;
 
@@ -395,17 +494,17 @@
     fullname: 'Absolute Godmode',
     isOwner: true,
     isVerified: true,
-    bio: 'Создатель Godmode Network. Разрабатываю инновационные веб–интерфейсы.',
+    bio: 'Создатель Godmode Network.',
     city: 'Москва',
     friends: [],
     subscribers: [],
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-    banner: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800',
+    avatar: DEFAULT_AVATAR,
+    banner: '',
     posts: []
   };
 
   function normalizeUsername(raw) {
-    if (!raw) return '@absolute_godmode';
+    if (!raw) return '';
     let clean = raw.trim().toLowerCase();
     if (!clean.startsWith('@')) clean = '@' + clean;
     return clean;
@@ -418,9 +517,10 @@
     } catch(e) {
       users = {};
     }
-    // Всегда гарантируем наличие полноценного аккаунта владельца
-    users['@absolute_godmode'] = Object.assign({}, OWNER_ACCOUNT, users['@absolute_godmode'] || {});
-    localStorage.setItem('godmode_users', JSON.stringify(users));
+    if (!users['@absolute_godmode']) {
+      users['@absolute_godmode'] = OWNER_ACCOUNT;
+      localStorage.setItem('godmode_users', JSON.stringify(users));
+    }
     return users;
   }
 
@@ -430,19 +530,14 @@
 
   function checkAuthSession() {
     const users = getDatabase();
-    let sessionNick = localStorage.getItem('godmode_session');
-    
-    sessionNick = normalizeUsername(sessionNick || '@absolute_godmode');
+    const sessionNick = localStorage.getItem('godmode_session');
 
-    if (users[sessionNick] && users[sessionNick].fullname && users[sessionNick].fullname !== '...') {
+    if (sessionNick && users[sessionNick]) {
       currentUser = users[sessionNick];
-      localStorage.setItem('godmode_session', sessionNick);
+      closeModal('modal-auth');
       renderProfile();
     } else {
-      // Авто-восстановление на профиль владельца, если сессия сбоила
-      currentUser = users['@absolute_godmode'];
-      localStorage.setItem('godmode_session', '@absolute_godmode');
-      renderProfile();
+      openModal('modal-auth');
     }
   }
 
@@ -477,17 +572,17 @@
     } else {
       const name = document.getElementById('auth-name').value.trim();
       if (!name) return alert('Введите имя!');
-      if (users[nick]) return alert('Имя пользователя уже занято!');
+      if (users[nick]) return alert('Этот юзернейм уже занят!');
 
       currentUser = {
         username: nick,
         password: pass,
         fullname: name,
-        bio: 'Новый пользователь',
-        city: 'Не указан',
+        bio: 'Пользователь Godmode Network',
+        city: 'Москва',
         friends: [],
         subscribers: [],
-        avatar: 'https://via.placeholder.com/150',
+        avatar: DEFAULT_AVATAR,
         banner: '',
         posts: []
       };
@@ -503,6 +598,8 @@
   function logout() {
     localStorage.removeItem('godmode_session');
     currentUser = null;
+    document.getElementById('auth-nick').value = '';
+    document.getElementById('auth-pass').value = '';
     openModal('modal-auth');
   }
 
@@ -514,10 +611,11 @@
 
   function renderProfile() {
     if (!currentUser) return;
-    document.getElementById('disp-fullname').innerText = currentUser.fullname || 'Absolute Godmode';
-    document.getElementById('disp-username').innerText = currentUser.username || '@absolute_godmode';
-    document.getElementById('disp-bio').innerText = currentUser.bio || 'Создатель Godmode Network.';
-    document.getElementById('disp-city').innerText = currentUser.city || 'Москва';
+
+    document.getElementById('disp-fullname').innerText = currentUser.fullname || 'Без имени';
+    document.getElementById('disp-username').innerText = currentUser.username || '@username';
+    document.getElementById('disp-bio').innerText = currentUser.bio || 'Нет описания';
+    document.getElementById('disp-city').innerText = currentUser.city || 'Не указан';
 
     document.getElementById('cnt-friends').innerText = currentUser.friends ? currentUser.friends.length : 0;
     document.getElementById('cnt-subs').innerText = currentUser.subscribers ? currentUser.subscribers.length : 0;
@@ -534,7 +632,8 @@
       document.getElementById('disp-verified').classList.add('hidden');
     }
 
-    document.getElementById('avatar').src = currentUser.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
+    document.getElementById('avatar').src = currentUser.avatar || DEFAULT_AVATAR;
+    
     if (currentUser.banner) {
       document.getElementById('banner').style.backgroundImage = `url('${currentUser.banner}')`;
     } else {
@@ -602,24 +701,23 @@
   function switchTab(tab, btn) {
     document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    if (tab === 'profile') {
-      document.getElementById('tab-profile').classList.remove('hidden');
-      document.getElementById('tab-friends').classList.add('hidden');
-    } else {
-      document.getElementById('tab-profile').classList.add('hidden');
-      document.getElementById('tab-friends').classList.remove('hidden');
-    }
+
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+    document.getElementById(`tab-${tab}`).classList.remove('hidden');
   }
 
   function openModal(id) {
-    if (id === 'modal-edit') {
-      document.getElementById('edit-fullname').value = currentUser.fullname;
-      document.getElementById('edit-bio').value = currentUser.bio;
-      document.getElementById('edit-city').value = currentUser.city || 'Москва';
+    if (id === 'modal-edit' && currentUser) {
+      document.getElementById('edit-fullname').value = currentUser.fullname || '';
+      document.getElementById('edit-bio').value = currentUser.bio || '';
+      document.getElementById('edit-city').value = currentUser.city || '';
     }
     document.getElementById(id).classList.add('active');
   }
-  function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('active');
+  }
 </script>
 </body>
 </html>
