@@ -241,7 +241,7 @@
     <div id="reg-name-field" class="hidden">
       <input type="text" id="auth-name" placeholder="Имя и Фамилия">
     </div>
-    <input type="text" id="auth-nick" placeholder="Юзернейм (например @absolute_godmode)">
+    <input type="text" id="auth-nick" placeholder="Юзернейм (@absolute_godmode)">
     <input type="password" id="auth-pass" placeholder="Пароль">
 
     <button class="btn-main" id="btn-auth-submit" onclick="handleAuth()">Войти</button>
@@ -263,7 +263,6 @@
   let currentAuthMode = 'login';
   let currentUser = null;
 
-  // Базовый профиль Владельца
   const OWNER_ACCOUNT = {
     username: '@absolute_godmode',
     password: 'Assasin2)',
@@ -274,26 +273,38 @@
     posts: []
   };
 
-  window.onload = () => {
-    initDatabase();
-    checkAuthSession();
-  };
+  // Нормализация юзернейма: убираем пробелы, переводим в нижний регистр, гарантируем '@'
+  function normalizeUsername(raw) {
+    let clean = raw.trim().toLowerCase();
+    if (!clean.startsWith('@')) clean = '@' + clean;
+    return clean;
+  }
 
-  function initDatabase() {
-    let users = JSON.parse(localStorage.getItem('godmode_users') || '{}');
-    // Всегда гаррантируем наличие профиля владельца в базе
+  function getDatabase() {
+    let users = {};
+    try {
+      users = JSON.parse(localStorage.getItem('godmode_users')) || {};
+    } catch(e) {
+      users = {};
+    }
     if (!users['@absolute_godmode']) {
       users['@absolute_godmode'] = OWNER_ACCOUNT;
       localStorage.setItem('godmode_users', JSON.stringify(users));
     }
+    return users;
   }
+
+  window.onload = () => {
+    checkAuthSession();
+  };
 
   function checkAuthSession() {
     const sessionNick = localStorage.getItem('godmode_session');
     if (sessionNick) {
-      const users = JSON.parse(localStorage.getItem('godmode_users') || '{}');
-      if (users[sessionNick]) {
-        currentUser = users[sessionNick];
+      const users = getDatabase();
+      const normNick = normalizeUsername(sessionNick);
+      if (users[normNick]) {
+        currentUser = users[normNick];
         closeModal('modal-auth');
         renderProfile();
         return;
@@ -318,13 +329,19 @@
   }
 
   function handleAuth() {
-    let nick = document.getElementById('auth-nick').value.trim();
+    const rawNick = document.getElementById('auth-nick').value;
     const pass = document.getElementById('auth-pass').value.trim();
 
-    if (!nick || !pass) return alert('Заполните все поля!');
-    if (!nick.startsWith('@')) nick = '@' + nick;
+    if (!rawNick || !pass) return alert('Заполните все поля!');
 
-    let users = JSON.parse(localStorage.getItem('godmode_users') || '{}');
+    const nick = normalizeUsername(rawNick);
+    let users = getDatabase();
+
+    // Авто-создание аккаунта владельца, если его стирало из браузера
+    if (nick === '@absolute_godmode' && !users['@absolute_godmode']) {
+      users['@absolute_godmode'] = OWNER_ACCOUNT;
+      localStorage.setItem('godmode_users', JSON.stringify(users));
+    }
 
     if (currentAuthMode === 'login') {
       if (!users[nick]) {
@@ -366,7 +383,7 @@
   }
 
   function saveUserData() {
-    let users = JSON.parse(localStorage.getItem('godmode_users') || '{}');
+    let users = getDatabase();
     users[currentUser.username] = currentUser;
     localStorage.setItem('godmode_users', JSON.stringify(users));
   }
