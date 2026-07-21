@@ -1,12 +1,22 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Godmode Network</title>
+  
+  <!-- PWA мета-теги -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Godmode">
+  <link rel="apple-touch-icon" href="https://img.icons8.com/fluency/192/domain.png">
+
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <!-- Подключаем Supabase SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
   <style>
     :root {
       --bg-main: #0b0f19;
@@ -18,7 +28,7 @@
       --transition-speed: 0.25s ease;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
     
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
@@ -316,7 +326,6 @@
     </div>
   </header>
 
-  <!-- ВКЛАДКА: ПРОФИЛЬ -->
   <div id="tab-profile" class="tab-content">
     <div id="banner" class="banner" onclick="document.getElementById('banner-file').click()"></div>
     <input type="file" id="banner-file" class="hidden" accept="image/*" onchange="uploadImg(event, 'banner')">
@@ -377,19 +386,16 @@
     <div id="posts-list"></div>
   </div>
 
-  <!-- ВКЛАДКА: ДРУЗЬЯ -->
   <div id="tab-friends" class="tab-content hidden" style="padding:20px;">
     <h3>Друзья</h3>
     <p style="color:var(--text-muted); font-size:13px; margin-top:10px;">У вас пока нет добавленных друзей.</p>
   </div>
 
-  <!-- ВКЛАДКА: ЧАТЫ -->
   <div id="tab-chats" class="tab-content hidden" style="padding:20px;">
     <h3>Сообщения</h3>
     <p style="color:var(--text-muted); font-size:13px; margin-top:10px;">Диалоги отсутствуют.</p>
   </div>
 
-  <!-- ВКЛАДКА: НАСТРОЙКИ -->
   <div id="tab-settings" class="tab-content hidden" style="padding:20px;">
     <h3 style="margin-bottom:15px;">Настройки</h3>
     <button class="btn-main" style="background:#e11d48;" onclick="logout()">Выйти из аккаунта</button>
@@ -403,7 +409,6 @@
   </nav>
 </div>
 
-<!-- МОДАЛКА ВХОДА И РЕГИСТРАЦИИ -->
 <div id="modal-auth" class="modal">
   <div class="modal-content">
     <div class="auth-toggle">
@@ -421,7 +426,6 @@
   </div>
 </div>
 
-<!-- МОДАЛКА РЕДАКТИРОВАНИЯ -->
 <div id="modal-edit" class="modal">
   <div class="modal-content">
     <h3 style="margin-bottom:12px;">Редактировать профиль</h3>
@@ -434,7 +438,6 @@
 </div>
 
 <script>
-  // ЗАМЕНИТЬ НА СВОИ ДАННЫЕ SUPABASE
   const SUPABASE_URL = 'ТВОЙ_SUPABASE_URL';
   const SUPABASE_KEY = 'ТВОЙ_SUPABASE_ANON_KEY';
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -452,7 +455,6 @@
   }
 
   window.onload = async () => {
-    // Проверяем сессию через localStorage токен владельца логина
     const savedNick = localStorage.getItem('godmode_active_nick');
     if (savedNick) {
       await fetchUserFromSupabase(savedNick);
@@ -515,7 +517,6 @@
       const name = document.getElementById('auth-name').value.trim();
       if (!name) return alert('Введите имя!');
 
-      // Проверяем нет ли уже такого
       const { data: existing } = await supabaseClient
         .from('profiles')
         .select('username')
@@ -564,7 +565,7 @@
     if (!currentUser || !currentUser.username) return;
     await supabaseClient
       .from('profiles')
-      update({
+      .update({
         fullname: currentUser.fullname,
         bio: currentUser.bio,
         city: currentUser.city,
@@ -681,9 +682,7 @@
     document.getElementById(id).classList.add('active');
   }
 
-  function closeModal(id) {
-    document.getElementById(id).classList.remove('active');
-  }
+  closeModal = (id) => document.getElementById(id).classList.remove('active');
 </script>
 </body>
 </html>
