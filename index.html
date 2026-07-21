@@ -1,279 +1,52 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>InnoSphere</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Supabase</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, sans-serif;
-            background: #f0f2f5;
-            color: #1e293b;
-            display: flex;
-            justify-content: center;
-            min-height: 100vh;
-        }
-        .app {
-            width: 100%;
-            max-width: 480px;
-            min-height: 100vh;
-            background: #f0f2f5;
-            display: flex;
-            flex-direction: column;
-        }
-        .screen {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 20px;
-            gap: 16px;
-        }
-        .logo {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: #4f46e5;
-        }
-        input {
-            width: 100%;
-            padding: 16px;
-            border-radius: 14px;
-            border: 2px solid #e2e8f0;
-            font-size: 1rem;
-            background: white;
-        }
-        button {
-            width: 100%;
-            padding: 16px;
-            border-radius: 14px;
-            background: #4f46e5;
-            color: white;
-            font-weight: 700;
-            font-size: 1.1rem;
-            border: none;
-            cursor: pointer;
-        }
-        button:active { opacity: 0.8; }
-        .error {
-            background: #fef2f2;
-            border: 2px solid #ef4444;
-            border-radius: 14px;
-            padding: 16px;
-            color: #dc2626;
-            width: 100%;
-        }
-        .header {
-            background: white;
-            padding: 14px 16px;
-            font-weight: 800;
-            font-size: 1.3rem;
-            color: #4f46e5;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        .content {
-            flex: 1;
-            padding: 12px;
-            overflow-y: auto;
-        }
-        .card {
-            background: white;
-            border-radius: 14px;
-            padding: 16px;
-            margin-bottom: 12px;
-            border: 1px solid #e2e8f0;
-        }
-        .nav {
-            background: white;
-            border-top: 1px solid #e2e8f0;
-            display: flex;
-            justify-content: space-around;
-            padding: 8px 4px 12px;
-        }
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            cursor: pointer;
-            color: #64748b;
-            font-size: 0.7rem;
-            font-weight: 500;
-        }
-        .nav-item i { font-size: 1.3rem; }
-        .nav-item.active { color: #4f46e5; }
-        textarea {
-            width: 100%;
-            padding: 12px;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
-            font-family: inherit;
-            font-size: 0.9rem;
-            resize: vertical;
-        }
-    </style>
 </head>
-<body>
-    <div class="app" id="app"></div>
+<body style="font-family:sans-serif; padding:20px;">
+    <h2>Тест Supabase</h2>
+    <div id="result"></div>
 
     <script>
         const SUPABASE_URL = 'https://byniblcezicrvyyqbafc.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_exBhK1ZwxY3uSoErm0jVFA_gR97KaAy';
-        const OWNER_EMAIL = 'ilyabelyev344@gmail.com';
 
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        let user = null;
+        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const result = document.getElementById('result');
 
-        function showLogin(errorMsg) {
-            let html = '<div class="screen">';
-            html += '<div class="logo"><i class="fas fa-cube"></i> InnoSphere</div>';
-            if (errorMsg) html += `<div class="error">${errorMsg}</div>`;
-            html += `<input id="email" type="email" placeholder="Email" value="${OWNER_EMAIL}">`;
-            html += '<input id="pass" type="password" placeholder="Пароль" value="Assasin2)">';
-            html += '<button onclick="doLogin()">Войти</button>';
-            html += '<button onclick="showRegister()" style="background:#f1f5f9; color:#1e293b;">Регистрация</button>';
-            html += '</div>';
-            document.getElementById('app').innerHTML = html;
-        }
+        async function test() {
+            result.innerHTML = 'Тестируем...';
 
-        function showRegister(errorMsg) {
-            let html = '<div class="screen">';
-            html += '<div class="logo"><i class="fas fa-cube"></i> InnoSphere</div>';
-            if (errorMsg) html += `<div class="error">${errorMsg}</div>`;
-            html += '<input id="regName" placeholder="Полное имя" value="Основатель">';
-            html += '<input id="regUser" placeholder="Юзернейм" value="owner">';
-            html += `<input id="regEmail" type="email" placeholder="Email" value="${OWNER_EMAIL}">`;
-            html += '<input id="regPass" type="password" placeholder="Пароль" value="Assasin2)">';
-            html += '<button onclick="doRegister()">Зарегистрироваться</button>';
-            html += '<button onclick="showLogin()" style="background:#f1f5f9; color:#1e293b;">Войти</button>';
-            html += '</div>';
-            document.getElementById('app').innerHTML = html;
-        }
+            // Тест 1: таблица users
+            const { data: users, error: err1 } = await sb.from('users').select('*').limit(1);
+            result.innerHTML += err1
+                ? `<p style="color:red;">❌ Users: ${err1.message}</p>`
+                : `<p style="color:green;">✅ Users: OK (${users.length} записей)</p>`;
 
-        async function doLogin() {
-            const email = document.getElementById('email').value.trim();
-            const pass = document.getElementById('pass').value;
-            if (!email || !pass) return showLogin('Заполните все поля');
+            // Тест 2: авторизация
+            const { data: auth, error: err2 } = await sb.auth.getSession();
+            result.innerHTML += err2
+                ? `<p style="color:red;">❌ Auth: ${err2.message}</p>`
+                : `<p style="color:green;">✅ Auth: OK (сессия: ${auth.session ? 'есть' : 'нет'})</p>`;
 
-            const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
-            if (error) return showLogin('Ошибка: ' + error.message);
-            if (!data.user) return showLogin('Пользователь не найден');
-
-            user = data.user;
-            await loadProfile();
-            showFeed();
-        }
-
-        async function doRegister() {
-            const name = document.getElementById('regName').value.trim();
-            const username = document.getElementById('regUser').value.trim();
-            const email = document.getElementById('regEmail').value.trim();
-            const pass = document.getElementById('regPass').value;
-
-            if (!name || !username || !email || !pass) return showRegister('Заполните все поля');
-            if (pass.length < 6) return showRegister('Пароль минимум 6 символов');
-
-            const { data, error } = await supabase.auth.signUp({ email, password: pass });
-            if (error) {
-                if (error.message.includes('already')) return showLogin('Уже зарегистрирован. Войдите.');
-                return showRegister('Ошибка: ' + error.message);
-            }
-            if (!data.user) return showRegister('Не удалось создать');
-
-            const isOwner = (email === OWNER_EMAIL);
-            await supabase.from('users').insert({
-                id: data.user.id, email, username, full_name: name,
-                is_owner: isOwner, verified: isOwner
+            // Тест 3: регистрация
+            const testEmail = 'test' + Date.now() + '@test.com';
+            const { data: signup, error: err3 } = await sb.auth.signUp({
+                email: testEmail,
+                password: 'test123456'
             });
-            await supabase.from('user_settings').insert({ user_id: data.user.id });
+            result.innerHTML += err3
+                ? `<p style="color:red;">❌ SignUp: ${err3.message}</p>`
+                : `<p style="color:green;">✅ SignUp: OK (${signup.user?.id || 'no user'})</p>`;
 
-            user = data.user;
-            user.profile = { id: data.user.id, email, username, full_name: name, is_owner: isOwner, verified: isOwner };
-            showFeed();
+            result.innerHTML += '<hr><p><b>Если всё зелёное — Supabase работает. Проблема в коде приложения.</b></p>';
+            result.innerHTML += '<p><b>Если есть красное — проблема в настройках Supabase.</b></p>';
         }
 
-        async function loadProfile() {
-            const { data } = await supabase.from('users').select('*').eq('id', user.id).single();
-            if (data) user.profile = data;
-        }
-
-        function showFeed() {
-            let html = '<div class="header"><i class="fas fa-cube"></i> InnoSphere</div>';
-            html += '<div class="content" id="feedContent">Загрузка...</div>';
-            html += '<div class="nav">';
-            html += '<div class="nav-item active" onclick="loadFeed()"><i class="fas fa-newspaper"></i> Лента</div>';
-            html += '<div class="nav-item" onclick="showProfile()"><i class="fas fa-user"></i> Профиль</div>';
-            html += '<div class="nav-item" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> Выйти</div>';
-            html += '</div>';
-            document.getElementById('app').innerHTML = html;
-            loadFeed();
-        }
-
-        async function loadFeed() {
-            const { data: posts } = await supabase.from('posts').select('*, users(*)').order('created_at', { ascending: false }).limit(20);
-            let html = `
-            <div class="card">
-                <textarea id="postText" placeholder="Что у вас нового?" rows="3"></textarea>
-                <button onclick="createPost()" style="margin-top:8px;">Опубликовать</button>
-            </div>`;
-
-            if (posts && posts.length > 0) {
-                posts.forEach(p => {
-                    html += `
-                    <div class="card">
-                        <strong>${p.users?.full_name || 'Пользователь'}</strong>
-                        ${p.users?.verified ? '<span style="color:#3b82f6;"> ✓</span>' : ''}
-                        ${p.users?.is_owner ? '<span style="color:#f59e0b;"> 👑</span>' : ''}
-                        <p style="margin-top:8px; white-space:pre-wrap;">${p.text || ''}</p>
-                        <p style="font-size:0.75rem; color:#64748b; margin-top:4px;">❤️ ${p.likes_count || 0} | 💬 ${p.comments_count || 0}</p>
-                    </div>`;
-                });
-            } else {
-                html += '<div class="card"><p style="text-align:center; color:#64748b;">Нет постов. Создайте первый!</p></div>';
-            }
-
-            document.getElementById('feedContent').innerHTML = html;
-        }
-
-        async function createPost() {
-            const text = document.getElementById('postText')?.value.trim();
-            if (!text) return alert('Напишите текст');
-            const { error } = await supabase.from('posts').insert({ user_id: user.id, text });
-            if (error) return alert('Ошибка: ' + error.message);
-            loadFeed();
-        }
-
-        function showProfile() {
-            const p = user.profile || {};
-            document.getElementById('feedContent').innerHTML = `
-            <div class="card" style="text-align:center;">
-                <h2>${p.full_name || 'Пользователь'}</h2>
-                <p style="color:#64748b;">@${p.username || ''}</p>
-                ${p.is_owner ? '<p style="color:#f59e0b;">👑 Владелец</p>' : ''}
-                ${p.verified ? '<p style="color:#3b82f6;">✓ Верифицирован</p>' : ''}
-            </div>`;
-        }
-
-        async function doLogout() {
-            await supabase.auth.signOut();
-            user = null;
-            showLogin();
-        }
-
-        // Проверка сессии при запуске
-        (async () => {
-            const { data } = await supabase.auth.getSession();
-            if (data.session) {
-                user = data.session.user;
-                await loadProfile();
-                showFeed();
-            } else {
-                showLogin();
-            }
-        })();
+        test();
     </script>
 </body>
 </html>
