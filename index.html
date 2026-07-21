@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root { --bg:#f5f5f5; --surface:#fff; --surface2:#f8f9fa; --primary:#6366f1; --primary-soft:#eef2ff; --text:#1a1a1a; --text-secondary:#6b7280; --text-tertiary:#9ca3af; --border:#e5e7eb; --danger:#ef4444; --success:#10b981; --warning:#f59e0b; --radius-sm:10px; --radius:16px; --radius-lg:20px; --shadow-sm:0 1px 2px rgba(0,0,0,0.04); --shadow:0 1px 3px rgba(0,0,0,0.06); --shadow-lg:0 8px 24px rgba(0,0,0,0.08); --transition:0.2s ease; }
+        :root { --bg:#f5f5f5; --surface:#fff; --surface2:#f8f9fa; --primary:#6366f1; --primary-soft:#eef2ff; --text:#1a1a1a; --text-secondary:#6b7280; --text-tertiary:#9ca3af; --border:#e5e7eb; --danger:#ef4444; --success:#10b981; --warning:#f59e0b; --radius-sm:10px; --radius:16px; --radius-lg:20px; --shadow-sm:0 1px 2px rgba(0,0,0,0.04); --shadow:0 1px 3px rgba(0,0,0,0.06); --shadow-lg:0 8px 24px rgba(0,0,0,0.08); }
         .dark { --bg:#0f0f0f; --surface:#1a1a1a; --surface2:#222; --primary:#818cf8; --primary-soft:#1e1b4b; --text:#f1f1f1; --text-secondary:#a1a1aa; --text-tertiary:#71717a; --border:#27272a; }
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,sans-serif; background:var(--bg); color:var(--text); display:flex; justify-content:center; min-height:100vh; min-height:100dvh; -webkit-tap-highlight-color:transparent; -webkit-font-smoothing:antialiased; transition:background 0.3s,color 0.3s; }
@@ -16,9 +16,9 @@
         .screen-center { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; padding:24px; gap:14px; }
         .logo-icon { width:80px; height:80px; border-radius:22px; background:linear-gradient(135deg,#6366f1,#8b5cf6); display:flex; align-items:center; justify-content:center; box-shadow:0 8px 32px rgba(99,102,241,0.35); font-size:2.5rem; }
         .logo-text { font-size:2rem; font-weight:800; background:linear-gradient(135deg,#6366f1,#8b5cf6); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-        input,textarea { width:100%; padding:14px 16px; border-radius:var(--radius); border:1.5px solid var(--border); font-size:1rem; background:var(--surface); color:var(--text); font-family:inherit; transition:var(--transition); outline:none; }
+        input,textarea { width:100%; padding:14px 16px; border-radius:var(--radius); border:1.5px solid var(--border); font-size:1rem; background:var(--surface); color:var(--text); font-family:inherit; transition:0.2s; outline:none; }
         input:focus,textarea:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(99,102,241,0.15); }
-        button { padding:14px 20px; border-radius:var(--radius); background:var(--primary); color:#fff; font-weight:600; font-size:1rem; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:8px; justify-content:center; transition:all 0.15s; font-family:inherit; -webkit-tap-highlight-color:transparent; touch-action:manipulation; min-height:50px; }
+        button { padding:14px 20px; border-radius:var(--radius); background:var(--primary); color:#fff; font-weight:600; font-size:1rem; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:8px; justify-content:center; font-family:inherit; -webkit-tap-highlight-color:transparent; touch-action:manipulation; min-height:50px; }
         button:active { transform:scale(0.96); opacity:0.9; }
         button.secondary { background:var(--surface2); color:var(--text); border:1.5px solid var(--border); }
         button.ghost { background:transparent; color:var(--primary); padding:8px; min-height:auto; }
@@ -35,7 +35,7 @@
         .post-avatar { width:42px; height:42px; border-radius:50%; background:linear-gradient(135deg,#6366f1,#8b5cf6); display:flex; align-items:center; justify-content:center; font-size:1rem; color:#fff; flex-shrink:0; font-weight:600; overflow:hidden; }
         .post-avatar img { width:100%; height:100%; object-fit:cover; }
         .post-actions { display:flex; gap:24px; margin-top:12px; color:var(--text-secondary); font-size:0.9rem; }
-        .post-actions span { cursor:pointer; display:flex; align-items:center; gap:5px; padding:4px 8px; border-radius:20px; transition:var(--transition); }
+        .post-actions span { cursor:pointer; display:flex; align-items:center; gap:5px; padding:4px 8px; border-radius:20px; }
         .post-actions span:active { background:var(--primary-soft); color:var(--primary); }
         .comment-box { margin-top:12px; padding-top:12px; border-top:1px solid var(--border); }
         .comment { display:flex; gap:8px; margin-bottom:8px; font-size:0.9rem; align-items:flex-start; }
@@ -59,22 +59,21 @@
         .emoji-picker span { font-size:1.5rem; cursor:pointer; padding:6px; text-align:center; border-radius:8px; }
         .emoji-picker span:active { background:var(--primary-soft); transform:scale(1.2); }
         .bottom-nav { position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:480px; background:var(--surface); border-top:1px solid var(--border); display:flex; justify-content:space-around; padding:6px 4px max(10px,env(safe-area-inset-bottom)); z-index:100; }
-        .nav-item { display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; color:var(--text-tertiary); font-size:0.65rem; font-weight:500; padding:8px 12px; border-radius:12px; transition:var(--transition); touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
-        .nav-item i { font-size:1.4rem; transition:var(--transition); }
+        .nav-item { display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; color:var(--text-tertiary); font-size:0.65rem; font-weight:500; padding:10px 14px; border-radius:12px; transition:0.15s; touch-action:manipulation; -webkit-tap-highlight-color:transparent; border:none; background:none; font-family:inherit; }
+        .nav-item i { font-size:1.4rem; pointer-events:none; }
         .nav-item.active { color:var(--primary); }
         .badge-crown { color:#f59e0b; } .badge-verify { color:#6366f1; }
         .badge { display:inline-block; padding:3px 10px; border-radius:12px; font-size:0.7rem; font-weight:600; }
         .badge-pending { background:#fef3c7; color:#92400e; } .badge-approved { background:#d1fae5; color:#065f46; } .badge-rejected { background:#fee2e2; color:#991b1b; }
         .toast { position:fixed; bottom:120px; left:50%; transform:translateX(-50%); background:#1a1a1a; color:#fff; padding:12px 24px; border-radius:24px; font-size:0.85rem; font-weight:500; z-index:300; display:none; box-shadow:var(--shadow-lg); }
-        @keyframes toastIn { from{opacity:0;transform:translateX(-50%) translateY(10px);} to{opacity:1;transform:translateX(-50%) translateY(0);} }
         .dark .toast { background:#f1f1f1; color:#1a1a1a; }
         .link-text { color:var(--primary); cursor:pointer; font-weight:600; }
         .user-row { display:flex; align-items:center; gap:12px; justify-content:space-between; }
         .settings-item { display:flex; align-items:center; justify-content:space-between; padding:16px; cursor:pointer; }
         .settings-item:active { background:var(--primary-soft); border-radius:var(--radius-sm); }
-        .toggle-switch { width:48px; height:28px; background:var(--border); border-radius:14px; position:relative; cursor:pointer; transition:var(--transition); flex-shrink:0; }
+        .toggle-switch { width:48px; height:28px; background:var(--border); border-radius:14px; position:relative; cursor:pointer; transition:0.2s; flex-shrink:0; }
         .toggle-switch.active { background:var(--primary); }
-        .toggle-switch::after { content:''; position:absolute; top:3px; left:3px; width:22px; height:22px; background:#fff; border-radius:50%; transition:var(--transition); box-shadow:var(--shadow-sm); }
+        .toggle-switch::after { content:''; position:absolute; top:3px; left:3px; width:22px; height:22px; background:#fff; border-radius:50%; transition:0.2s; box-shadow:var(--shadow-sm); }
         .toggle-switch.active::after { left:23px; }
         .profile-banner { width:100%; height:140px; object-fit:cover; border-radius:var(--radius-lg) var(--radius-lg) 0 0; background:linear-gradient(135deg,#6366f1,#8b5cf6,#a5b4fc); cursor:pointer; }
         .profile-avatar-lg { width:84px; height:84px; border-radius:50%; border:4px solid var(--surface); object-fit:cover; margin-top:-42px; position:relative; z-index:2; background:linear-gradient(135deg,#6366f1,#8b5cf6); display:flex; align-items:center; justify-content:center; font-size:1.8rem; color:#fff; font-weight:700; overflow:hidden; }
@@ -160,16 +159,21 @@
             let h = '<div class="header"><div class="header-logo">💠 Godmode</div>';
             if (currentUser.profile?.is_owner) h += '<i class="fas fa-crown badge-crown" style="font-size:1.1rem;"></i>';
             h += '</div><div class="content" id="mainContent"></div><div class="bottom-nav" id="bottomNav">';
-            h += '<div class="nav-item active" data-page="feed"><i class="fas fa-house"></i>Лента</div>';
-            h += '<div class="nav-item" data-page="friends"><i class="fas fa-users"></i>Друзья</div>';
-            h += '<div class="nav-item" data-page="chats"><i class="fas fa-message"></i>Чаты</div>';
-            h += '<div class="nav-item" data-page="profile"><i class="fas fa-circle-user"></i>Профиль</div>';
-            h += '<div class="nav-item" data-page="settings"><i class="fas fa-grid-2"></i>Ещё</div>';
+            h += '<button class="nav-item active" data-page="feed"><i class="fas fa-house"></i>Лента</button>';
+            h += '<button class="nav-item" data-page="friends"><i class="fas fa-users"></i>Друзья</button>';
+            h += '<button class="nav-item" data-page="chats"><i class="fas fa-message"></i>Чаты</button>';
+            h += '<button class="nav-item" data-page="profile"><i class="fas fa-circle-user"></i>Профиль</button>';
+            h += '<button class="nav-item" data-page="settings"><i class="fas fa-grid-2"></i>Ещё</button>';
             h += '</div>';
             document.getElementById('app').innerHTML = h;
-            document.querySelectorAll('#bottomNav .nav-item').forEach(item => {
-                item.onclick = function() { nav(this.dataset.page); };
+
+            // Кнопки навигации через event delegation
+            document.getElementById('bottomNav').addEventListener('click', function(e) {
+                const btn = e.target.closest('.nav-item');
+                if (!btn) return;
+                nav(btn.dataset.page);
             });
+
             nav('feed');
         }
 
@@ -204,13 +208,25 @@
             } else h += '<div class="card"><p style="text-align:center;color:var(--text-tertiary);">Нет постов. Будьте первым!</p></div>';
             document.getElementById('mainContent').innerHTML = h;
 
-            document.getElementById('btnCreatePost').onclick = createPost;
-            document.querySelectorAll('[data-uid]').forEach(el => el.onclick = () => viewUserProfile(el.dataset.uid));
-            document.querySelectorAll('[data-del]').forEach(el => el.onclick = (e) => { e.stopPropagation(); deletePost(el.dataset.del); });
-            document.querySelectorAll('[data-like]').forEach(el => el.onclick = () => likePost(el.dataset.like));
-            document.querySelectorAll('[data-comm]').forEach(el => el.onclick = () => toggleComments(el.dataset.comm));
-            document.querySelectorAll('[data-repost]').forEach(el => el.onclick = () => repostPost(el.dataset.repost));
-            document.querySelectorAll('[data-addcomm]').forEach(el => el.onclick = () => addComment(el.dataset.addcomm));
+            const mc = document.getElementById('mainContent');
+            mc.addEventListener('click', function(e) {
+                const uid = e.target.closest('[data-uid]');
+                const del = e.target.closest('[data-del]');
+                const like = e.target.closest('[data-like]');
+                const comm = e.target.closest('[data-comm]');
+                const repost = e.target.closest('[data-repost]');
+                const addcomm = e.target.closest('[data-addcomm]');
+
+                if (uid) { e.stopPropagation(); viewUserProfile(uid.dataset.uid); return; }
+                if (del) { e.stopPropagation(); deletePost(del.dataset.del); return; }
+                if (like) { likePost(like.dataset.like); return; }
+                if (comm) { toggleComments(comm.dataset.comm); return; }
+                if (repost) { repostPost(repost.dataset.repost); return; }
+                if (addcomm) { addComment(addcomm.dataset.addcomm); return; }
+            });
+
+            const btnCreate = document.getElementById('btnCreatePost');
+            if (btnCreate) btnCreate.onclick = createPost;
         }
 
         async function createPost() { const t=document.getElementById('postText')?.value.trim(); if(!t) return toast('Напишите текст'); await sb.from('posts').insert({user_id:currentUser.id,text:t}); toast('✅ Опубликовано!'); loadFeed(); }
@@ -223,7 +239,7 @@
         // ==================== ПРОФИЛЬ ====================
         function loadProfilePage() {
             const p = currentUser.profile || {};
-            let h = `<div class="card" style="padding:0;overflow:hidden;"><div style="position:relative;"><img src="${p.banner_url||'https://picsum.photos/480/160?random='+Date.now()}" class="profile-banner" alt="banner"><div style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,0.5);color:#fff;padding:4px 10px;border-radius:12px;font-size:0.7rem;cursor:pointer;backdrop-filter:blur(10px);" onclick="nav('editProfile')"><i class="fas fa-camera"></i> Баннер</div></div><div style="padding:0 16px;position:relative;"><div style="position:relative;display:inline-block;"><div class="profile-avatar-lg">${p.avatar_url?`<img src="${p.avatar_url}" alt="">`:getInitials(p.full_name)}</div><div class="profile-avatar-edit" onclick="changeAvatar()"><i class="fas fa-camera"></i></div></div></div><div style="padding:12px 16px 16px;"><h2>${p.full_name||'?'} ${p.is_owner?'<i class="fas fa-crown badge-crown"></i>':''} ${p.verified?'<i class="fas fa-circle-check badge-verify"></i>':''}</h2><p style="color:var(--text-secondary);">@${p.username||''}</p><p style="margin:4px 0;">${p.bio||'Нет описания'}</p><button class="secondary full" onclick="nav('editProfile')" style="margin-top:12px;"><i class="fas fa-pen"></i> Редактировать профиль</button><button class="danger full" id="btnLogout" style="margin-top:8px;"><i class="fas fa-right-from-bracket"></i> Выйти</button></div></div>`;
+            let h = `<div class="card" style="padding:0;overflow:hidden;"><img src="${p.banner_url||'https://picsum.photos/480/160?random='+Date.now()}" class="profile-banner" alt="banner"><div style="padding:0 16px;position:relative;"><div style="position:relative;display:inline-block;"><div class="profile-avatar-lg">${p.avatar_url?`<img src="${p.avatar_url}">`:getInitials(p.full_name)}</div><div class="profile-avatar-edit" onclick="changeAvatar()"><i class="fas fa-camera"></i></div></div></div><div style="padding:12px 16px 16px;"><h2>${p.full_name||'?'} ${p.is_owner?'<i class="fas fa-crown badge-crown"></i>':''} ${p.verified?'<i class="fas fa-circle-check badge-verify"></i>':''}</h2><p style="color:var(--text-secondary);">@${p.username||''}</p><p style="margin:4px 0;">${p.bio||'Нет описания'}</p><button class="secondary full" onclick="nav('editProfile')" style="margin-top:12px;"><i class="fas fa-pen"></i> Редактировать профиль</button><button class="danger full" id="btnLogout" style="margin-top:8px;"><i class="fas fa-right-from-bracket"></i> Выйти</button></div></div>`;
             document.getElementById('mainContent').innerHTML = h;
             document.getElementById('btnLogout').onclick = doLogout;
         }
@@ -231,8 +247,7 @@
         function loadEditProfile() {
             const p = currentUser.profile || {};
             let h = '<h2 style="margin-bottom:12px;">✏️ Редактирование</h2><div class="card">';
-            h += `<p style="font-weight:600;margin-bottom:4px;">Аватар</p><div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;"><div class="profile-avatar-lg" style="margin-top:0;width:64px;height:64px;font-size:1.3rem;">${p.avatar_url?`<img src="${p.avatar_url}">`:getInitials(p.full_name)}</div><button class="secondary small" onclick="changeAvatar()"><i class="fas fa-camera"></i> Сменить</button></div>`;
-            h += `<p style="font-weight:600;margin-bottom:4px;">Баннер</p><img src="${p.banner_url||'https://picsum.photos/480/160?random='+Date.now()}" style="width:100%;height:100px;object-fit:cover;border-radius:var(--radius-sm);margin-bottom:8px;cursor:pointer;" onclick="changeBanner()"><button class="secondary small full" onclick="changeBanner()" style="margin-bottom:12px;"><i class="fas fa-image"></i> Сменить баннер</button>`;
+            h += `<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;"><div class="profile-avatar-lg" style="margin-top:0;width:64px;height:64px;font-size:1.3rem;">${p.avatar_url?`<img src="${p.avatar_url}">`:getInitials(p.full_name)}</div><button class="secondary small" onclick="changeAvatar()"><i class="fas fa-camera"></i> Аватар</button><button class="secondary small" onclick="changeBanner()"><i class="fas fa-image"></i> Баннер</button></div>`;
             h += `<p style="font-weight:600;margin-bottom:4px;">Имя</p><input id="editName" value="${p.full_name||''}" style="margin-bottom:12px;">`;
             h += `<p style="font-weight:600;margin-bottom:4px;">Юзернейм</p><input id="editUsername" value="${p.username||''}" style="margin-bottom:12px;">`;
             h += `<p style="font-weight:600;margin-bottom:4px;">О себе</p><textarea id="editBio" rows="3" style="margin-bottom:12px;">${p.bio||''}</textarea>`;
@@ -261,7 +276,7 @@
                 const file = input.files[0]; if(!file) return;
                 const reader = new FileReader();
                 reader.onload = async function(e) {
-                    if(e.target.result.length > 1000000) return toast('Файл слишком большой (макс 1MB)');
+                    if(e.target.result.length > 1000000) return toast('Файл > 1MB');
                     await sb.from('users').update({ avatar_url: e.target.result }).eq('id', currentUser.id);
                     currentUser.profile.avatar_url = e.target.result;
                     toast('✅ Аватар обновлён!');
@@ -278,7 +293,7 @@
                 const file = input.files[0]; if(!file) return;
                 const reader = new FileReader();
                 reader.onload = async function(e) {
-                    if(e.target.result.length > 2000000) return toast('Файл слишком большой (макс 2MB)');
+                    if(e.target.result.length > 2000000) return toast('Файл > 2MB');
                     await sb.from('users').update({ banner_url: e.target.result }).eq('id', currentUser.id);
                     currentUser.profile.banner_url = e.target.result;
                     toast('✅ Баннер обновлён!');
@@ -306,8 +321,12 @@
         function renderUsersList(users) {
             const list=document.getElementById('ul'); if(!list) return;
             list.innerHTML=users.map(u=>`<div class="card user-row"><div data-uuid="${u.id}" style="display:flex;align-items:center;gap:12px;flex:1;cursor:pointer;"><div class="post-avatar">${avHtml(u)}</div><div><strong>${u.full_name}</strong><div style="font-size:0.8rem;color:var(--text-secondary);">@${u.username}</div></div></div><button class="small ${window._fids.has(u.id)?'secondary':'success'}" data-fid="${u.id}">${window._fids.has(u.id)?'<i class="fas fa-user-minus"></i>':'<i class="fas fa-user-plus"></i> Добавить'}</button></div>`).join('');
-            document.querySelectorAll('[data-uuid]').forEach(el => el.onclick = () => viewUserProfile(el.dataset.uuid));
-            document.querySelectorAll('[data-fid]').forEach(el => el.onclick = (e) => { e.stopPropagation(); toggleFriend(el.dataset.fid); });
+            list.addEventListener('click', function(e) {
+                const uuid = e.target.closest('[data-uuid]');
+                const fid = e.target.closest('[data-fid]');
+                if (uuid) { viewUserProfile(uuid.dataset.uuid); return; }
+                if (fid) { e.stopPropagation(); toggleFriend(fid.dataset.fid); return; }
+            });
         }
 
         async function toggleFriend(fid) {
@@ -329,7 +348,6 @@
                 <div style="padding:8px 16px 16px;">
                     <h2>${u.full_name}${u.is_owner?' <i class="fas fa-crown badge-crown"></i>':''}${u.verified?' <i class="fas fa-circle-check badge-verify"></i>':''}</h2>
                     <p style="color:var(--text-secondary);">@${u.username}</p><p>${u.bio||''}</p>
-                    <p style="font-size:0.85rem;color:var(--text-secondary);">Постов: ${posts?.length||0}</p>
                     <button class="small ${isF?'secondary':'success'}" id="btf">${isF?'<i class="fas fa-user-minus"></i> Удалить':'<i class="fas fa-user-plus"></i> Добавить'}</button>
                     <button class="small" id="bsc" style="margin-left:6px;"><i class="fas fa-message"></i> Написать</button>
                     <button class="secondary full" id="bb" style="margin-top:10px;">← Назад</button>
@@ -353,7 +371,10 @@
             let h='<div class="chat-container"><div class="chat-list" id="clist"></div><div class="chat-messages" id="cmsg"><p style="text-align:center;padding:20px;color:var(--text-tertiary);">Выберите чат</p></div><div class="chat-input-row" id="cinput" style="display:none;"></div></div>';
             document.getElementById('mainContent').innerHTML=h;
             document.getElementById('clist').innerHTML=chats.map(c=>`<div class="chat-list-item" data-cid="${c.id}"><div class="post-avatar" style="width:36px;height:36px;font-size:0.8rem;">${getInitials(c.name||'?')}</div><span>${c.name||'Чат'}</span></div>`).join('');
-            document.querySelectorAll('[data-cid]').forEach(el => el.onclick = () => openChat(el.dataset.cid));
+            document.getElementById('clist').addEventListener('click', function(e) {
+                const cid = e.target.closest('[data-cid]');
+                if (cid) openChat(cid.dataset.cid);
+            });
         }
 
         async function startChat(uid,uname) {
@@ -396,7 +417,12 @@
             picker = document.createElement('div'); picker.id='emojiPicker'; picker.className='emoji-picker';
             picker.innerHTML = emojis.map(e => `<span>${e}</span>`).join('');
             document.getElementById('cinput').appendChild(picker);
-            picker.querySelectorAll('span').forEach(s => { s.onclick = () => { document.getElementById('mi').value += s.textContent; picker.remove(); }; });
+            picker.addEventListener('click', function(e) {
+                if (e.target.tagName === 'SPAN') {
+                    document.getElementById('mi').value += e.target.textContent;
+                    picker.remove();
+                }
+            });
             setTimeout(() => document.addEventListener('click', function close(e) { if (!picker.contains(e.target) && e.target.id!=='btnEmoji') { picker.remove(); document.removeEventListener('click', close); } }), 0);
         }
 
@@ -453,12 +479,12 @@
             let h = '<h2 style="margin-bottom:12px;">⚙️ Настройки</h2>';
             h += `<div class="card"><div class="settings-item" id="toggleTheme"><div><strong>🌙 Тёмная тема</strong><p style="font-size:0.8rem;color:var(--text-secondary);">${theme==='dark'?'Включена':'Выключена'}</p></div><div class="toggle-switch ${theme==='dark'?'active':''}" id="themeSwitch"></div></div></div>`;
             if (currentUser.profile?.is_owner) {
-                h += '<div class="card" id="btnMod" style="cursor:pointer;"><div class="settings-item"><div><strong>👑 Панель модерации</strong><p style="font-size:0.8rem;color:var(--text-secondary);">Заявки на верификацию, жалобы</p></div><i class="fas fa-chevron-right" style="color:var(--text-tertiary);"></i></div></div>';
+                h += '<div class="card" id="btnMod" style="cursor:pointer;"><div class="settings-item"><div><strong>👑 Панель модерации</strong><p style="font-size:0.8rem;color:var(--text-secondary);">Заявки на верификацию</p></div><i class="fas fa-chevron-right" style="color:var(--text-tertiary);"></i></div></div>';
             }
-            h += '<div class="card" id="btnChannels" style="cursor:pointer;"><div class="settings-item"><div><strong>📢 Каналы</strong><p style="font-size:0.8rem;color:var(--text-secondary);">Создавайте тематические каналы</p></div><i class="fas fa-chevron-right" style="color:var(--text-tertiary);"></i></div></div>';
-            h += '<div class="card" id="btnMusic" style="cursor:pointer;"><div class="settings-item"><div><strong>🎵 Музыка</strong><p style="font-size:0.8rem;color:var(--text-secondary);">Загружайте треки</p></div><i class="fas fa-chevron-right" style="color:var(--text-tertiary);"></i></div></div>';
-            h += '<div class="card" id="btnVerify" style="cursor:pointer;"><div class="settings-item"><div><strong>✅ Верификация</strong><p style="font-size:0.8rem;color:var(--text-secondary);">Получите галочку</p></div><i class="fas fa-chevron-right" style="color:var(--text-tertiary);"></i></div></div>';
-            h += '<p style="text-align:center;color:var(--text-tertiary);font-size:0.8rem;margin-top:20px;">Godmode v3.0 • by AbsoluteGodmode</p>';
+            h += '<div class="card" id="btnChannels" style="cursor:pointer;"><div class="settings-item"><div><strong>📢 Каналы</strong></div><i class="fas fa-chevron-right" style="color:var(--text-tertiary);"></i></div></div>';
+            h += '<div class="card" id="btnMusic" style="cursor:pointer;"><div class="settings-item"><div><strong>🎵 Музыка</strong></div><i class="fas fa-chevron-right" style="color:var(--text-tertiary);"></i></div></div>';
+            h += '<div class="card" id="btnVerify" style="cursor:pointer;"><div class="settings-item"><div><strong>✅ Верификация</strong></div><i class="fas fa-chevron-right" style="color:var(--text-tertiary);"></i></div></div>';
+            h += '<p style="text-align:center;color:var(--text-tertiary);font-size:0.8rem;margin-top:20px;">Godmode v3.0</p>';
             document.getElementById('mainContent').innerHTML = h;
             document.getElementById('toggleTheme').onclick = toggleTheme;
             document.getElementById('themeSwitch').onclick = (e) => { e.stopPropagation(); toggleTheme(); };
@@ -471,8 +497,7 @@
         function toggleTheme() {
             theme = theme === 'dark' ? 'light' : 'dark';
             localStorage.setItem('godmode_theme', theme);
-            if (theme === 'dark') document.body.classList.add('dark');
-            else document.body.classList.remove('dark');
+            document.body.classList.toggle('dark', theme === 'dark');
             loadSettings();
         }
 
@@ -487,8 +512,12 @@
             } else h += '<p style="color:var(--text-tertiary);">Нет заявок</p>';
             h += '<button class="secondary full" onclick="nav(\'settings\')" style="margin-top:12px;">← Назад</button>';
             document.getElementById('mainContent').innerHTML = h;
-            document.querySelectorAll('[data-app]').forEach(el => el.onclick = () => approveVerification(el.dataset.app, el.dataset.uid));
-            document.querySelectorAll('[data-rej]').forEach(el => el.onclick = () => rejectVerification(el.dataset.rej));
+            document.getElementById('mainContent').addEventListener('click', function(e) {
+                const app = e.target.closest('[data-app]');
+                const rej = e.target.closest('[data-rej]');
+                if (app) approveVerification(app.dataset.app, app.dataset.uid);
+                if (rej) rejectVerification(rej.dataset.rej);
+            });
         }
 
         async function approveVerification(verId, userId) {
@@ -522,11 +551,11 @@
 
         function loadVerify() {
             const p=currentUser.profile||{};
-            document.getElementById('mainContent').innerHTML=`<div class="card"><h2>✅ Верификация</h2>${p.is_owner?'<p class="badge-crown"><i class="fas fa-crown"></i> Вы владелец — галочка постоянная</p>':p.verified?'<p class="badge-verify"><i class="fas fa-circle-check"></i> Вы верифицированы</p>':'<textarea id="vr" rows="3" placeholder="Почему вы должны получить галочку?"></textarea><button class="full" id="brq" style="margin-top:8px;"><i class="fas fa-paper-plane"></i> Отправить заявку</button>'}<button class="secondary full" onclick="nav(\'settings\')" style="margin-top:8px;">← Назад</button></div>`;
+            document.getElementById('mainContent').innerHTML=`<div class="card"><h2>✅ Верификация</h2>${p.is_owner?'<p class="badge-crown"><i class="fas fa-crown"></i> Вы владелец</p>':p.verified?'<p class="badge-verify"><i class="fas fa-circle-check"></i> Верифицирован</p>':'<textarea id="vr" rows="3" placeholder="Почему вы?"></textarea><button class="full" id="brq" style="margin-top:8px;"><i class="fas fa-paper-plane"></i> Отправить</button>'}<button class="secondary full" onclick="nav(\'settings\')" style="margin-top:8px;">← Назад</button></div>`;
             const brq = document.getElementById('brq');
             if (brq) brq.onclick = async () => {
                 const r=document.getElementById('vr')?.value.trim();
-                if(r){await sb.from('verification_requests').insert({user_id:currentUser.id,reason:r,status:'pending'}); toast('✅ Заявка отправлена! Владелец рассмотрит её.'); nav('settings');}
+                if(r){await sb.from('verification_requests').insert({user_id:currentUser.id,reason:r,status:'pending'}); toast('✅ Заявка отправлена!'); nav('settings');}
             };
         }
 
