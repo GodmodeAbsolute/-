@@ -20,23 +20,10 @@
             -webkit-tap-highlight-color: transparent;
         }
         .app { width: 100%; max-width: 480px; min-height: 100vh; background: var(--bg); display: flex; flex-direction: column; }
-        .screen-center {
-            display: flex; flex-direction: column; align-items: center;
-            justify-content: center; min-height: 100vh; padding: 20px; gap: 14px;
-        }
+        .screen-center { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; gap: 14px; }
         .logo { font-size: 2.5rem; font-weight: 800; color: var(--primary); }
-        input, textarea {
-            width: 100%; padding: 14px; border-radius: 12px;
-            border: 2px solid var(--border); font-size: 1rem;
-            background: var(--surface); color: var(--text); font-family: inherit;
-        }
-        button {
-            padding: 12px 16px; border-radius: 12px;
-            background: var(--primary); color: white; font-weight: 600;
-            font-size: 0.95rem; border: none; cursor: pointer;
-            display: inline-flex; align-items: center; gap: 6px;
-            justify-content: center;
-        }
+        input, textarea { width: 100%; padding: 14px; border-radius: 12px; border: 2px solid var(--border); font-size: 1rem; background: var(--surface); color: var(--text); font-family: inherit; }
+        button { padding: 12px 16px; border-radius: 12px; background: var(--primary); color: white; font-weight: 600; font-size: 0.95rem; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; justify-content: center; }
         button:active { opacity: 0.7; }
         button.secondary { background: #f1f5f9; color: var(--text); border: 1px solid var(--border); }
         button.danger { background: var(--danger); }
@@ -45,35 +32,21 @@
         button.full { width: 100%; }
         .error-box { background: #fef2f2; border: 2px solid #ef4444; border-radius: 12px; padding: 14px; color: #dc2626; font-size: 0.9rem; width: 100%; }
         .info-box { background: #eff6ff; border: 2px solid #3b82f6; border-radius: 12px; padding: 14px; color: #1d4ed8; font-size: 0.9rem; width: 100%; }
-        .header {
-            background: var(--surface); padding: 14px 16px; display: flex;
-            align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border);
-            font-weight: 800; font-size: 1.2rem; color: var(--primary);
-            position: sticky; top: 0; z-index: 10;
-        }
+        .header { background: var(--surface); padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); font-weight: 800; font-size: 1.2rem; color: var(--primary); position: sticky; top: 0; z-index: 10; }
         .content { flex: 1; overflow-y: auto; padding: 12px; padding-bottom: 90px; }
         .card { background: var(--surface); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; border: 1px solid var(--border); }
-        .post-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-        .post-avatar {
-            width: 40px; height: 40px; border-radius: 50%; background: #e2e8f0;
-            display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: #999; flex-shrink: 0;
-        }
+        .post-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; cursor: pointer; }
+        .post-avatar { width: 40px; height: 40px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: #999; flex-shrink: 0; }
         .post-actions { display: flex; gap: 24px; margin-top: 10px; color: var(--text-soft); font-size: 0.9rem; }
         .post-actions span { cursor: pointer; display: flex; align-items: center; gap: 4px; }
         .comment-box { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
         .comment { display: flex; gap: 8px; margin-bottom: 8px; font-size: 0.85rem; align-items: flex-start; }
-        .comment-avatar {
-            width: 28px; height: 28px; border-radius: 50%; background: #e2e8f0;
-            display: flex; align-items: center; justify-content: center; font-size: 0.7rem; flex-shrink: 0;
-        }
+        .comment-avatar { width: 28px; height: 28px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; flex-shrink: 0; }
         .comment-input-row { display: flex; gap: 6px; margin-top: 8px; }
         .comment-input-row input { flex: 1; padding: 8px 12px; font-size: 0.85rem; }
         .chat-container { display: flex; flex-direction: column; height: 65vh; background: var(--surface); border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); }
         .chat-list { max-height: 35%; overflow-y: auto; border-bottom: 1px solid var(--border); }
-        .chat-list-item {
-            padding: 12px 14px; cursor: pointer; border-bottom: 1px solid var(--border);
-            display: flex; align-items: center; gap: 10px; font-weight: 500;
-        }
+        .chat-list-item { padding: 12px 14px; cursor: pointer; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; font-weight: 500; }
         .chat-list-item.active { background: #eef2ff; color: var(--primary); }
         .chat-messages { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 6px; }
         .msg { padding: 8px 14px; border-radius: 16px; max-width: 80%; word-break: break-word; font-size: 0.9rem; }
@@ -81,26 +54,13 @@
         .msg.received { background: #f1f5f9; align-self: flex-start; }
         .chat-input-row { display: flex; gap: 6px; padding: 8px 10px; border-top: 1px solid var(--border); background: var(--surface); }
         .chat-input-row input { flex: 1; padding: 10px 12px; font-size: 0.9rem; border-radius: 20px; }
-        .bottom-nav {
-            position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
-            width: 100%; max-width: 480px; background: var(--surface);
-            border-top: 1px solid var(--border); display: flex;
-            justify-content: space-around; padding: 6px 4px 10px; z-index: 100;
-        }
-        .nav-item {
-            display: flex; flex-direction: column; align-items: center;
-            gap: 2px; cursor: pointer; color: var(--text-soft); font-size: 0.68rem; font-weight: 500;
-            padding: 6px 10px; border-radius: 8px; transition: 0.15s;
-        }
+        .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--surface); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 6px 4px 10px; z-index: 100; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; color: var(--text-soft); font-size: 0.68rem; font-weight: 500; padding: 6px 10px; border-radius: 8px; transition: 0.15s; }
         .nav-item i { font-size: 1.3rem; }
         .nav-item.active { color: var(--primary); background: #eef2ff; }
         .badge-crown { color: #f59e0b; }
         .badge-verify { color: #3b82f6; }
-        .toast {
-            position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
-            background: #1e293b; color: white; padding: 10px 20px;
-            border-radius: 20px; font-size: 0.85rem; z-index: 200; display: none;
-        }
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 10px 20px; border-radius: 20px; font-size: 0.85rem; z-index: 200; display: none; }
         .link-text { color: var(--primary); cursor: pointer; font-weight: 600; text-decoration: underline; }
         .user-row { display: flex; align-items: center; gap: 10px; cursor: pointer; border-radius: 10px; justify-content: space-between; }
     </style>
@@ -256,28 +216,28 @@
                 posts.forEach(p => {
                     const u = p.users || {};
                     h += `
-                    <div class="card" id="post-${p.id}">
+                    <div class="card">
                         <div class="post-header" id="postHeader-${p.user_id}">
                             <div class="post-avatar"><i class="fas fa-user"></i></div>
                             <div style="flex:1;">
-                                <strong>${u.full_name || 'Пользователь'}</strong>
+                                <strong>${u.full_name || '?'}</strong>
                                 ${u.is_owner ? '<i class="fas fa-crown badge-crown"></i>' : ''}
                                 ${u.verified ? '<i class="fas fa-check-circle badge-verify"></i>' : ''}
                                 <div style="font-size:0.7rem; color:var(--text-soft);">${timeAgo(p.created_at)}</div>
                             </div>
-                            ${p.user_id === currentUser.id ? `<button class="danger small" id="btnDelete-${p.id}"><i class="fas fa-trash"></i></button>` : ''}
+                            ${p.user_id === currentUser.id ? `<button class="danger small" id="btnDel-${p.id}"><i class="fas fa-trash"></i></button>` : ''}
                         </div>
                         <p style="white-space:pre-wrap; font-size:0.95rem;">${p.text || ''}</p>
                         <div class="post-actions">
                             <span id="btnLike-${p.id}"><i class="far fa-heart"></i> ${p.likes_count||0}</span>
-                            <span id="btnComment-${p.id}"><i class="far fa-comment"></i> ${p.comments_count||0}</span>
+                            <span id="btnComm-${p.id}"><i class="far fa-comment"></i> ${p.comments_count||0}</span>
                             <span id="btnRepost-${p.id}"><i class="fas fa-retweet"></i> ${p.reposts_count||0}</span>
                         </div>
                         <div class="comment-box" id="comments-${p.id}" style="display:none;">
                             <div id="commentsList-${p.id}"></div>
                             <div class="comment-input-row">
                                 <input id="commentInput-${p.id}" placeholder="Комментарий...">
-                                <button class="small" id="btnAddComment-${p.id}"><i class="fas fa-paper-plane"></i></button>
+                                <button class="small" id="btnAddComm-${p.id}"><i class="fas fa-paper-plane"></i></button>
                             </div>
                         </div>
                     </div>`;
@@ -287,28 +247,14 @@
             }
             document.getElementById('mainContent').innerHTML = h;
 
-            // Вешаем обработчики
-            const btnCreate = document.getElementById('btnCreatePost');
-            if (btnCreate) btnCreate.addEventListener('click', createPost);
-
+            document.getElementById('btnCreatePost')?.addEventListener('click', createPost);
             posts?.forEach(p => {
-                const btnDel = document.getElementById('btnDelete-' + p.id);
-                if (btnDel) btnDel.addEventListener('click', () => deletePost(p.id));
-
-                const btnLike = document.getElementById('btnLike-' + p.id);
-                if (btnLike) btnLike.addEventListener('click', () => likePost(p.id));
-
-                const btnComment = document.getElementById('btnComment-' + p.id);
-                if (btnComment) btnComment.addEventListener('click', () => toggleComments(p.id));
-
-                const btnRepost = document.getElementById('btnRepost-' + p.id);
-                if (btnRepost) btnRepost.addEventListener('click', () => repostPost(p.id));
-
-                const btnAddComment = document.getElementById('btnAddComment-' + p.id);
-                if (btnAddComment) btnAddComment.addEventListener('click', () => addComment(p.id));
-
-                const postHeader = document.getElementById('postHeader-' + p.user_id);
-                if (postHeader) postHeader.addEventListener('click', () => viewUserProfile(p.user_id));
+                document.getElementById('btnDel-'+p.id)?.addEventListener('click', () => deletePost(p.id));
+                document.getElementById('btnLike-'+p.id)?.addEventListener('click', () => likePost(p.id));
+                document.getElementById('btnComm-'+p.id)?.addEventListener('click', () => toggleComments(p.id));
+                document.getElementById('btnRepost-'+p.id)?.addEventListener('click', () => repostPost(p.id));
+                document.getElementById('btnAddComm-'+p.id)?.addEventListener('click', () => addComment(p.id));
+                document.getElementById('postHeader-'+p.user_id)?.addEventListener('click', () => viewUserProfile(p.user_id));
             });
         }
 
@@ -321,9 +267,9 @@
         }
 
         async function deletePost(id) {
-            if (!confirm('Удалить пост?')) return;
+            if (!confirm('Удалить?')) return;
             await sb.from('posts').delete().eq('id', id);
-            toast('Пост удалён');
+            toast('Удалён');
             loadFeed();
         }
 
@@ -356,7 +302,7 @@
             const { data: comments } = await sb.from('comments').select('*, users!comments_user_id_fkey(*)').eq('post_id', postId).order('created_at', { ascending: true });
             document.getElementById('commentsList-' + postId).innerHTML = (comments || []).map(c => `
                 <div class="comment"><div class="comment-avatar"><i class="fas fa-user"></i></div><div><strong>${c.users?.full_name || '?'}</strong>: ${c.text}</div></div>
-            `).join('') || '<p style="font-size:0.8rem; color:var(--text-soft);">Нет комментариев</p>';
+            `).join('') || '<p style="font-size:0.8rem;">Нет комментариев</p>';
         }
 
         async function addComment(postId) {
@@ -374,14 +320,13 @@
             const p = currentUser.profile || {};
             document.getElementById('mainContent').innerHTML = `
             <div class="card" style="text-align:center;">
-                <div style="font-size:4rem; margin-bottom:8px;"><i class="fas fa-user-circle"></i></div>
-                <h2>${p.full_name || 'Пользователь'}</h2>
+                <div style="font-size:4rem;"><i class="fas fa-user-circle"></i></div>
+                <h2>${p.full_name || '?'}</h2>
                 <p style="color:var(--text-soft);">@${p.username || ''}</p>
                 <p>${p.bio || ''}</p>
                 ${p.is_owner ? '<p class="badge-crown"><i class="fas fa-crown"></i> Владелец</p>' : ''}
-                ${p.verified ? '<p class="badge-verify"><i class="fas fa-check-circle"></i> Верифицирован</p>' : ''}
-                <button class="secondary full" id="btnEditProfile" style="margin-top:8px;"><i class="fas fa-pen"></i> Редактировать</button>
-                <button class="danger full" id="btnLogout" style="margin-top:8px;"><i class="fas fa-sign-out-alt"></i> Выйти</button>
+                <button class="secondary full" id="btnEditProfile" style="margin-top:8px;">Редактировать</button>
+                <button class="danger full" id="btnLogout" style="margin-top:8px;">Выйти</button>
             </div>`;
             document.getElementById('btnEditProfile').addEventListener('click', editProfile);
             document.getElementById('btnLogout').addEventListener('click', doLogout);
@@ -395,35 +340,26 @@
             sb.from('users').update({ full_name: name, bio }).eq('id', currentUser.id).then(() => {
                 currentUser.profile.full_name = name;
                 currentUser.profile.bio = bio;
-                toast('Профиль обновлён!');
+                toast('Обновлено!');
                 loadProfilePage();
             });
         }
 
         // ==================== ДРУЗЬЯ ====================
         async function loadFriends() {
-            const { data: allUsers } = await sb.from('users').select('*').neq('id', currentUser.id).order('full_name');
-            const { data: myFriends } = await sb.from('friends').select('friend_id').eq('user_id', currentUser.id);
-            const friendIds = new Set((myFriends || []).map(f => f.friend_id));
+            const { data: all } = await sb.from('users').select('*').neq('id', currentUser.id).order('full_name');
+            const { data: mf } = await sb.from('friends').select('friend_id').eq('user_id', currentUser.id);
+            const friendIds = new Set((mf || []).map(f => f.friend_id));
+            window._all = all || [];
+            window._fids = friendIds;
 
-            let h = '<h2 style="margin-bottom:10px;">👥 Пользователи</h2>';
-            h += '<input id="searchUser" placeholder="🔍 Поиск..." style="margin-bottom:10px;">';
-            h += '<div id="usersList"></div>';
-
+            let h = '<h2>👥 Пользователи</h2><input id="searchUser" placeholder="🔍 Поиск..." style="margin-bottom:10px;"><div id="usersList"></div>';
             document.getElementById('mainContent').innerHTML = h;
-
-            window._allUsers = allUsers || [];
-            window._friendIds = friendIds;
-
             document.getElementById('searchUser').addEventListener('input', () => {
                 const q = document.getElementById('searchUser').value.toLowerCase();
-                const filtered = window._allUsers.filter(u =>
-                    u.full_name.toLowerCase().includes(q) || u.username.toLowerCase().includes(q)
-                );
-                renderUsersList(filtered);
+                renderUsersList(window._all.filter(u => u.full_name.toLowerCase().includes(q) || u.username.toLowerCase().includes(q)));
             });
-
-            renderUsersList(allUsers || []);
+            renderUsersList(window._all);
         }
 
         function renderUsersList(users) {
@@ -431,147 +367,123 @@
             if (!list) return;
             list.innerHTML = users.map(u => `
                 <div class="card user-row">
-                    <div id="userInfo-${u.id}" style="display:flex; align-items:center; gap:10px; flex:1;">
+                    <div id="ui-${u.id}" style="display:flex; align-items:center; gap:10px; flex:1;">
                         <div class="post-avatar"><i class="fas fa-user"></i></div>
-                        <div>
-                            <strong>${u.full_name}</strong>
-                            <div style="font-size:0.75rem; color:var(--text-soft);">@${u.username}</div>
-                        </div>
+                        <div><strong>${u.full_name}</strong><div style="font-size:0.75rem; color:var(--text-soft);">@${u.username}</div></div>
                     </div>
-                    <button class="small ${window._friendIds.has(u.id) ? 'secondary' : 'success'}" id="btnFriend-${u.id}">
-                        ${window._friendIds.has(u.id) ? 'Удалить' : 'Добавить'}
-                    </button>
+                    <button class="small ${window._fids.has(u.id) ? 'secondary' : 'success'}" id="bf-${u.id}">${window._fids.has(u.id) ? 'Удалить' : 'Добавить'}</button>
                 </div>
             `).join('');
-
             users.forEach(u => {
-                document.getElementById('userInfo-' + u.id)?.addEventListener('click', () => viewUserProfile(u.id));
-                document.getElementById('btnFriend-' + u.id)?.addEventListener('click', () => toggleFriend(u.id));
+                document.getElementById('ui-'+u.id)?.addEventListener('click', () => viewUserProfile(u.id));
+                document.getElementById('bf-'+u.id)?.addEventListener('click', () => toggleFriend(u.id));
             });
         }
 
-        async function toggleFriend(friendId) {
-            if (window._friendIds.has(friendId)) {
-                await sb.from('friends').delete().eq('user_id', currentUser.id).eq('friend_id', friendId);
-                window._friendIds.delete(friendId);
-                toast('Удалён из друзей');
+        async function toggleFriend(fid) {
+            if (window._fids.has(fid)) {
+                await sb.from('friends').delete().eq('user_id', currentUser.id).eq('friend_id', fid);
+                window._fids.delete(fid);
             } else {
-                await sb.from('friends').insert({ user_id: currentUser.id, friend_id: friendId });
-                window._friendIds.add(friendId);
-                toast('Добавлен в друзья!');
+                await sb.from('friends').insert({ user_id: currentUser.id, friend_id: fid });
+                window._fids.add(fid);
             }
-            renderUsersList(window._allUsers || []);
+            renderUsersList(window._all);
         }
 
-        async function viewUserProfile(userId) {
-            if (userId === currentUser.id) { nav('profile'); return; }
-            const { data: u } = await sb.from('users').select('*').eq('id', userId).single();
-            if (!u) return toast('Пользователь не найден');
-            const { data: posts } = await sb.from('posts').select('*').eq('user_id', userId).order('created_at', { ascending: false });
-            const isFriend = window._friendIds?.has(userId);
-
-            let h = `
+        async function viewUserProfile(uid) {
+            if (uid === currentUser.id) { nav('profile'); return; }
+            const { data: u } = await sb.from('users').select('*').eq('id', uid).single();
+            if (!u) return;
+            const { data: posts } = await sb.from('posts').select('*').eq('user_id', uid).order('created_at', { ascending: false });
+            const isF = window._fids?.has(uid);
+            document.getElementById('mainContent').innerHTML = `
             <div class="card" style="text-align:center;">
                 <div style="font-size:4rem;"><i class="fas fa-user-circle"></i></div>
-                <h2>${u.full_name} ${u.is_owner ? '<i class="fas fa-crown badge-crown"></i>' : ''} ${u.verified ? '<i class="fas fa-check-circle badge-verify"></i>' : ''}</h2>
+                <h2>${u.full_name} ${u.is_owner ? '<i class="fas fa-crown badge-crown"></i>' : ''}</h2>
                 <p style="color:var(--text-soft);">@${u.username}</p>
                 <p>${u.bio || ''}</p>
-                <p>Постов: ${posts?.length || 0}</p>
-                <button class="small ${isFriend ? 'secondary' : 'success'}" id="btnToggleFriend">${isFriend ? 'Удалить из друзей' : 'Добавить в друзья'}</button>
-                <button class="small" id="btnStartChat" style="margin-left:6px;"><i class="fas fa-comment"></i> Написать</button>
-                <button class="secondary full" id="btnBack" style="margin-top:10px;">← Назад</button>
+                <button class="small ${isF ? 'secondary' : 'success'}" id="btf">${isF ? 'Удалить' : 'Добавить'}</button>
+                <button class="small" id="bsc" style="margin-left:6px;"><i class="fas fa-comment"></i> Написать</button>
+                <button class="secondary full" id="bb" style="margin-top:10px;">← Назад</button>
             </div>
-            <h3 style="margin-top:12px;">Посты</h3>
-            ${(posts || []).map(p => `<div class="card"><p>${p.text || ''}</p><div style="font-size:0.75rem; color:var(--text-soft);">${timeAgo(p.created_at)}</div></div>`).join('') || '<p style="text-align:center; color:var(--text-soft);">Нет постов</p>'}
+            <h3>Посты</h3>
+            ${(posts||[]).map(p => `<div class="card"><p>${p.text||''}</p><div style="font-size:0.7rem;">${timeAgo(p.created_at)}</div></div>`).join('') || '<p>Нет постов</p>'}
             `;
-            document.getElementById('mainContent').innerHTML = h;
-
-            document.getElementById('btnToggleFriend').addEventListener('click', async () => {
-                await toggleFriend(userId);
-                viewUserProfile(userId);
-            });
-            document.getElementById('btnStartChat').addEventListener('click', () => startChat(userId, u.full_name));
-            document.getElementById('btnBack').addEventListener('click', () => nav('friends'));
+            document.getElementById('btf').addEventListener('click', async () => { await toggleFriend(uid); viewUserProfile(uid); });
+            document.getElementById('bsc').addEventListener('click', () => startChat(uid, u.full_name));
+            document.getElementById('bb').addEventListener('click', () => nav('friends'));
         }
 
-        // ==================== ЧАТЫ ====================
+        // ==================== ЧАТЫ (ОБЩИЕ) ====================
         async function loadChats() {
             stopChatTimer();
-            const { data: chats } = await sb.from('chats').select('*').or(`owner_id.eq.${currentUser.id}`).order('created_at', { ascending: false });
+            // Ищем чаты, где текущий пользователь в participants
+            const { data: chats } = await sb.from('chats').select('*').contains('participants', [currentUser.id]).order('created_at', { ascending: false });
 
-            let h = '<h2 style="margin-bottom:8px;">💬 Чаты</h2>';
             if (!chats || chats.length === 0) {
-                h += '<div class="info-box">У вас пока нет чатов.<br><br>📌 <b>Как начать общение:</b><br>1. Зайди во вкладку <b>Друзья</b><br>2. Найди человека<br>3. Нажми на его имя<br>4. Нажми кнопку <b>"Написать"</b></div>';
-                h += '<button class="secondary full" onclick="nav(\'friends\')" style="margin-top:8px;">👥 Перейти к друзьям</button>';
-                document.getElementById('mainContent').innerHTML = h;
+                document.getElementById('mainContent').innerHTML = `
+                <div class="info-box">У вас пока нет чатов.<br><br>📌 <b>Как начать:</b><br>1. Друзья → нажмите на друга<br>2. Нажмите <b>"Написать"</b><br>3. Чат появится здесь у обоих</div>
+                <button class="secondary full" onclick="nav('friends')" style="margin-top:8px;">👥 К друзьям</button>`;
                 return;
             }
 
-            h += '<div class="chat-container"><div class="chat-list" id="chatList"></div>';
-            h += '<div class="chat-messages" id="chatMessages"><p style="text-align:center; color:var(--text-soft); padding:20px;">Выберите чат</p></div>';
+            let h = '<div class="chat-container"><div class="chat-list" id="chatList"></div>';
+            h += '<div class="chat-messages" id="chatMessages"><p style="text-align:center; padding:20px;">Выберите чат</p></div>';
             h += '<div class="chat-input-row" id="chatInput" style="display:none;"></div></div>';
             document.getElementById('mainContent').innerHTML = h;
 
-            const chatList = document.getElementById('chatList');
-            chatList.innerHTML = chats.map(c => `
-                <div class="chat-list-item" data-chatid="${c.id}" id="chatItem-${c.id}">
-                    <i class="fas fa-comments"></i> <span>${c.name || 'Чат'}</span>
-                </div>
+            document.getElementById('chatList').innerHTML = chats.map(c => `
+                <div class="chat-list-item" data-cid="${c.id}" id="ci-${c.id}"><i class="fas fa-comments"></i> ${c.name||'Чат'}</div>
             `).join('');
-
-            chats.forEach(c => {
-                document.getElementById('chatItem-' + c.id)?.addEventListener('click', () => openChat(c.id));
-            });
+            chats.forEach(c => document.getElementById('ci-'+c.id)?.addEventListener('click', () => openChat(c.id)));
         }
 
-        async function startChat(userId, userName) {
+        async function startChat(uid, uname) {
             stopChatTimer();
+            // Проверяем, есть ли уже общий чат
+            const { data: existing } = await sb.from('chats').select('*').contains('participants', [currentUser.id, uid]).single();
+            if (existing) {
+                nav('chats');
+                setTimeout(() => openChat(existing.id), 300);
+                return;
+            }
+
             const { data: chat, error } = await sb.from('chats').insert({
-                type: 'dm', name: userName || 'Чат', owner_id: currentUser.id
+                type: 'dm', name: uname || 'Чат', owner_id: currentUser.id,
+                participants: [currentUser.id, uid]
             }).select().single();
 
             if (error) return toast('Ошибка: ' + error.message);
-            if (chat) {
-                toast('Чат с ' + userName + ' создан!');
-                nav('chats');
-                setTimeout(() => openChat(chat.id), 400);
-            }
+            toast('Чат создан!');
+            nav('chats');
+            setTimeout(() => openChat(chat.id), 300);
         }
 
-        function openChat(chatId) {
+        function openChat(cid) {
             stopChatTimer();
-            currentChatId = chatId;
-
+            currentChatId = cid;
             document.querySelectorAll('.chat-list-item').forEach(el => el.classList.remove('active'));
-            document.getElementById('chatItem-' + chatId)?.classList.add('active');
-
+            document.getElementById('ci-'+cid)?.classList.add('active');
             document.getElementById('chatInput').style.display = 'flex';
-            document.getElementById('chatInput').innerHTML = `
-                <input id="msgInput" placeholder="Сообщение...">
-                <button class="small" id="btnSendMsg"><i class="fas fa-paper-plane"></i></button>
-            `;
-
-            document.getElementById('btnSendMsg').addEventListener('click', sendMessage);
-            document.getElementById('msgInput').addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') sendMessage();
-            });
-
-            refreshMessages(chatId);
-            chatTimer = setInterval(() => refreshMessages(chatId), 2000);
+            document.getElementById('chatInput').innerHTML = '<input id="msgInput" placeholder="Сообщение..."><button class="small" id="bsm"><i class="fas fa-paper-plane"></i></button>';
+            document.getElementById('bsm').addEventListener('click', sendMessage);
+            document.getElementById('msgInput').addEventListener('keydown', e => { if (e.key==='Enter') sendMessage(); });
+            refreshMessages(cid);
+            chatTimer = setInterval(() => refreshMessages(cid), 2000);
         }
 
-        async function refreshMessages(chatId) {
-            if (!chatId) return;
-            const { data: messages } = await sb.from('messages').select('*, users!messages_from_user_id_fkey(*)').eq('chat_id', chatId).order('created_at', { ascending: true });
-            const container = document.getElementById('chatMessages');
-            if (!container) return;
-            container.innerHTML = (messages || []).map(m => `
-                <div class="msg ${m.from_user_id === currentUser.id ? 'sent' : 'received'}">
-                    ${m.from_user_id !== currentUser.id ? `<strong style="font-size:0.7rem;">${m.users?.full_name || '?'}</strong><br>` : ''}
+        async function refreshMessages(cid) {
+            const { data: msgs } = await sb.from('messages').select('*, users!messages_from_user_id_fkey(*)').eq('chat_id', cid).order('created_at', { ascending: true });
+            const c = document.getElementById('chatMessages');
+            if (!c) return;
+            c.innerHTML = (msgs||[]).map(m => `
+                <div class="msg ${m.from_user_id===currentUser.id ? 'sent' : 'received'}">
+                    ${m.from_user_id!==currentUser.id ? `<strong style="font-size:0.7rem;">${m.users?.full_name||'?'}</strong><br>` : ''}
                     ${m.text}
                 </div>
-            `).join('') || '<p style="text-align:center; color:var(--text-soft);">Нет сообщений</p>';
-            container.scrollTop = container.scrollHeight;
+            `).join('') || '<p style="text-align:center;">Нет сообщений</p>';
+            c.scrollTop = c.scrollHeight;
         }
 
         async function sendMessage() {
@@ -586,84 +498,48 @@
         // ==================== ОСТАЛЬНОЕ ====================
         function loadMore() {
             document.getElementById('mainContent').innerHTML = `
-            <div class="card" id="btnChannels"><h3><i class="fas fa-bullhorn"></i> Каналы</h3><p style="color:var(--text-soft);">Создавайте тематические каналы</p></div>
-            <div class="card" id="btnMusic"><h3><i class="fas fa-music"></i> Музыка</h3><p style="color:var(--text-soft);">Загружайте любимые треки</p></div>
-            <div class="card" id="btnVerify"><h3><i class="fas fa-check-circle"></i> Верификация</h3><p style="color:var(--text-soft);">Получите галочку</p></div>`;
-            document.getElementById('btnChannels').addEventListener('click', () => nav('channels'));
-            document.getElementById('btnMusic').addEventListener('click', () => nav('music'));
-            document.getElementById('btnVerify').addEventListener('click', () => nav('verify'));
+            <div class="card" id="bch"><h3>📢 Каналы</h3></div>
+            <div class="card" id="bmu"><h3>🎵 Музыка</h3></div>
+            <div class="card" id="bve"><h3>✅ Верификация</h3></div>`;
+            document.getElementById('bch').addEventListener('click', ()=>nav('channels'));
+            document.getElementById('bmu').addEventListener('click', ()=>nav('music'));
+            document.getElementById('bve').addEventListener('click', ()=>nav('verify'));
         }
 
         function loadChannels() {
-            document.getElementById('mainContent').innerHTML = `
-            <div class="card"><h2>📢 Каналы</h2><button class="full" id="btnCreateChannel"><i class="fas fa-plus"></i> Создать</button>
-            <button class="secondary full" id="btnBackChannels" style="margin-top:8px;">← Назад</button></div>`;
-            document.getElementById('btnCreateChannel').addEventListener('click', createChannel);
-            document.getElementById('btnBackChannels').addEventListener('click', () => nav('more'));
-        }
-
-        async function createChannel() {
-            const name = prompt('Название:');
-            if (!name) return;
-            const theme = prompt('Тематика:');
-            if (!theme) return;
-            await sb.from('channels').insert({ owner_id: currentUser.id, name, theme });
-            toast('Канал создан!');
+            document.getElementById('mainContent').innerHTML = `<div class="card"><h2>Каналы</h2><button class="full" id="bcr">Создать</button><button class="secondary full" id="bbk" style="margin-top:8px;">← Назад</button></div>`;
+            document.getElementById('bcr').addEventListener('click', async ()=>{
+                const n=prompt('Название:'), t=prompt('Тематика:');
+                if(n&&t) { await sb.from('channels').insert({owner_id:currentUser.id,name:n,theme:t}); toast('Создан!'); }
+            });
+            document.getElementById('bbk').addEventListener('click', ()=>nav('more'));
         }
 
         function loadMusic() {
-            document.getElementById('mainContent').innerHTML = `
-            <div class="card"><h2>🎵 Музыка</h2><button class="full" id="btnUploadMusic"><i class="fas fa-upload"></i> Загрузить</button>
-            <button class="secondary full" id="btnBackMusic" style="margin-top:8px;">← Назад</button></div>`;
-            document.getElementById('btnUploadMusic').addEventListener('click', uploadMusic);
-            document.getElementById('btnBackMusic').addEventListener('click', () => nav('more'));
-        }
-
-        async function uploadMusic() {
-            const artist = prompt('Исполнитель:');
-            const title = prompt('Название:');
-            if (!artist || !title) return;
-            await sb.from('music').insert({ owner_id: currentUser.id, artist, title, status: 'pending' });
-            toast('Трек на проверке!');
+            document.getElementById('mainContent').innerHTML = `<div class="card"><h2>Музыка</h2><button class="full" id="bup">Загрузить</button><button class="secondary full" id="bbm" style="margin-top:8px;">← Назад</button></div>`;
+            document.getElementById('bup').addEventListener('click', async ()=>{
+                const a=prompt('Исполнитель:'), t=prompt('Название:');
+                if(a&&t) { await sb.from('music').insert({owner_id:currentUser.id,artist:a,title:t,status:'pending'}); toast('На проверке!'); }
+            });
+            document.getElementById('bbm').addEventListener('click', ()=>nav('more'));
         }
 
         function loadVerify() {
-            const p = currentUser.profile || {};
-            document.getElementById('mainContent').innerHTML = `
-            <div class="card"><h2>✅ Верификация</h2>
-            ${p.is_owner ? '<p class="badge-crown"><i class="fas fa-crown"></i> Вы владелец</p>' : 
-              p.verified ? '<p class="badge-verify"><i class="fas fa-check-circle"></i> Верифицирован</p>' :
-              '<textarea id="verReason" placeholder="Почему вы?" rows="3"></textarea><button class="full" id="btnReqVerify" style="margin-top:8px;">Отправить</button>'}
-            <button class="secondary full" id="btnBackVerify" style="margin-top:8px;">← Назад</button></div>`;
-            const btnReq = document.getElementById('btnReqVerify');
-            if (btnReq) btnReq.addEventListener('click', reqVerify);
-            document.getElementById('btnBackVerify').addEventListener('click', () => nav('more'));
+            const p=currentUser.profile||{};
+            document.getElementById('mainContent').innerHTML = `<div class="card"><h2>Верификация</h2>${p.is_owner?'<p class="badge-crown">👑 Владелец</p>':p.verified?'<p class="badge-verify">✓ Верифицирован</p>':'<textarea id="vr" rows="3"></textarea><button class="full" id="brq" style="margin-top:8px;">Отправить</button>'}<button class="secondary full" id="bbv" style="margin-top:8px;">← Назад</button></div>`;
+            document.getElementById('brq')?.addEventListener('click', async ()=>{
+                const r=document.getElementById('vr')?.value.trim();
+                if(r) { await sb.from('verification_requests').insert({user_id:currentUser.id,reason:r,status:'pending'}); toast('Отправлено!'); }
+            });
+            document.getElementById('bbv').addEventListener('click', ()=>nav('more'));
         }
 
-        async function reqVerify() {
-            const reason = document.getElementById('verReason')?.value.trim();
-            if (!reason) return toast('Укажите причину');
-            await sb.from('verification_requests').insert({ user_id: currentUser.id, reason, status: 'pending' });
-            toast('Заявка отправлена!');
-        }
+        async function doLogout() { stopChatTimer(); await sb.auth.signOut(); currentUser=null; renderLogin(); }
 
-        async function doLogout() {
-            stopChatTimer();
-            await sb.auth.signOut();
-            currentUser = null;
-            renderLogin();
-        }
-
-        // ЗАПУСК
         (async () => {
             const { data } = await sb.auth.getSession();
-            if (data.session) {
-                currentUser = data.session.user;
-                await loadProfile();
-                showMainApp();
-            } else {
-                renderLogin();
-            }
+            if (data.session) { currentUser=data.session.user; await loadProfile(); showMainApp(); }
+            else renderLogin();
         })();
     </script>
 </body>
