@@ -1,52 +1,529 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Supabase</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>InnoSphere</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --bg: #f0f2f5;
+            --surface: #ffffff;
+            --primary: #4f46e5;
+            --text: #1e293b;
+            --text-soft: #64748b;
+            --border: #e2e8f0;
+            --danger: #ef4444;
+            --success: #10b981;
+            --radius: 12px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .app {
+            width: 100%;
+            max-width: 480px;
+            min-height: 100vh;
+            background: var(--bg);
+            display: flex;
+            flex-direction: column;
+        }
+        .screen-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            gap: 14px;
+        }
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+        .logo i { font-size: 2.5rem; }
+        input, textarea {
+            width: 100%;
+            padding: 15px;
+            border-radius: 14px;
+            border: 2px solid var(--border);
+            font-size: 1rem;
+            background: var(--surface);
+            color: var(--text);
+            font-family: inherit;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            border-radius: 14px;
+            background: var(--primary);
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+        }
+        button:active { opacity: 0.8; transform: scale(0.98); }
+        button.secondary { background: #f1f5f9; color: var(--text); border: 1px solid var(--border); }
+        .error-box {
+            background: #fef2f2;
+            border: 2px solid #ef4444;
+            border-radius: 14px;
+            padding: 14px;
+            color: #dc2626;
+            font-size: 0.9rem;
+            width: 100%;
+        }
+        .header {
+            background: var(--surface);
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: var(--primary);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+            padding-bottom: 80px;
+        }
+        .card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 15px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border);
+        }
+        .post-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        .post-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: #999;
+        }
+        .post-actions {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+            color: var(--text-soft);
+            font-size: 0.9rem;
+        }
+        .post-actions span {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .post-actions span:active { color: var(--primary); }
+        .bottom-nav {
+            position: sticky;
+            bottom: 0;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 4px 12px;
+            z-index: 10;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            cursor: pointer;
+            color: var(--text-soft);
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+        .nav-item i { font-size: 1.3rem; }
+        .nav-item.active { color: var(--primary); }
+        .badge-crown { color: #f59e0b; }
+        .badge-verify { color: #3b82f6; }
+        .toast {
+            position: fixed;
+            bottom: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            z-index: 99;
+            display: none;
+        }
+        .link-text { color: var(--primary); cursor: pointer; font-weight: 600; text-decoration: underline; }
+    </style>
 </head>
-<body style="font-family:sans-serif; padding:20px;">
-    <h2>Тест Supabase</h2>
-    <div id="result"></div>
+<body>
+    <div class="app" id="app"></div>
+    <div class="toast" id="toast"></div>
 
     <script>
+        // КОНФИГ
         const SUPABASE_URL = 'https://byniblcezicrvyyqbafc.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_exBhK1ZwxY3uSoErm0jVFA_gR97KaAy';
-
+        const OWNER_EMAIL = 'ilyabelyev344@gmail.com';
         const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        const result = document.getElementById('result');
 
-        async function test() {
-            result.innerHTML = 'Тестируем...';
+        let currentUser = null;
+        let currentPage = 'feed';
 
-            // Тест 1: таблица users
-            const { data: users, error: err1 } = await sb.from('users').select('*').limit(1);
-            result.innerHTML += err1
-                ? `<p style="color:red;">❌ Users: ${err1.message}</p>`
-                : `<p style="color:green;">✅ Users: OK (${users.length} записей)</p>`;
-
-            // Тест 2: авторизация
-            const { data: auth, error: err2 } = await sb.auth.getSession();
-            result.innerHTML += err2
-                ? `<p style="color:red;">❌ Auth: ${err2.message}</p>`
-                : `<p style="color:green;">✅ Auth: OK (сессия: ${auth.session ? 'есть' : 'нет'})</p>`;
-
-            // Тест 3: регистрация
-            const testEmail = 'test' + Date.now() + '@test.com';
-            const { data: signup, error: err3 } = await sb.auth.signUp({
-                email: testEmail,
-                password: 'test123456'
-            });
-            result.innerHTML += err3
-                ? `<p style="color:red;">❌ SignUp: ${err3.message}</p>`
-                : `<p style="color:green;">✅ SignUp: OK (${signup.user?.id || 'no user'})</p>`;
-
-            result.innerHTML += '<hr><p><b>Если всё зелёное — Supabase работает. Проблема в коде приложения.</b></p>';
-            result.innerHTML += '<p><b>Если есть красное — проблема в настройках Supabase.</b></p>';
+        function toast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 2000);
         }
 
-        test();
+        function timeAgo(d) {
+            const s = Math.floor((Date.now() - new Date(d)) / 1000);
+            if (s < 60) return 'сейчас';
+            if (s < 3600) return Math.floor(s/60) + ' мин';
+            if (s < 86400) return Math.floor(s/3600) + ' ч';
+            return new Date(d).toLocaleDateString('ru-RU');
+        }
+
+        // ЭКРАН ВХОДА
+        function renderLogin(err) {
+            let h = '<div class="screen-center">';
+            h += '<div class="logo"><i class="fas fa-cube"></i> InnoSphere</div>';
+            if (err) h += `<div class="error-box">${err}</div>`;
+            h += `<input id="loginEmail" type="email" placeholder="Email" value="${OWNER_EMAIL}">`;
+            h += '<input id="loginPass" type="password" placeholder="Пароль" value="Assasin2)">';
+            h += '<button onclick="doLogin()">Войти</button>';
+            h += '<p>Нет аккаунта? <span class="link-text" onclick="renderRegister()">Регистрация</span></p>';
+            h += '</div>';
+            document.getElementById('app').innerHTML = h;
+        }
+
+        function renderRegister(err) {
+            let h = '<div class="screen-center">';
+            h += '<div class="logo"><i class="fas fa-cube"></i> InnoSphere</div>';
+            if (err) h += `<div class="error-box">${err}</div>`;
+            h += '<input id="regName" placeholder="Полное имя" value="Основатель">';
+            h += '<input id="regUser" placeholder="Юзернейм" value="owner">';
+            h += `<input id="regEmail" type="email" placeholder="Email" value="${OWNER_EMAIL}">`;
+            h += '<input id="regPass" type="password" placeholder="Пароль" value="Assasin2)">';
+            h += '<button onclick="doRegister()">Зарегистрироваться</button>';
+            h += '<p>Уже есть аккаунт? <span class="link-text" onclick="renderLogin()">Войти</span></p>';
+            h += '</div>';
+            document.getElementById('app').innerHTML = h;
+        }
+
+        async function doLogin() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const pass = document.getElementById('loginPass').value;
+            if (!email || !pass) return renderLogin('Заполните все поля');
+
+            const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+            if (error) return renderLogin(error.message);
+            if (!data.user) return renderLogin('Не удалось войти');
+
+            currentUser = data.user;
+            await loadProfile();
+            showMainApp();
+        }
+
+        async function doRegister() {
+            const name = document.getElementById('regName').value.trim();
+            const username = document.getElementById('regUser').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const pass = document.getElementById('regPass').value;
+
+            if (!name || !username || !email || !pass) return renderRegister('Заполните все поля');
+            if (pass.length < 6) return renderRegister('Пароль минимум 6 символов');
+
+            const { data, error } = await sb.auth.signUp({ email, password: pass });
+            if (error) {
+                if (error.message.includes('already')) return renderLogin('Этот email уже зарегистрирован. Войдите.');
+                return renderRegister(error.message);
+            }
+            if (!data.user) return renderRegister('Не удалось создать пользователя');
+
+            const isOwner = (email === OWNER_EMAIL);
+            await sb.from('users').insert({
+                id: data.user.id, email, username, full_name: name,
+                is_owner: isOwner, verified: isOwner
+            });
+            await sb.from('user_settings').insert({ user_id: data.user.id });
+
+            currentUser = data.user;
+            currentUser.profile = { id: data.user.id, email, username, full_name: name, is_owner: isOwner, verified: isOwner, avatar_url: 'https://i.pravatar.cc/150?img=5', banner_url: 'https://picsum.photos/480/140', bio: '' };
+            showMainApp();
+        }
+
+        async function loadProfile() {
+            const { data } = await sb.from('users').select('*').eq('id', currentUser.id).single();
+            if (data) currentUser.profile = data;
+        }
+
+        // ГЛАВНЫЙ ЭКРАН
+        function showMainApp() {
+            let h = '<div class="header"><i class="fas fa-cube"></i> InnoSphere';
+            h += '<span style="font-size:0.9rem;">';
+            if (currentUser.profile?.is_owner) h += ' <i class="fas fa-crown badge-crown"></i>';
+            if (currentUser.profile?.verified) h += ' <i class="fas fa-check-circle badge-verify"></i>';
+            h += '</span></div>';
+            h += '<div class="content" id="mainContent"></div>';
+            h += '<div class="bottom-nav">';
+            h += '<div class="nav-item active" data-p="feed" onclick="nav(\'feed\')"><i class="fas fa-newspaper"></i> Лента</div>';
+            h += '<div class="nav-item" data-p="profile" onclick="nav(\'profile\')"><i class="fas fa-user"></i> Профиль</div>';
+            h += '<div class="nav-item" data-p="friends" onclick="nav(\'friends\')"><i class="fas fa-user-friends"></i> Друзья</div>';
+            h += '<div class="nav-item" data-p="more" onclick="nav(\'more\')"><i class="fas fa-ellipsis-h"></i> Ещё</div>';
+            h += '</div>';
+            document.getElementById('app').innerHTML = h;
+            nav('feed');
+        }
+
+        function nav(page) {
+            currentPage = page;
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            const t = document.querySelector(`.nav-item[data-p="${page}"]`);
+            if (t) t.classList.add('active');
+
+            switch (page) {
+                case 'feed': loadFeed(); break;
+                case 'profile': loadProfilePage(); break;
+                case 'friends': loadFriends(); break;
+                case 'more': loadMore(); break;
+                case 'channels': loadChannels(); break;
+                case 'music': loadMusic(); break;
+                case 'verify': loadVerify(); break;
+                case 'chats': loadChats(); break;
+            }
+        }
+
+        // ЛЕНТА
+        async function loadFeed() {
+            const { data: posts } = await sb.from('posts').select('*, users!posts_user_id_fkey(*)').order('created_at', { ascending: false }).limit(30);
+            let h = `
+            <div class="card">
+                <textarea id="postText" placeholder="Что у вас нового?" rows="2"></textarea>
+                <button onclick="createPost()" style="margin-top:8px;"><i class="fas fa-paper-plane"></i> Опубликовать</button>
+            </div>`;
+            if (posts && posts.length > 0) {
+                posts.forEach(p => {
+                    const u = p.users || {};
+                    h += `
+                    <div class="card">
+                        <div class="post-header">
+                            <div class="post-avatar"><i class="fas fa-user"></i></div>
+                            <div>
+                                <strong>${u.full_name || 'Пользователь'}</strong>
+                                ${u.is_owner ? '<i class="fas fa-crown badge-crown"></i>' : ''}
+                                ${u.verified ? '<i class="fas fa-check-circle badge-verify"></i>' : ''}
+                                <div style="font-size:0.7rem; color:var(--text-soft);">${timeAgo(p.created_at)}</div>
+                            </div>
+                        </div>
+                        <p style="white-space:pre-wrap; font-size:0.95rem;">${p.text || ''}</p>
+                        <div class="post-actions">
+                            <span onclick="likePost('${p.id}')"><i class="far fa-heart"></i> ${p.likes_count||0}</span>
+                            <span><i class="far fa-comment"></i> ${p.comments_count||0}</span>
+                            <span onclick="repostPost('${p.id}')"><i class="fas fa-retweet"></i> ${p.reposts_count||0}</span>
+                        </div>
+                    </div>`;
+                });
+            } else {
+                h += '<div class="card"><p style="text-align:center; color:var(--text-soft);">Нет постов. Будьте первым!</p></div>';
+            }
+            document.getElementById('mainContent').innerHTML = h;
+        }
+
+        async function createPost() {
+            const text = document.getElementById('postText')?.value.trim();
+            if (!text) return toast('Напишите текст');
+            const { error } = await sb.from('posts').insert({ user_id: currentUser.id, text });
+            if (error) return toast('Ошибка: ' + error.message);
+            toast('Опубликовано!');
+            loadFeed();
+        }
+
+        async function likePost(id) {
+            const { data: ex } = await sb.from('likes').select('*').eq('user_id', currentUser.id).eq('post_id', id).single();
+            if (ex) {
+                await sb.from('likes').delete().eq('user_id', currentUser.id).eq('post_id', id);
+                await sb.rpc('decrement_likes', { post_id: id });
+            } else {
+                await sb.from('likes').insert({ user_id: currentUser.id, post_id: id });
+                await sb.rpc('increment_likes', { post_id: id });
+            }
+            loadFeed();
+        }
+
+        async function repostPost(id) {
+            const { data: orig } = await sb.from('posts').select('*').eq('id', id).single();
+            if (!orig) return;
+            await sb.from('posts').insert({ user_id: currentUser.id, text: orig.text, reposted_from: id });
+            await sb.rpc('increment_reposts', { post_id: id });
+            toast('Репост сделан!');
+            loadFeed();
+        }
+
+        // ПРОФИЛЬ
+        function loadProfilePage() {
+            const p = currentUser.profile || {};
+            document.getElementById('mainContent').innerHTML = `
+            <div class="card" style="text-align:center;">
+                <div style="font-size:4rem; margin-bottom:8px;"><i class="fas fa-user-circle"></i></div>
+                <h2>${p.full_name || 'Пользователь'}</h2>
+                <p style="color:var(--text-soft);">@${p.username || ''}</p>
+                ${p.is_owner ? '<p class="badge-crown"><i class="fas fa-crown"></i> Владелец соцсети</p>' : ''}
+                ${p.verified ? '<p class="badge-verify"><i class="fas fa-check-circle"></i> Верифицирован</p>' : ''}
+                <p style="margin-top:8px;">${p.bio || ''}</p>
+                <button class="secondary" onclick="doLogout()" style="margin-top:12px;"><i class="fas fa-sign-out-alt"></i> Выйти</button>
+            </div>`;
+        }
+
+        // ДРУЗЬЯ
+        function loadFriends() {
+            document.getElementById('mainContent').innerHTML = `
+            <div class="card">
+                <h2><i class="fas fa-user-friends"></i> Друзья</h2>
+                <p style="text-align:center; color:var(--text-soft);">Здесь будут ваши друзья</p>
+            </div>`;
+        }
+
+        // ЧАТЫ
+        function loadChats() {
+            document.getElementById('mainContent').innerHTML = `
+            <div class="card">
+                <h2><i class="fas fa-comment-dots"></i> Чаты</h2>
+                <button onclick="createChat()"><i class="fas fa-plus"></i> Создать чат</button>
+                <p style="text-align:center; color:var(--text-soft); margin-top:12px;">Чаты появятся здесь</p>
+            </div>`;
+        }
+
+        async function createChat() {
+            const name = prompt('Название чата:');
+            if (!name) return;
+            await sb.from('chats').insert({ type: 'group', name, owner_id: currentUser.id });
+            toast('Чат создан!');
+            loadChats();
+        }
+
+        // ЕЩЁ
+        function loadMore() {
+            document.getElementById('mainContent').innerHTML = `
+            <div class="card" onclick="nav('channels')" style="cursor:pointer;">
+                <h3><i class="fas fa-bullhorn"></i> Каналы</h3>
+                <p style="color:var(--text-soft);">Создавайте тематические каналы</p>
+            </div>
+            <div class="card" onclick="nav('music')" style="cursor:pointer;">
+                <h3><i class="fas fa-music"></i> Музыка</h3>
+                <p style="color:var(--text-soft);">Загружайте любимые треки</p>
+            </div>
+            <div class="card" onclick="nav('verify')" style="cursor:pointer;">
+                <h3><i class="fas fa-check-circle"></i> Верификация</h3>
+                <p style="color:var(--text-soft);">Получите официальную галочку</p>
+            </div>
+            <div class="card" onclick="nav('chats')" style="cursor:pointer;">
+                <h3><i class="fas fa-comment-dots"></i> Чаты</h3>
+                <p style="color:var(--text-soft);">Общайтесь с друзьями</p>
+            </div>`;
+        }
+
+        function loadChannels() {
+            document.getElementById('mainContent').innerHTML = `
+            <div class="card">
+                <h2><i class="fas fa-bullhorn"></i> Каналы</h2>
+                <button onclick="createChannel()"><i class="fas fa-plus"></i> Создать канал</button>
+                <p style="text-align:center; color:var(--text-soft); margin-top:12px;">Каналы появятся здесь</p>
+                <button class="secondary" onclick="nav('more')" style="margin-top:8px;">← Назад</button>
+            </div>`;
+        }
+
+        async function createChannel() {
+            const name = prompt('Название канала:');
+            if (!name) return;
+            const theme = prompt('Тематика:');
+            if (!theme) return;
+            await sb.from('channels').insert({ owner_id: currentUser.id, name, theme });
+            toast('Канал создан!');
+            loadChannels();
+        }
+
+        function loadMusic() {
+            document.getElementById('mainContent').innerHTML = `
+            <div class="card">
+                <h2><i class="fas fa-music"></i> Музыка</h2>
+                <button onclick="uploadMusic()"><i class="fas fa-upload"></i> Загрузить трек</button>
+                <p style="text-align:center; color:var(--text-soft); margin-top:12px;">Треки появятся здесь</p>
+                <button class="secondary" onclick="nav('more')" style="margin-top:8px;">← Назад</button>
+            </div>`;
+        }
+
+        async function uploadMusic() {
+            const artist = prompt('Исполнитель:');
+            const title = prompt('Название:');
+            if (!artist || !title) return;
+            await sb.from('music').insert({ owner_id: currentUser.id, artist, title, status: 'pending' });
+            toast('Трек отправлен на проверку!');
+            loadMusic();
+        }
+
+        function loadVerify() {
+            const p = currentUser.profile || {};
+            document.getElementById('mainContent').innerHTML = `
+            <div class="card">
+                <h2><i class="fas fa-check-circle"></i> Верификация</h2>
+                ${p.is_owner ? '<p class="badge-crown"><i class="fas fa-crown"></i> Вы владелец — верификация не требуется</p>' :
+                  p.verified ? '<p class="badge-verify">✓ Вы верифицированы</p>' :
+                  '<textarea id="verReason" placeholder="Почему вы должны получить галочку?" rows="3"></textarea><button onclick="reqVerify()" style="margin-top:8px;">Отправить заявку</button>'}
+                <button class="secondary" onclick="nav('more')" style="margin-top:8px;">← Назад</button>
+            </div>`;
+        }
+
+        async function reqVerify() {
+            const reason = document.getElementById('verReason')?.value.trim();
+            if (!reason) return toast('Укажите причину');
+            await sb.from('verification_requests').insert({ user_id: currentUser.id, reason, status: 'pending' });
+            toast('Заявка отправлена!');
+            loadVerify();
+        }
+
+        async function doLogout() {
+            await sb.auth.signOut();
+            currentUser = null;
+            renderLogin();
+        }
+
+        // ЗАПУСК
+        (async () => {
+            const { data } = await sb.auth.getSession();
+            if (data.session) {
+                currentUser = data.session.user;
+                await loadProfile();
+                showMainApp();
+            } else {
+                renderLogin();
+            }
+        })();
     </script>
 </body>
 </html>
