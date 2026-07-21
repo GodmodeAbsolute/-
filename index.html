@@ -125,13 +125,16 @@
         .owner-chip { background:linear-gradient(135deg,#f59e0b,#d97706); color:#fff; padding:4px 10px; border-radius:20px; font-size:0.7rem; font-weight:700; letter-spacing:0.5px; display:inline-flex; align-items:center; gap:4px; box-shadow:0 2px 6px rgba(245,158,11,0.3); }
         .post-preview-img { max-width:100%; max-height:220px; border-radius:14px; margin-top:10px; object-fit:cover; box-shadow:var(--shadow-sm); }
         
-        /* Стили для красивых иконок в настройках */
+        /* Стили для красивых иконок в настройках и заголовках */
         .settings-label-wrap { display: flex; align-items: center; gap: 14px; }
         .settings-icon-box { width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1rem; color: #fff; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .icon-theme { background: linear-gradient(135deg, #f59e0b, #d97706); }
         .icon-shield { background: linear-gradient(135deg, #8b5cf6, #6366f1); }
         .icon-channel { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
         .icon-verify { background: linear-gradient(135deg, #10b981, #059669); }
+        
+        .section-title { display: flex; align-items: center; gap: 10px; font-size: 1.35rem; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+        .section-title i { color: var(--primary); font-size: 1.2rem; }
     </style>
 </head>
 <body>
@@ -273,7 +276,7 @@ async function createPost(){
     let imageUrl=null;
     if(pendingPostImage){const blob=await(await fetch(pendingPostImage)).blob();const path=`post-images/${currentUser.id}/${Date.now()}.jpg`;await sb.storage.from('post-images').upload(path,blob);imageUrl=sb.storage.from('post-images').getPublicUrl(path).data.publicUrl;}
     await sb.from('posts').insert({user_id:currentUser.id,text:text||'',image_url:imageUrl});
-    pendingPostImage=null;toast('✅ Опубликовано!');loadFeed();
+    pendingPostImage=null;toast('Опубликовано!');loadFeed();
 }
 async function deletePost(id){if(!confirm('Удалить?'))return;await sb.from('posts').delete().eq('id',id);toast('Удалён');loadFeed();}
 async function likePost(id){const{data:ex}=await sb.from('likes').select('*').eq('user_id',currentUser.id).eq('post_id',id).single();if(ex){await sb.from('likes').delete().eq('user_id',currentUser.id).eq('post_id',id);await sb.rpc('decrement_likes',{post_id:id});}else{await sb.from('likes').insert({user_id:currentUser.id,post_id:id});await sb.rpc('increment_likes',{post_id:id});}loadFeed();}
@@ -291,31 +294,31 @@ function loadProfilePage(){
 
 function loadEditProfile(){
     const p=currentUser.profile||{};
-    let h='<h2 style="margin-bottom:14px;">✏️ Редактирование</h2><div class="card">';
+    let h=`<div class="section-title"><i class="fas fa-pen-to-square"></i> Редактирование</div><div class="card">`;
     h+=`<div style="display:flex;gap:10px;margin-bottom:14px;"><button class="secondary small" onclick="changeAvatar()"><i class="fas fa-camera"></i> Аватар</button><button class="secondary small" onclick="changeBanner()"><i class="fas fa-image"></i> Баннер</button></div>`;
     h+=`<input id="editName" value="${escapeHTML(p.full_name||'')}" placeholder="Имя" style="margin-bottom:10px;">`;
     h+=`<input id="editBio" value="${escapeHTML(p.bio||'')}" placeholder="О себе" style="margin-bottom:10px;">`;
     h+=`<input id="editCity" value="${escapeHTML(p.city||'')}" placeholder="Город" style="margin-bottom:14px;">`;
-    h+='<button class="full" id="btnSaveProfile"><i class="fas fa-check"></i> Сохранить</button><button class="secondary full" onclick="nav(\'profile\')" style="margin-top:8px;">← Назад</button></div>';
+    h+='<button class="full" id="btnSaveProfile"><i class="fas fa-check"></i> Сохранить</button><button class="secondary full" onclick="nav(\'profile\')" style="margin-top:8px;"><i class="fas fa-arrow-left"></i> Назад</button></div>';
     document.getElementById('mainContent').innerHTML=h;
     document.getElementById('btnSaveProfile').onclick=saveProfile;
 }
 
 async function saveProfile(){
     const updates={full_name:document.getElementById('editName').value.trim(),bio:document.getElementById('editBio').value.trim(),city:document.getElementById('editCity').value.trim()};
-    await sb.from('users').update(updates).eq('id',currentUser.id);Object.assign(currentUser.profile,updates);toast('✅ Обновлено!');nav('profile');
+    await sb.from('users').update(updates).eq('id',currentUser.id);Object.assign(currentUser.profile,updates);toast('Обновлено!');nav('profile');
 }
 
 async function uploadFile(bucket,file){const path=`${currentUser.id}/${Date.now()}.jpg`;await sb.storage.from(bucket).upload(path,file,{upsert:true});return sb.storage.from(bucket).getPublicUrl(path).data.publicUrl;}
-function changeAvatar(){const input=document.createElement('input');input.type='file';input.accept='image/*';input.onchange=async function(){const f=input.files[0];if(!f)return;const url=await uploadFile('avatars',f);if(url){await sb.from('users').update({avatar_url:url}).eq('id',currentUser.id);currentUser.profile.avatar_url=url;toast('✅ Аватар!');nav('editProfile');}};input.click();}
-function changeBanner(){const input=document.createElement('input');input.type='file';input.accept='image/*';input.onchange=async function(){const f=input.files[0];if(!f)return;const url=await uploadFile('banners',f);if(url){await sb.from('users').update({banner_url:url}).eq('id',currentUser.id);currentUser.profile.banner_url=url;toast('✅ Баннер!');nav('editProfile');}};input.click();}
+function changeAvatar(){const input=document.createElement('input');input.type='file';input.accept='image/*';input.onchange=async function(){const f=input.files[0];if(!f)return;const url=await uploadFile('avatars',f);if(url){await sb.from('users').update({avatar_url:url}).eq('id',currentUser.id);currentUser.profile.avatar_url=url;toast('Аватар обновлен!');nav('editProfile');}};input.click();}
+function changeBanner(){const input=document.createElement('input');input.type='file';input.accept='image/*';input.onchange=async function(){const f=input.files[0];if(!f)return;const url=await uploadFile('banners',f);if(url){await sb.from('users').update({banner_url:url}).eq('id',currentUser.id);currentUser.profile.banner_url=url;toast('Баннер обновлен!');nav('editProfile');}};input.click();}
 
 // ==================== ДРУЗЬЯ ====================
 async function loadFriends(){
     const{data:all}=await sb.from('users').select('*').neq('id',currentUser.id).order('full_name');
     const{data:mf}=await sb.from('friends').select('friend_id').eq('user_id',currentUser.id);
     const fids=new Set((mf||[]).map(f=>f.friend_id));window._all=all||[];window._fids=fids;
-    document.getElementById('mainContent').innerHTML='<h2 style="margin-bottom:14px;">👥 Пользователи</h2><input id="su" placeholder="🔍 Поиск..." style="margin-bottom:12px;border-radius:24px;"><div id="ul"></div>';
+    document.getElementById('mainContent').innerHTML=`<div class="section-title"><i class="fas fa-users"></i> Пользователи</div><input id="su" placeholder="🔍 Поиск..." style="margin-bottom:12px;border-radius:24px;"><div id="ul"></div>`;
     document.getElementById('su').oninput=()=>{const q=document.getElementById('su').value.toLowerCase();renderUsersList(window._all.filter(u=>u.full_name.toLowerCase().includes(q)||u.username.toLowerCase().includes(q)));};
     renderUsersList(window._all);
 }
@@ -324,14 +327,14 @@ async function toggleFriend(fid){if(window._fids.has(fid)){await sb.from('friend
 async function viewUserProfile(uid){
     if(uid===currentUser.id){nav('profile');return;}
     const{data:u}=await sb.from('users').select('*').eq('id',uid).single();if(!u)return;
-    document.getElementById('mainContent').innerHTML=`<div class="card" style="padding:0;overflow:hidden;"><img src="${escapeHTML(u.banner_url||'')}" class="profile-banner"><div style="padding:0 18px;"><div class="profile-avatar-lg">${avHtml(u)}<span class="online-dot"></span></div><div style="display:flex;align-items:center;gap:6px;margin-top:10px;"><h2 style="font-size:1.4rem;">${escapeHTML(u.full_name)}</h2>${u.verified?'<i class="fas fa-circle-check badge-verify"></i>':''}${u.is_owner?'<span class="owner-chip"><i class="fas fa-crown"></i> OWNER</span>':''}</div><p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:8px;">@${escapeHTML(u.username)}</p>${u.bio?`<p style="margin:6px 0;">${escapeHTML(u.bio)}</p>`:''}${u.city?`<p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:14px;"><i class="fas fa-map-pin" style="color:var(--primary);"></i> ${escapeHTML(u.city)}</p>`:''}<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px;"><button class="full" onclick="startChat('${uid}','${escapeHTML(u.full_name)}')"><i class="fas fa-message"></i> Написать</button><button class="secondary full" onclick="nav('friends')">← Назад</button></div></div></div>`;
+    document.getElementById('mainContent').innerHTML=`<div class="card" style="padding:0;overflow:hidden;"><img src="${escapeHTML(u.banner_url||'')}" class="profile-banner"><div style="padding:0 18px;"><div class="profile-avatar-lg">${avHtml(u)}<span class="online-dot"></span></div><div style="display:flex;align-items:center;gap:6px;margin-top:10px;"><h2 style="font-size:1.4rem;">${escapeHTML(u.full_name)}</h2>${u.verified?'<i class="fas fa-circle-check badge-verify"></i>':''}${u.is_owner?'<span class="owner-chip"><i class="fas fa-crown"></i> OWNER</span>':''}</div><p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:8px;">@${escapeHTML(u.username)}</p>${u.bio?`<p style="margin:6px 0;">${escapeHTML(u.bio)}</p>`:''}${u.city?`<p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:14px;"><i class="fas fa-map-pin" style="color:var(--primary);"></i> ${escapeHTML(u.city)}</p>`:''}<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px;"><button class="full" onclick="startChat('${uid}','${escapeHTML(u.full_name)}')"><i class="fas fa-message"></i> Написать</button><button class="secondary full" onclick="nav('friends')"><i class="fas fa-arrow-left"></i> Назад</button></div></div></div>`;
 }
 
 // ==================== ЧАТЫ ====================
 async function loadChats(){
     if(chatChannel){sb.removeChannel(chatChannel);chatChannel=null;}
     const{data:chats}=await sb.from('chats').select('*').contains('participants',[currentUser.id]).order('created_at',{ascending:false});
-    if(!chats||chats.length===0){document.getElementById('mainContent').innerHTML='<div class="info-box" style="margin-bottom:14px;">💬 Нет чатов</div><button class="secondary full" onclick="nav(\'friends\')">К друзьям</button>';return;}
+    if(!chats||chats.length===0){document.getElementById('mainContent').innerHTML=`<div class="info-box" style="margin-bottom:14px;"><i class="fas fa-comment-slash"></i> Нет активных чатов</div><button class="secondary full" onclick="nav(\'friends\')"><i class="fas fa-users"></i> Найти друзей</button>`;return;}
     let h='<div class="chat-container"><div class="chat-list" id="clist"></div><div class="chat-messages" id="cmsg"><p style="text-align:center;color:var(--text-tertiary);margin:auto;">Выберите чат</p></div><div class="chat-input-row" id="cinput" style="display:none;"></div></div>';
     document.getElementById('mainContent').innerHTML=h;
     document.getElementById('clist').innerHTML=chats.map(c=>`<div class="chat-list-item" data-cid="${c.id}"><div class="post-avatar" style="width:38px;height:38px;font-size:0.9rem;">${getInitials(c.name||'?')}</div><span>${escapeHTML(c.name||'Чат')}</span></div>`).join('');
@@ -357,14 +360,14 @@ function renderMessage(m){let content='';if(m.attachment_type==='image'&&m.attac
 function appendMessage(m){const c=document.getElementById('cmsg');if(!c)return;c.insertAdjacentHTML('beforeend',renderMessage(m));c.scrollTop=c.scrollHeight;markAsRead(currentChatId);}
 async function markAsRead(cid){await sb.from('messages').update({read_at:new Date().toISOString()}).eq('chat_id',cid).neq('from_user_id',currentUser.id).is('read_at',null);}
 async function sendMessage(){const input=document.getElementById('mi');if(!input||!input.value.trim()||!currentChatId)return;const text=input.value.trim();input.value='';const{data:msg}=await sb.from('messages').insert({chat_id:currentChatId,from_user_id:currentUser.id,text}).select('*, users!messages_from_user_id_fkey(*)').single();if(msg)appendMessage(msg);}
-function sendChatImage(){const input=document.createElement('input');input.type='file';input.accept='image/*';input.onchange=async function(){const file=input.files[0];if(!file)return;toast('📷 Загрузка...');const path=`chat-images/${currentChatId}/${Date.now()}.jpg`;await sb.storage.from('chat-images').upload(path,file);const url=sb.storage.from('chat-images').getPublicUrl(path).data.publicUrl;const{data:msg}=await sb.from('messages').insert({chat_id:currentChatId,from_user_id:currentUser.id,text:'📷 Фото',attachment_url:url,attachment_type:'image'}).select('*, users!messages_from_user_id_fkey(*)').single();if(msg)appendMessage(msg);};input.click();}
-function toggleVoiceRecord(){if(isRecording){stopVoiceRecord();return;}if(!navigator.mediaDevices)return toast('Нет микрофона');navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{mediaRecorder=new MediaRecorder(stream);audioChunks=[];mediaRecorder.ondataavailable=e=>audioChunks.push(e.data);mediaRecorder.onstop=async()=>{const blob=new Blob(audioChunks,{type:'audio/webm'});const path=`voice-messages/${currentChatId}/${Date.now()}.webm`;await sb.storage.from('voice-messages').upload(path,blob);const url=sb.storage.from('voice-messages').getPublicUrl(path).data.publicUrl;const{data:msg}=await sb.from('messages').insert({chat_id:currentChatId,from_user_id:currentUser.id,text:'🎤 Голосовое',attachment_url:url,attachment_type:'voice'}).select('*, users!messages_from_user_id_fkey(*)').single();if(msg)appendMessage(msg);stream.getTracks().forEach(t=>t.stop());};mediaRecorder.start();isRecording=true;document.getElementById('btnVoice').innerHTML='<i class="fas fa-stop" style="color:var(--danger);"></i>';toast('🔴 Запись...');}).catch(()=>toast('Нет доступа'));}
+function sendChatImage(){const input=document.createElement('input');input.type='file';input.accept='image/*';input.onchange=async function(){const file=input.files[0];if(!file)return;toast('Загрузка фото...');const path=`chat-images/${currentChatId}/${Date.now()}.jpg`;await sb.storage.from('chat-images').upload(path,file);const url=sb.storage.from('chat-images').getPublicUrl(path).data.publicUrl;const{data:msg}=await sb.from('messages').insert({chat_id:currentChatId,from_user_id:currentUser.id,text:'Фото',attachment_url:url,attachment_type:'image'}).select('*, users!messages_from_user_id_fkey(*)').single();if(msg)appendMessage(msg);};input.click();}
+function toggleVoiceRecord(){if(isRecording){stopVoiceRecord();return;}if(!navigator.mediaDevices)return toast('Нет микрофона');navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{mediaRecorder=new MediaRecorder(stream);audioChunks=[];mediaRecorder.ondataavailable=e=>audioChunks.push(e.data);mediaRecorder.onstop=async()=>{const blob=new Blob(audioChunks,{type:'audio/webm'});const path=`voice-messages/${currentChatId}/${Date.now()}.webm`;await sb.storage.from('voice-messages').upload(path,blob);const url=sb.storage.from('voice-messages').getPublicUrl(path).data.publicUrl;const{data:msg}=await sb.from('messages').insert({chat_id:currentChatId,from_user_id:currentUser.id,text:'Голосовое сообщение',attachment_url:url,attachment_type:'voice'}).select('*, users!messages_from_user_id_fkey(*)').single();if(msg)appendMessage(msg);stream.getTracks().forEach(t=>t.stop());};mediaRecorder.start();isRecording=true;document.getElementById('btnVoice').innerHTML='<i class="fas fa-stop" style="color:var(--danger);"></i>';toast('Идет запись...');}).catch(()=>toast('Нет доступа к микрофону'));}
 function stopVoiceRecord(){if(mediaRecorder&&isRecording){mediaRecorder.stop();isRecording=false;document.getElementById('btnVoice').innerHTML='<i class="fas fa-microphone" style="color:var(--text-secondary);"></i>';}}
 async function startChat(uid,uname){const{data:ex}=await sb.from('chats').select('*').contains('participants',[currentUser.id,uid]).single();if(ex){nav('chats');setTimeout(()=>openChat(ex.id),300);return;}const{data:chat}=await sb.from('chats').insert({type:'dm',name:uname,owner_id:currentUser.id,participants:[currentUser.id,uid]}).select().single();if(chat){nav('chats');setTimeout(()=>openChat(chat.id),300);}}
 
 // ==================== НАСТРОЙКИ С НОВЫМИ ИКОНКАМИ ====================
 function loadSettings(){
-    let h='<h2 style="margin-bottom:14px;">⚙️ Настройки</h2>';
+    let h=`<div class="section-title"><i class="fas fa-gear"></i> Настройки</div>`;
     
     // Тёмная тема
     h+=`<div class="card"><div class="settings-item" id="toggleTheme">
@@ -411,19 +414,51 @@ function toggleTheme(){theme=theme==='dark'?'light':'dark';localStorage.setItem(
 
 async function loadModeration(){
     const{data,error}=await sb.from('verification_requests').select('*, users!verification_requests_user_id_fkey(*)').order('created_at',{ascending:false});
-    let h='<h2 style="margin-bottom:14px;">👑 Панель модерации</h2><h3 style="margin-bottom:10px;font-size:1.1rem;">📋 Заявки на верификацию</h3>';
-    if(data&&data.length>0){data.forEach(r=>{const u=r.users||{};h+=`<div class="card"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;"><div><strong>${escapeHTML(u.full_name||'Неизвестный')}</strong> <span style="color:var(--text-secondary);font-size:0.85rem;">@${escapeHTML(u.username||'?')}</span></div><span class="badge badge-${r.status==='approved'?'approved':r.status==='rejected'?'rejected':'pending'}">${r.status==='approved'?'Одобрено':r.status==='rejected'?'Отклонено':'На проверке'}</span></div><p style="margin:8px 0;font-size:0.92rem;color:var(--text-secondary);">${escapeHTML(r.reason||'')}</p>${r.status==='pending'?`<div style="margin-top:10px;display:flex;gap:8px;"><button class="success small" data-app="${r.id}" data-uid="${r.user_id}"><i class="fas fa-check"></i> Одобрить</button><button class="danger small" data-rej="${r.id}"><i class="fas fa-xmark"></i> Отклонить</button></div>`:''}</div>`;});}else{h+='<p style="color:var(--text-tertiary);">Нет заявок на рассмотрение</p>';}
-    h+='<button class="secondary full" onclick="nav(\'settings\')" style="margin-top:14px;">← Назад</button>';
+    let h=`<div class="section-title"><i class="fas fa-shield-halved"></i> Панель модерации</div>
+           <div style="display:flex;align-items:center;gap:8px;font-size:1.05rem;font-weight:600;margin-bottom:12px;color:var(--text-secondary);">
+               <i class="fas fa-clipboard-list" style="color:var(--primary);"></i> Заявки на верификацию
+           </div>`;
+    if(data&&data.length>0){
+        data.forEach(r=>{
+            const u=r.users||{};
+            h+=`<div class="card">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+                    <div><strong>${escapeHTML(u.full_name||'Неизвестный')}</strong> <span style="color:var(--text-secondary);font-size:0.85rem;">@${escapeHTML(u.username||'?')}</span></div>
+                    <span class="badge badge-${r.status==='approved'?'approved':r.status==='rejected'?'rejected':'pending'}">${r.status==='approved'?'Одобрено':r.status==='rejected'?'Отклонено':'На проверке'}</span>
+                </div>
+                <p style="margin:8px 0;font-size:0.92rem;color:var(--text-secondary);">${escapeHTML(r.reason||'')}</p>
+                ${r.status==='pending'?`<div style="margin-top:10px;display:flex;gap:8px;"><button class="success small" data-app="${r.id}" data-uid="${r.user_id}"><i class="fas fa-check"></i> Одобрить</button><button class="danger small" data-rej="${r.id}"><i class="fas fa-xmark"></i> Отклонить</button></div>`:''}
+            </div>`;
+        });
+    }else{
+        h+='<p style="color:var(--text-tertiary);">Нет заявок на рассмотрение</p>';
+    }
+    h+='<button class="secondary full" onclick="nav(\'settings\')" style="margin-top:14px;"><i class="fas fa-arrow-left"></i> Назад</button>';
     document.getElementById('mainContent').innerHTML=h;
 }
-async function approveVerification(verId,userId){const{error:err1}=await sb.from('verification_requests').update({status:'approved'}).eq('id',verId);const{error:err2}=await sb.from('users').update({verified:true}).eq('id',userId);if(err1||err2){toast('Ошибка: '+(err1?.message||err2?.message));}else{toast('✅ Верификация одобрена!');}loadModeration();}
+async function approveVerification(verId,userId){const{error:err1}=await sb.from('verification_requests').update({status:'approved'}).eq('id',verId);const{error:err2}=await sb.from('users').update({verified:true}).eq('id',userId);if(err1||err2){toast('Ошибка: '+(err1?.message||err2?.message));}else{toast('Верификация одобрена!');}loadModeration();}
 async function rejectVerification(verId){await sb.from('verification_requests').update({status:'rejected'}).eq('id',verId);toast('Отклонено');loadModeration();}
 
-function loadChannels(){document.getElementById('mainContent').innerHTML='<div class="card"><h2 style="margin-bottom:14px;">📢 Каналы</h2><button class="full" onclick="createChannel()" style="margin-bottom:10px;">Создать</button><button class="secondary full" onclick="nav(\'settings\')">← Назад</button></div>';}
-async function createChannel(){const n=prompt('Название:'),t=prompt('Тема:');if(n&&t)await sb.from('channels').insert({owner_id:currentUser.id,name:n,theme:t});toast('Создан!');}
+function loadChannels(){
+    document.getElementById('mainContent').innerHTML=`
+        <div class="section-title"><i class="fas fa-bullhorn"></i> Каналы</div>
+        <div class="card">
+            <button class="full" onclick="createChannel()" style="margin-bottom:10px;"><i class="fas fa-plus"></i> Создать канал</button>
+            <button class="secondary full" onclick="nav(\'settings\')"><i class="fas fa-arrow-left"></i> Назад</button>
+        </div>`;
+}
+async function createChannel(){const n=prompt('Название:'),t=prompt('Тема:');if(n&&t)await sb.from('channels').insert({owner_id:currentUser.id,name:n,theme:t});toast('Канал создан!');}
 
-function loadVerify(){const p=currentUser.profile||{};document.getElementById('mainContent').innerHTML=`<div class="card"><h2 style="margin-bottom:14px;">✅ Верификация</h2>${p.is_owner?'<p style="color:var(--text-secondary);">Вы OWNER</p>':p.verified?'<p class="badge-verify" style="font-weight:600;"><i class="fas fa-circle-check"></i> Вы верифицированы</p>':'<textarea id="vr" placeholder="Укажите причину для верификации..." style="margin-bottom:12px;"></textarea><button class="full" onclick="reqVerify()">Отправить заявку</button>'}<button class="secondary full" onclick="nav(\'settings\')" style="margin-top:14px;">← Назад</button></div>`;}
-async function reqVerify(){const r=document.getElementById('vr')?.value.trim();if(r)await sb.from('verification_requests').insert({user_id:currentUser.id,reason:r});toast('Отправлено!');nav('settings');}
+function loadVerify(){
+    const p=currentUser.profile||{};
+    document.getElementById('mainContent').innerHTML=`
+        <div class="section-title"><i class="fas fa-circle-check"></i> Верификация</div>
+        <div class="card">
+            ${p.is_owner?'<p style="color:var(--text-secondary);"><i class="fas fa-crown badge-crown"></i> Вы владелец (OWNER)</p>':p.verified?'<p class="badge-verify" style="font-weight:600;"><i class="fas fa-circle-check"></i> Вы верифицированы</p>':'<textarea id="vr" placeholder="Укажите причину для верификации..." style="margin-bottom:12px;"></textarea><button class="full" onclick="reqVerify()"><i class="fas fa-paper-plane"></i> Отправить заявку</button>'}
+            <button class="secondary full" onclick="nav(\'settings\')" style="margin-top:14px;"><i class="fas fa-arrow-left"></i> Назад</button>
+        </div>`;
+}
+async function reqVerify(){const r=document.getElementById('vr')?.value.trim();if(r)await sb.from('verification_requests').insert({user_id:currentUser.id,reason:r});toast('Заявка отправлена!');nav('settings');}
 
 async function doLogout(){if(chatChannel)sb.removeChannel(chatChannel);await sb.auth.signOut();currentUser=null;renderLogin();}
 
