@@ -34,6 +34,7 @@
         .post-header { display:flex; align-items:center; gap:10px; margin-bottom:10px; cursor:pointer; }
         .post-avatar { width:42px; height:42px; border-radius:50%; background:linear-gradient(135deg,#6366f1,#8b5cf6); display:flex; align-items:center; justify-content:center; font-size:1rem; color:#fff; flex-shrink:0; font-weight:600; overflow:hidden; }
         .post-avatar img { width:100%; height:100%; object-fit:cover; }
+        .post-image { width:100%; border-radius:12px; margin-top:8px; max-height:400px; object-fit:cover; }
         .post-actions { display:flex; gap:24px; margin-top:12px; color:var(--text-secondary); font-size:0.9rem; }
         .post-actions span { cursor:pointer; display:flex; align-items:center; gap:5px; padding:4px 8px; border-radius:20px; }
         .post-actions span:active { background:var(--primary-soft); color:var(--primary); }
@@ -83,6 +84,7 @@
         .online-dot { width:12px; height:12px; background:var(--success); border-radius:50%; display:inline-block; border:2px solid var(--surface); position:absolute; bottom:2px; right:2px; z-index:3; animation:pulse 2s infinite; }
         @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
         .owner-chip { background:linear-gradient(135deg,#f59e0b,#d97706); color:#fff; padding:4px 10px; border-radius:20px; font-size:0.7rem; font-weight:700; letter-spacing:0.5px; display:inline-flex; align-items:center; gap:4px; }
+        .post-preview-img { max-width:100%; max-height:200px; border-radius:10px; margin-top:8px; }
     </style>
 </head>
 <body>
@@ -92,13 +94,13 @@
 <script>
 const SUPABASE_URL='https://byniblcezicrvyyqbafc.supabase.co';
 const SUPABASE_KEY='sb_publishable_exBhK1ZwxY3uSoErm0jVFA_gR97KaAy';
-const OWNER_EMAIL='ilyabelyev344@gmail.com';
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
 let currentUser=null,currentPage='feed',currentChatId=null,chatChannel=null;
 let theme=localStorage.getItem('godmode_theme')||'light';
 if(theme==='dark')document.body.classList.add('dark');
 let mediaRecorder=null,audioChunks=[],isRecording=false;
+let pendingPostImage=null;
 
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',2000);}
 function timeAgo(d){const s=Math.floor((Date.now()-new Date(d))/1000);if(s<60)return'сейчас';if(s<3600)return Math.floor(s/60)+' мин';if(s<86400)return Math.floor(s/3600)+' ч';return new Date(d).toLocaleDateString('ru-RU');}
@@ -109,11 +111,11 @@ function avHtml(u){if(u?.avatar_url)return`<img src="${escapeHTML(u.avatar_url)}
 function escapeHTML(str){const div=document.createElement('div');div.textContent=str||'';return div.innerHTML;}
 function randAvatar(){return'https://i.pravatar.cc/150?img='+Math.floor(Math.random()*70);}
 
-// АВТОРИЗАЦИЯ
+// ==================== АВТОРИЗАЦИЯ (ПУСТЫЕ ПОЛЯ) ====================
 function renderLogin(err){
     let h='<div class="screen-center"><div class="logo-icon">💠</div><div class="logo-text">Godmode</div>';
     if(err)h+=`<div class="error-box">${escapeHTML(err)}</div>`;
-    h+=`<input id="loginEmail" type="email" placeholder="Email" value="${OWNER_EMAIL}"><input id="loginPass" type="password" placeholder="Пароль" value="Assasin2)"><button class="full" id="btnLogin">Войти</button><p style="color:var(--text-secondary);">Нет аккаунта? <span class="link-text" id="linkRegister">Регистрация</span></p></div>`;
+    h+='<input id="loginEmail" type="email" placeholder="Email" autocomplete="email"><input id="loginPass" type="password" placeholder="Пароль" autocomplete="current-password"><button class="full" id="btnLogin">Войти</button><p style="color:var(--text-secondary);">Нет аккаунта? <span class="link-text" id="linkRegister">Регистрация</span></p></div>';
     document.getElementById('app').innerHTML=h;
     document.getElementById('btnLogin').onclick=doLogin;
     document.getElementById('linkRegister').onclick=()=>renderRegister();
@@ -141,18 +143,17 @@ async function doRegister(){
     if(!name||!username||!email||!pass)return renderRegister('Заполните все поля');
     if(pass.length<6)return renderRegister('Пароль минимум 6 символов');
     const{data,error}=await sb.auth.signUp({email,password:pass});
-    if(error){if(error.message.includes('already'))return renderLogin('Уже зарегистрирован. Войдите.');return renderRegister(error.message);}
-    const isOwner=(email===OWNER_EMAIL);
-    await sb.from('users').insert({id:data.user.id,email,username,full_name:name,is_owner:isOwner,verified:isOwner,avatar_url:randAvatar()});
+    if(error){if(error.message.includes('already'))return renderLogin('Этот email уже зарегистрирован. Войдите.');return renderRegister(error.message);}
+    await sb.from('users').insert({id:data.user.id,email,username,full_name:name,avatar_url:randAvatar()});
     await sb.from('user_settings').insert({user_id:data.user.id});
     currentUser=data.user;
-    currentUser.profile={id:data.user.id,email,username,full_name:name,is_owner:isOwner,verified:isOwner,avatar_url:randAvatar(),banner_url:'',bio:'',city:''};
+    currentUser.profile={id:data.user.id,email,username,full_name:name,is_owner:false,verified:false,avatar_url:randAvatar(),banner_url:'',bio:'',city:''};
     showMainApp();
 }
 
-async function loadProfile(){const{data}=await sb.from('users').select('*').eq('id',currentUser.id).single();if(data){data.is_owner=data.is_owner||(data.email===OWNER_EMAIL);currentUser.profile=data;}}
+async function loadProfile(){const{data}=await sb.from('users').select('*').eq('id',currentUser.id).single();if(data){currentUser.profile=data;}}
 
-// ГЛАВНЫЙ ЭКРАН
+// ==================== ГЛАВНЫЙ ЭКРАН ====================
 function showMainApp(){
     if(chatChannel){sb.removeChannel(chatChannel);chatChannel=null;}
     let h='<div class="header"><div class="header-logo">💠 Godmode</div>';
@@ -198,26 +199,56 @@ function globalClickHandler(e){
     if(t.closest('[data-rej]')){rejectVerification(t.closest('[data-rej]').dataset.rej);return;}
 }
 
-// ЛЕНТА
+// ==================== ЛЕНТА С ФОТО ====================
 async function loadFeed(){
     const{data:posts}=await sb.from('posts').select('*, users!posts_user_id_fkey(*)').order('created_at',{ascending:false}).limit(30);
-    let h=`<div class="card"><textarea id="postText" placeholder="Что у вас нового?" rows="2" style="border:none;padding:4px 0;background:transparent;resize:none;width:100%;"></textarea><button class="full" id="btnCreatePost" style="margin-top:8px;"><i class="fas fa-paper-plane"></i> Опубликовать</button></div>`;
+    let h=`<div class="card">
+        <textarea id="postText" placeholder="Что у вас нового?" rows="2" style="border:none;padding:4px 0;background:transparent;resize:none;width:100%;"></textarea>
+        <div id="postPreview"></div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+            <button class="secondary small" id="btnAddImage"><i class="fas fa-image"></i> Фото</button>
+            <button class="full" id="btnCreatePost"><i class="fas fa-paper-plane"></i> Опубликовать</button>
+        </div>
+        <input type="file" id="postImageInput" accept="image/*" style="display:none;">
+    </div>`;
     if(posts)posts.forEach(p=>{
         const u=p.users||{};
-        h+=`<div class="card"><div class="post-header" data-uid="${p.user_id}"><div class="post-avatar">${avHtml(u)}</div><div style="flex:1;"><strong>${escapeHTML(u.full_name||'?')}</strong>${u.is_owner?' <span class="owner-chip"><i class="fas fa-crown"></i> OWNER</span>':''}<div style="font-size:0.75rem;color:var(--text-tertiary);">${timeAgo(p.created_at)}</div></div>${p.user_id===currentUser.id?`<button class="ghost icon-only" data-del="${p.id}"><i class="fas fa-trash" style="color:var(--danger);"></i></button>`:''}</div><p style="white-space:pre-wrap;font-size:0.95rem;">${escapeHTML(p.text||'')}</p><div class="post-actions"><span data-like="${p.id}"><i class="far fa-heart"></i> ${p.likes_count||0}</span><span data-comm="${p.id}"><i class="far fa-message"></i> ${p.comments_count||0}</span><span data-repost="${p.id}"><i class="fas fa-arrow-right-arrow-left"></i> ${p.reposts_count||0}</span></div><div class="comment-box" id="comments-${p.id}" style="display:none;"><div id="cl-${p.id}"></div><div class="comment-input-row"><input id="ci-${p.id}" placeholder="Комментарий..."><button class="ghost icon-only" data-addcomm="${p.id}"><i class="fas fa-paper-plane" style="color:var(--primary);"></i></button></div></div></div>`;
+        h+=`<div class="card"><div class="post-header" data-uid="${p.user_id}"><div class="post-avatar">${avHtml(u)}</div><div style="flex:1;"><strong>${escapeHTML(u.full_name||'?')}</strong>${u.is_owner?' <span class="owner-chip"><i class="fas fa-crown"></i> OWNER</span>':''}<div style="font-size:0.75rem;color:var(--text-tertiary);">${timeAgo(p.created_at)}</div></div>${p.user_id===currentUser.id?`<button class="ghost icon-only" data-del="${p.id}"><i class="fas fa-trash" style="color:var(--danger);"></i></button>`:''}</div><p style="white-space:pre-wrap;font-size:0.95rem;">${escapeHTML(p.text||'')}</p>${p.image_url?`<img src="${escapeHTML(p.image_url)}" class="post-image" alt="фото">`:''}<div class="post-actions"><span data-like="${p.id}"><i class="far fa-heart"></i> ${p.likes_count||0}</span><span data-comm="${p.id}"><i class="far fa-message"></i> ${p.comments_count||0}</span><span data-repost="${p.id}"><i class="fas fa-arrow-right-arrow-left"></i> ${p.reposts_count||0}</span></div><div class="comment-box" id="comments-${p.id}" style="display:none;"><div id="cl-${p.id}"></div><div class="comment-input-row"><input id="ci-${p.id}" placeholder="Комментарий..."><button class="ghost icon-only" data-addcomm="${p.id}"><i class="fas fa-paper-plane" style="color:var(--primary);"></i></button></div></div></div>`;
     });
     document.getElementById('mainContent').innerHTML=h||'<p>Пусто</p>';
     document.getElementById('btnCreatePost').onclick=createPost;
+    document.getElementById('btnAddImage').onclick=()=>document.getElementById('postImageInput').click();
+    document.getElementById('postImageInput').onchange=function(){
+        const file=this.files[0];if(!file)return;
+        const reader=new FileReader();
+        reader.onload=function(e){
+            pendingPostImage=e.target.result;
+            document.getElementById('postPreview').innerHTML=`<img src="${e.target.result}" class="post-preview-img">`;
+        };
+        reader.readAsDataURL(file);
+    };
 }
 
-async function createPost(){const t=document.getElementById('postText')?.value.trim();if(!t)return toast('Напишите текст');await sb.from('posts').insert({user_id:currentUser.id,text:t});toast('✅ Опубликовано!');loadFeed();}
+async function createPost(){
+    const text=document.getElementById('postText')?.value.trim();
+    if(!text&&!pendingPostImage)return toast('Напишите текст или добавьте фото');
+    let imageUrl=null;
+    if(pendingPostImage){
+        const blob=await(await fetch(pendingPostImage)).blob();
+        const path=`post-images/${currentUser.id}/${Date.now()}.jpg`;
+        await sb.storage.from('post-images').upload(path,blob);
+        imageUrl=sb.storage.from('post-images').getPublicUrl(path).data.publicUrl;
+    }
+    await sb.from('posts').insert({user_id:currentUser.id,text:text||'',image_url:imageUrl});
+    pendingPostImage=null;toast('✅ Опубликовано!');loadFeed();
+}
 async function deletePost(id){if(!confirm('Удалить?'))return;await sb.from('posts').delete().eq('id',id);toast('Удалён');loadFeed();}
 async function likePost(id){const{data:ex}=await sb.from('likes').select('*').eq('user_id',currentUser.id).eq('post_id',id).single();if(ex){await sb.from('likes').delete().eq('user_id',currentUser.id).eq('post_id',id);await sb.rpc('decrement_likes',{post_id:id});}else{await sb.from('likes').insert({user_id:currentUser.id,post_id:id});await sb.rpc('increment_likes',{post_id:id});}loadFeed();}
-async function repostPost(id){const{data:o}=await sb.from('posts').select('*').eq('id',id).single();if(!o)return;await sb.from('posts').insert({user_id:currentUser.id,text:o.text,reposted_from:id});await sb.rpc('increment_reposts',{post_id:id});loadFeed();}
+async function repostPost(id){const{data:o}=await sb.from('posts').select('*').eq('id',id).single();if(!o)return;await sb.from('posts').insert({user_id:currentUser.id,text:o.text,image_url:o.image_url,reposted_from:id});await sb.rpc('increment_reposts',{post_id:id});loadFeed();}
 async function toggleComments(pid){const el=document.getElementById('comments-'+pid);if(!el)return;if(el.style.display==='block'){el.style.display='none';return;}el.style.display='block';const{data:c}=await sb.from('comments').select('*, users!comments_user_id_fkey(*)').eq('post_id',pid).order('created_at',{ascending:true});document.getElementById('cl-'+pid).innerHTML=(c||[]).map(x=>`<div class="comment"><div class="comment-avatar">${avHtml(x.users)}</div><div><strong>${escapeHTML(x.users?.full_name||'?')}</strong><br>${escapeHTML(x.text)}</div></div>`).join('')||'<p>Нет комментариев</p>';}
 async function addComment(pid){const input=document.getElementById('ci-'+pid);if(!input||!input.value.trim())return;await sb.from('comments').insert({user_id:currentUser.id,post_id:pid,text:input.value.trim()});await sb.rpc('increment_comments',{post_id:pid});input.value='';toggleComments(pid);setTimeout(()=>toggleComments(pid),50);}
 
-// ПРОФИЛЬ
+// ==================== ПРОФИЛЬ ====================
 function loadProfilePage(){
     const p=currentUser.profile||{};
     let h=`<div class="card" style="padding:0;overflow:hidden;"><img src="${escapeHTML(p.banner_url||'https://picsum.photos/480/160')}" class="profile-banner" alt="banner"><div style="padding:0 16px;position:relative;"><div style="position:relative;display:inline-block;"><div class="profile-avatar-lg">${avHtml(p)}<span class="online-dot"></span></div></div></div><div style="padding:12px 16px 16px;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><h2>${escapeHTML(p.full_name||'?')}</h2>${p.is_owner?'<span class="owner-chip"><i class="fas fa-crown"></i> OWNER</span>':''}</div><p style="color:var(--text-secondary);">@${escapeHTML(p.username||'')}</p><p style="margin:4px 0;">${escapeHTML(p.bio||'Нет описания')}</p><p style="font-size:0.85rem;color:var(--text-tertiary);"><i class="fas fa-map-pin"></i> ${escapeHTML(p.city||'Не указан')}</p><button class="secondary full" onclick="nav('editProfile')"><i class="fas fa-pen"></i> Редактировать</button><button class="danger full" id="btnLogout" style="margin-top:8px;"><i class="fas fa-right-from-bracket"></i> Выйти</button></div></div>`;
@@ -239,61 +270,44 @@ function loadEditProfile(){
 
 async function saveProfile(){
     const updates={full_name:document.getElementById('editName').value.trim(),bio:document.getElementById('editBio').value.trim(),city:document.getElementById('editCity').value.trim()};
-    await sb.from('users').update(updates).eq('id',currentUser.id);
-    Object.assign(currentUser.profile,updates);toast('✅ Профиль обновлён!');nav('profile');
+    await sb.from('users').update(updates).eq('id',currentUser.id);Object.assign(currentUser.profile,updates);toast('✅ Обновлено!');nav('profile');
 }
 
 async function uploadFile(bucket,file){
     const path=`${currentUser.id}/${Date.now()}.jpg`;
-    const{error}=await sb.storage.from(bucket).upload(path,file,{upsert:true});
-    if(error){toast('Ошибка загрузки');return null;}
+    await sb.storage.from(bucket).upload(path,file,{upsert:true});
     return sb.storage.from(bucket).getPublicUrl(path).data.publicUrl;
 }
 
 function changeAvatar(){
     const input=document.createElement('input');input.type='file';input.accept='image/*';
-    input.onchange=async function(){
-        const file=input.files[0];if(!file)return;
-        const url=await uploadFile('avatars',file);
-        if(url){await sb.from('users').update({avatar_url:url}).eq('id',currentUser.id);currentUser.profile.avatar_url=url;toast('✅ Аватар обновлён!');nav('editProfile');}
-    };input.click();
+    input.onchange=async function(){const f=input.files[0];if(!f)return;const url=await uploadFile('avatars',f);if(url){await sb.from('users').update({avatar_url:url}).eq('id',currentUser.id);currentUser.profile.avatar_url=url;toast('✅ Аватар!');nav('editProfile');}};input.click();
 }
-
 function changeBanner(){
     const input=document.createElement('input');input.type='file';input.accept='image/*';
-    input.onchange=async function(){
-        const file=input.files[0];if(!file)return;
-        const url=await uploadFile('banners',file);
-        if(url){await sb.from('users').update({banner_url:url}).eq('id',currentUser.id);currentUser.profile.banner_url=url;toast('✅ Баннер обновлён!');nav('editProfile');}
-    };input.click();
+    input.onchange=async function(){const f=input.files[0];if(!f)return;const url=await uploadFile('banners',f);if(url){await sb.from('users').update({banner_url:url}).eq('id',currentUser.id);currentUser.profile.banner_url=url;toast('✅ Баннер!');nav('editProfile');}};input.click();
 }
 
-// ДРУЗЬЯ
+// ==================== ДРУЗЬЯ ====================
 async function loadFriends(){
     const{data:all}=await sb.from('users').select('*').neq('id',currentUser.id).order('full_name');
     const{data:mf}=await sb.from('friends').select('friend_id').eq('user_id',currentUser.id);
-    const fids=new Set((mf||[]).map(f=>f.friend_id));
-    window._all=all||[];window._fids=fids;
+    const fids=new Set((mf||[]).map(f=>f.friend_id));window._all=all||[];window._fids=fids;
     document.getElementById('mainContent').innerHTML='<h2>👥 Пользователи</h2><input id="su" placeholder="🔍 Поиск..." style="margin-bottom:10px;border-radius:24px;"><div id="ul"></div>';
     document.getElementById('su').oninput=()=>{const q=document.getElementById('su').value.toLowerCase();renderUsersList(window._all.filter(u=>u.full_name.toLowerCase().includes(q)||u.username.toLowerCase().includes(q)));};
     renderUsersList(window._all);
 }
-
 function renderUsersList(users){
-    const list=document.getElementById('ul');if(!list)return;
-    list.innerHTML=users.map(u=>`<div class="card user-row"><div data-uuid="${u.id}" style="display:flex;align-items:center;gap:12px;flex:1;cursor:pointer;"><div class="post-avatar">${avHtml(u)}</div><div><strong>${escapeHTML(u.full_name)}</strong><div>@${escapeHTML(u.username)}</div></div></div><button class="small ${window._fids.has(u.id)?'secondary':'success'}" data-fid="${u.id}">${window._fids.has(u.id)?'<i class="fas fa-user-minus"></i>':'<i class="fas fa-user-plus"></i> Добавить'}</button></div>`).join('');
+    document.getElementById('ul').innerHTML=users.map(u=>`<div class="card user-row"><div data-uuid="${u.id}" style="display:flex;align-items:center;gap:12px;flex:1;cursor:pointer;"><div class="post-avatar">${avHtml(u)}</div><div><strong>${escapeHTML(u.full_name)}</strong><div>@${escapeHTML(u.username)}</div></div></div><button class="small ${window._fids.has(u.id)?'secondary':'success'}" data-fid="${u.id}">${window._fids.has(u.id)?'<i class="fas fa-user-minus"></i>':'<i class="fas fa-user-plus"></i> Добавить'}</button></div>`).join('');
 }
-
 async function toggleFriend(fid){if(window._fids.has(fid)){await sb.from('friends').delete().eq('user_id',currentUser.id).eq('friend_id',fid);window._fids.delete(fid);}else{await sb.from('friends').insert({user_id:currentUser.id,friend_id:fid});window._fids.add(fid);}renderUsersList(window._all);}
-
 async function viewUserProfile(uid){
     if(uid===currentUser.id){nav('profile');return;}
-    const{data:u}=await sb.from('users').select('*').eq('id',uid).single();
-    if(!u)return;
+    const{data:u}=await sb.from('users').select('*').eq('id',uid).single();if(!u)return;
     document.getElementById('mainContent').innerHTML=`<div class="card" style="padding:0;"><img src="${escapeHTML(u.banner_url||'')}" class="profile-banner"><div style="padding:12px 16px;"><div class="profile-avatar-lg" style="margin-top:-42px;">${avHtml(u)}</div><h2>${escapeHTML(u.full_name)}${u.is_owner?' <span class="owner-chip">OWNER</span>':''}</h2><p>@${escapeHTML(u.username)}</p><button class="small" onclick="startChat('${uid}','${escapeHTML(u.full_name)}')">Написать</button><button class="secondary full" onclick="nav('friends')">← Назад</button></div></div>`;
 }
 
-// ЧАТЫ
+// ==================== ЧАТЫ (МГНОВЕННАЯ ОТПРАВКА) ====================
 async function loadChats(){
     if(chatChannel){sb.removeChannel(chatChannel);chatChannel=null;}
     const{data:chats}=await sb.from('chats').select('*').contains('participants',[currentUser.id]).order('created_at',{ascending:false});
@@ -309,12 +323,7 @@ function openChat(cid){
     document.querySelectorAll('.chat-list-item').forEach(el=>el.classList.remove('active'));
     document.querySelector(`[data-cid="${cid}"]`)?.classList.add('active');
     document.getElementById('cinput').style.display='flex';
-    document.getElementById('cinput').innerHTML=`
-        <button class="ghost icon-only" id="btnAttach"><i class="fas fa-paperclip" style="color:var(--text-secondary);"></i></button>
-        <input id="mi" placeholder="Сообщение...">
-        <button class="ghost icon-only" id="btnVoice"><i class="fas fa-microphone" style="color:var(--text-secondary);"></i></button>
-        <button class="ghost icon-only" id="bsm"><i class="fas fa-paper-plane" style="color:var(--primary);"></i></button>
-    `;
+    document.getElementById('cinput').innerHTML=`<button class="ghost icon-only" id="btnAttach"><i class="fas fa-paperclip" style="color:var(--text-secondary);"></i></button><input id="mi" placeholder="Сообщение..."><button class="ghost icon-only" id="btnVoice"><i class="fas fa-microphone" style="color:var(--text-secondary);"></i></button><button class="ghost icon-only" id="bsm"><i class="fas fa-paper-plane" style="color:var(--primary);"></i></button>`;
     document.getElementById('bsm').onclick=sendMessage;
     document.getElementById('mi').onkeydown=e=>{if(e.key==='Enter')sendMessage();};
     document.getElementById('btnAttach').onclick=sendChatImage;
@@ -323,50 +332,42 @@ function openChat(cid){
     chatChannel=sb.channel(`chat-${cid}`).on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:`chat_id=eq.${cid}`},payload=>{appendMessage(payload.new);}).subscribe();
 }
 
-function renderMessage(m,showDate){
-    let content='';
-    if(m.attachment_type==='image'&&m.attachment_url) content=`<img src="${escapeHTML(m.attachment_url)}" alt="фото">`;
-    else if(m.attachment_type==='voice'&&m.attachment_url) content=`<audio controls><source src="${escapeHTML(m.attachment_url)}" type="audio/webm"></audio>`;
-    else content=escapeHTML(m.text||'');
-
-    const time=formatTime(m.created_at);
-    const checks=m.from_user_id===currentUser.id?`<span class="checks ${m.read_at?'read':''}">${m.read_at?'✓✓':'✓'}</span>`:'';
-
-    return`<div class="msg ${m.from_user_id===currentUser.id?'sent':'received'}">${m.from_user_id!==currentUser.id?`<strong style="font-size:0.7rem;">${escapeHTML(m.users?.full_name||'?')}</strong><br>`:''}${content}<div class="time">${time} ${checks}</div></div>`;
-}
-
 async function refreshMessages(cid){
     const{data:msgs}=await sb.from('messages').select('*, users!messages_from_user_id_fkey(*)').eq('chat_id',cid).order('created_at',{ascending:true});
     const c=document.getElementById('cmsg');if(!c)return;
     let html='',lastDate='';
-    (msgs||[]).forEach(m=>{
-        const d=formatDate(m.created_at);
-        if(d!==lastDate){html+=`<div class="date-divider"><span>${d}</span></div>`;lastDate=d;}
-        html+=renderMessage(m);
-    });
-    c.innerHTML=html||'<p style="text-align:center;color:var(--text-tertiary);">Нет сообщений</p>';
-    c.scrollTop=c.scrollHeight;
-    // Помечаем как прочитанные
+    (msgs||[]).forEach(m=>{const d=formatDate(m.created_at);if(d!==lastDate){html+=`<div class="date-divider"><span>${d}</span></div>`;lastDate=d;}html+=renderMessage(m);});
+    c.innerHTML=html||'<p style="text-align:center;color:var(--text-tertiary);">Нет сообщений</p>';c.scrollTop=c.scrollHeight;
     markAsRead(cid);
+}
+
+function renderMessage(m){
+    let content='';
+    if(m.attachment_type==='image'&&m.attachment_url)content=`<img src="${escapeHTML(m.attachment_url)}" alt="фото">`;
+    else if(m.attachment_type==='voice'&&m.attachment_url)content=`<audio controls><source src="${escapeHTML(m.attachment_url)}" type="audio/webm"></audio>`;
+    else content=escapeHTML(m.text||'');
+    const time=formatTime(m.created_at);
+    const checks=m.from_user_id===currentUser.id?`<span class="checks ${m.read_at?'read':''}">${m.read_at?'✓✓':'✓'}</span>`:'';
+    return`<div class="msg ${m.from_user_id===currentUser.id?'sent':'received'}">${m.from_user_id!==currentUser.id?`<strong style="font-size:0.7rem;">${escapeHTML(m.users?.full_name||'?')}</strong><br>`:''}${content}<div class="time">${time} ${checks}</div></div>`;
 }
 
 function appendMessage(m){
     const c=document.getElementById('cmsg');if(!c)return;
-    c.insertAdjacentHTML('beforeend',renderMessage(m));
-    c.scrollTop=c.scrollHeight;
+    c.insertAdjacentHTML('beforeend',renderMessage(m));c.scrollTop=c.scrollHeight;
     markAsRead(currentChatId);
 }
 
-async function markAsRead(cid){
-    await sb.from('messages').update({read_at:new Date().toISOString()}).eq('chat_id',cid).neq('from_user_id',currentUser.id).is('read_at',null);
-}
+async function markAsRead(cid){await sb.from('messages').update({read_at:new Date().toISOString()}).eq('chat_id',cid).neq('from_user_id',currentUser.id).is('read_at',null);}
 
+// Мгновенная отправка текста
 async function sendMessage(){
     const input=document.getElementById('mi');if(!input||!input.value.trim()||!currentChatId)return;
-    await sb.from('messages').insert({chat_id:currentChatId,from_user_id:currentUser.id,text:input.value.trim()});
-    input.value='';
+    const text=input.value.trim();input.value='';
+    const{data:msg}=await sb.from('messages').insert({chat_id:currentChatId,from_user_id:currentUser.id,text}).select('*, users!messages_from_user_id_fkey(*)').single();
+    if(msg)appendMessage(msg);
 }
 
+// Мгновенная отправка фото
 function sendChatImage(){
     const input=document.createElement('input');input.type='file';input.accept='image/*';
     input.onchange=async function(){
@@ -374,10 +375,12 @@ function sendChatImage(){
         const path=`chat-images/${currentChatId}/${Date.now()}.jpg`;
         await sb.storage.from('chat-images').upload(path,file);
         const url=sb.storage.from('chat-images').getPublicUrl(path).data.publicUrl;
-        await sb.from('messages').insert({chat_id:currentChatId,from_user_id:currentUser.id,text:'📷 Фото',attachment_url:url,attachment_type:'image'});
+        const{data:msg}=await sb.from('messages').insert({chat_id:currentChatId,from_user_id:currentUser.id,text:'📷 Фото',attachment_url:url,attachment_type:'image'}).select('*, users!messages_from_user_id_fkey(*)').single();
+        if(msg)appendMessage(msg);
     };input.click();
 }
 
+// Мгновенная отправка голосового
 function toggleVoiceRecord(){
     if(isRecording){stopVoiceRecord();return;}
     if(!navigator.mediaDevices)return toast('Нет микрофона');
@@ -389,14 +392,14 @@ function toggleVoiceRecord(){
             const path=`voice-messages/${currentChatId}/${Date.now()}.webm`;
             await sb.storage.from('voice-messages').upload(path,blob);
             const url=sb.storage.from('voice-messages').getPublicUrl(path).data.publicUrl;
-            await sb.from('messages').insert({chat_id:currentChatId,from_user_id:currentUser.id,text:'🎤 Голосовое',attachment_url:url,attachment_type:'voice'});
+            const{data:msg}=await sb.from('messages').insert({chat_id:currentChatId,from_user_id:currentUser.id,text:'🎤 Голосовое',attachment_url:url,attachment_type:'voice'}).select('*, users!messages_from_user_id_fkey(*)').single();
+            if(msg)appendMessage(msg);
             stream.getTracks().forEach(t=>t.stop());
         };
         mediaRecorder.start();isRecording=true;
         document.getElementById('btnVoice').innerHTML='<i class="fas fa-stop" style="color:var(--danger);"></i>';toast('🔴 Запись...');
     }).catch(()=>toast('Нет доступа'));
 }
-
 function stopVoiceRecord(){if(mediaRecorder&&isRecording){mediaRecorder.stop();isRecording=false;document.getElementById('btnVoice').innerHTML='<i class="fas fa-microphone" style="color:var(--text-secondary);"></i>';}}
 
 async function startChat(uid,uname){
@@ -406,27 +409,23 @@ async function startChat(uid,uname){
     if(chat){nav('chats');setTimeout(()=>openChat(chat.id),300);}
 }
 
-// НАСТРОЙКИ
+// ==================== НАСТРОЙКИ ====================
 function loadSettings(){
     let h='<h2>⚙️ Настройки</h2>';
     h+=`<div class="card"><div class="settings-item" id="toggleTheme"><div><strong>🌙 Тёмная тема</strong></div><div class="toggle-switch ${theme==='dark'?'active':''}" id="themeSwitch"></div></div></div>`;
     if(currentUser.profile?.is_owner)h+='<div class="card" onclick="nav(\'moderation\')"><div class="settings-item"><div><strong>👑 Панель модерации</strong></div><i class="fas fa-chevron-right"></i></div></div>';
     h+='<div class="card" onclick="nav(\'channels\')"><div class="settings-item"><div><strong>📢 Каналы</strong></div><i class="fas fa-chevron-right"></i></div></div>';
     h+='<div class="card" onclick="nav(\'verify\')"><div class="settings-item"><div><strong>✅ Верификация</strong></div><i class="fas fa-chevron-right"></i></div></div>';
-    document.getElementById('mainContent').innerHTML=h;
-    document.getElementById('toggleTheme').onclick=toggleTheme;
+    document.getElementById('mainContent').innerHTML=h;document.getElementById('toggleTheme').onclick=toggleTheme;
 }
-
 function toggleTheme(){theme=theme==='dark'?'light':'dark';localStorage.setItem('godmode_theme',theme);document.body.classList.toggle('dark',theme==='dark');loadSettings();}
 
 async function loadModeration(){
     const{data}=await sb.from('verification_requests').select('*, users(*)').order('created_at');
     let h='<h2>👑 Модерация</h2>';
     (data||[]).forEach(r=>h+=`<div class="card"><strong>${escapeHTML(r.users?.full_name)}</strong><p>${escapeHTML(r.reason)}</p><button class="success small" data-app="${r.id}" data-uid="${r.user_id}">✓</button><button class="danger small" data-rej="${r.id}">✗</button></div>`);
-    h+='<button class="secondary full" onclick="nav(\'settings\')">← Назад</button>';
-    document.getElementById('mainContent').innerHTML=h||'<p>Пусто</p>';
+    h+='<button class="secondary full" onclick="nav(\'settings\')">← Назад</button>';document.getElementById('mainContent').innerHTML=h||'<p>Пусто</p>';
 }
-
 async function approveVerification(verId,userId){await sb.from('verification_requests').update({status:'approved'}).eq('id',verId);await sb.from('users').update({verified:true}).eq('id',userId);toast('Одобрено!');loadModeration();}
 async function rejectVerification(verId){await sb.from('verification_requests').update({status:'rejected'}).eq('id',verId);toast('Отклонено');loadModeration();}
 
