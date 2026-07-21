@@ -10,15 +10,10 @@
         :root {
             --bg: #f0f2f5; --surface: #ffffff; --primary: #4f46e5;
             --text: #1e293b; --text-soft: #64748b; --border: #e2e8f0;
-            --danger: #ef4444; --success: #10b981; --radius: 12px;
+            --danger: #ef4444; --success: #10b981; --warning: #f59e0b; --radius: 12px;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg); color: var(--text);
-            display: flex; justify-content: center; min-height: 100vh;
-            -webkit-tap-highlight-color: transparent;
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; -webkit-tap-highlight-color: transparent; }
         .app { width: 100%; max-width: 480px; min-height: 100vh; background: var(--bg); display: flex; flex-direction: column; }
         .screen-center { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; gap: 14px; }
         .logo { font-size: 2.5rem; font-weight: 800; color: var(--primary); }
@@ -28,10 +23,12 @@
         button.secondary { background: #f1f5f9; color: var(--text); border: 1px solid var(--border); }
         button.danger { background: var(--danger); }
         button.success { background: var(--success); }
+        button.warning { background: var(--warning); }
         button.small { padding: 8px 12px; font-size: 0.8rem; }
         button.full { width: 100%; }
         .error-box { background: #fef2f2; border: 2px solid #ef4444; border-radius: 12px; padding: 14px; color: #dc2626; font-size: 0.9rem; width: 100%; }
         .info-box { background: #eff6ff; border: 2px solid #3b82f6; border-radius: 12px; padding: 14px; color: #1d4ed8; font-size: 0.9rem; width: 100%; }
+        .success-box { background: #f0fdf4; border: 2px solid #22c55e; border-radius: 12px; padding: 14px; color: #16a34a; font-size: 0.9rem; width: 100%; }
         .header { background: var(--surface); padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); font-weight: 800; font-size: 1.2rem; color: var(--primary); position: sticky; top: 0; z-index: 10; }
         .content { flex: 1; overflow-y: auto; padding: 12px; padding-bottom: 90px; }
         .card { background: var(--surface); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; border: 1px solid var(--border); }
@@ -60,6 +57,10 @@
         .nav-item.active { color: var(--primary); background: #eef2ff; }
         .badge-crown { color: #f59e0b; }
         .badge-verify { color: #3b82f6; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 600; }
+        .badge-pending { background: #fef3c7; color: #92400e; }
+        .badge-approved { background: #d1fae5; color: #065f46; }
+        .badge-rejected { background: #fee2e2; color: #991b1b; }
         .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 10px 20px; border-radius: 20px; font-size: 0.85rem; z-index: 200; display: none; }
         .link-text { color: var(--primary); cursor: pointer; font-weight: 600; text-decoration: underline; }
         .user-row { display: flex; align-items: center; gap: 10px; cursor: pointer; border-radius: 10px; justify-content: space-between; }
@@ -80,48 +81,24 @@
         let currentChatId = null;
         let chatTimer = null;
 
-        function toast(msg) {
-            const t = document.getElementById('toast');
-            t.textContent = msg; t.style.display = 'block';
-            clearTimeout(t._t); t._t = setTimeout(() => t.style.display = 'none', 2000);
-        }
-
-        function timeAgo(d) {
-            const s = Math.floor((Date.now() - new Date(d)) / 1000);
-            if (s < 60) return 'сейчас';
-            if (s < 3600) return Math.floor(s/60) + ' мин';
-            if (s < 86400) return Math.floor(s/3600) + ' ч';
-            return new Date(d).toLocaleDateString('ru-RU');
-        }
-
+        function toast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.style.display = 'block'; clearTimeout(t._t); t._t = setTimeout(() => t.style.display = 'none', 2000); }
+        function timeAgo(d) { const s = Math.floor((Date.now() - new Date(d)) / 1000); if (s < 60) return 'сейчас'; if (s < 3600) return Math.floor(s/60) + ' мин'; if (s < 86400) return Math.floor(s/3600) + ' ч'; return new Date(d).toLocaleDateString('ru-RU'); }
         function stopChatTimer() { if (chatTimer) { clearInterval(chatTimer); chatTimer = null; } }
 
         // ==================== АВТОРИЗАЦИЯ ====================
         function renderLogin(err) {
-            let h = '<div class="screen-center">';
-            h += '<div class="logo"><i class="fas fa-cube"></i> InnoSphere</div>';
+            let h = '<div class="screen-center"><div class="logo"><i class="fas fa-cube"></i> InnoSphere</div>';
             if (err) h += `<div class="error-box">${err}</div>`;
-            h += `<input id="loginEmail" type="email" placeholder="Email" value="${OWNER_EMAIL}">`;
-            h += '<input id="loginPass" type="password" placeholder="Пароль" value="Assasin2)">';
-            h += '<button class="full" id="btnLogin">Войти</button>';
-            h += '<p>Нет аккаунта? <span class="link-text" id="linkRegister">Регистрация</span></p>';
-            h += '</div>';
+            h += `<input id="loginEmail" type="email" placeholder="Email" value="${OWNER_EMAIL}"><input id="loginPass" type="password" placeholder="Пароль" value="Assasin2)"><button class="full" id="btnLogin">Войти</button><p>Нет аккаунта? <span class="link-text" id="linkRegister">Регистрация</span></p></div>`;
             document.getElementById('app').innerHTML = h;
             document.getElementById('btnLogin').addEventListener('click', doLogin);
             document.getElementById('linkRegister').addEventListener('click', () => renderRegister());
         }
 
         function renderRegister(err) {
-            let h = '<div class="screen-center">';
-            h += '<div class="logo"><i class="fas fa-cube"></i> InnoSphere</div>';
+            let h = '<div class="screen-center"><div class="logo"><i class="fas fa-cube"></i> InnoSphere</div>';
             if (err) h += `<div class="error-box">${err}</div>`;
-            h += '<input id="regName" placeholder="Полное имя">';
-            h += '<input id="regUser" placeholder="Юзернейм">';
-            h += '<input id="regEmail" type="email" placeholder="Email">';
-            h += '<input id="regPass" type="password" placeholder="Пароль (мин 6 символов)">';
-            h += '<button class="full" id="btnRegister">Зарегистрироваться</button>';
-            h += '<p>Уже есть аккаунт? <span class="link-text" id="linkLogin">Войти</span></p>';
-            h += '</div>';
+            h += '<input id="regName" placeholder="Полное имя"><input id="regUser" placeholder="Юзернейм"><input id="regEmail" type="email" placeholder="Email"><input id="regPass" type="password" placeholder="Пароль (мин 6)"><button class="full" id="btnRegister">Зарегистрироваться</button><p>Уже есть аккаунт? <span class="link-text" id="linkLogin">Войти</span></p></div>';
             document.getElementById('app').innerHTML = h;
             document.getElementById('btnRegister').addEventListener('click', doRegister);
             document.getElementById('linkLogin').addEventListener('click', () => renderLogin());
@@ -146,10 +123,7 @@
             if (!name || !username || !email || !pass) return renderRegister('Заполните все поля');
             if (pass.length < 6) return renderRegister('Пароль минимум 6 символов');
             const { data, error } = await sb.auth.signUp({ email, password: pass });
-            if (error) {
-                if (error.message.includes('already')) return renderLogin('Уже зарегистрирован. Войдите.');
-                return renderRegister(error.message);
-            }
+            if (error) { if (error.message.includes('already')) return renderLogin('Уже зарегистрирован. Войдите.'); return renderRegister(error.message); }
             const isOwner = (email === OWNER_EMAIL);
             await sb.from('users').insert({ id: data.user.id, email, username, full_name: name, is_owner: isOwner, verified: isOwner });
             await sb.from('user_settings').insert({ user_id: data.user.id });
@@ -158,19 +132,14 @@
             showMainApp();
         }
 
-        async function loadProfile() {
-            const { data } = await sb.from('users').select('*').eq('id', currentUser.id).single();
-            if (data) currentUser.profile = data;
-        }
+        async function loadProfile() { const { data } = await sb.from('users').select('*').eq('id', currentUser.id).single(); if (data) currentUser.profile = data; }
 
         // ==================== ГЛАВНЫЙ ЭКРАН ====================
         function showMainApp() {
             stopChatTimer();
             let h = '<div class="header"><span><i class="fas fa-cube"></i> InnoSphere</span>';
             if (currentUser.profile?.is_owner) h += '<i class="fas fa-crown badge-crown"></i>';
-            h += '</div>';
-            h += '<div class="content" id="mainContent"></div>';
-            h += '<div class="bottom-nav" id="bottomNav">';
+            h += '</div><div class="content" id="mainContent"></div><div class="bottom-nav" id="bottomNav">';
             h += '<div class="nav-item active" data-page="feed"><i class="fas fa-newspaper"></i>Лента</div>';
             h += '<div class="nav-item" data-page="friends"><i class="fas fa-user-friends"></i>Друзья</div>';
             h += '<div class="nav-item" data-page="chats"><i class="fas fa-comment-dots"></i>Чаты</div>';
@@ -178,30 +147,22 @@
             h += '<div class="nav-item" data-page="more"><i class="fas fa-ellipsis-h"></i>Ещё</div>';
             h += '</div>';
             document.getElementById('app').innerHTML = h;
-
-            document.querySelectorAll('#bottomNav .nav-item').forEach(item => {
-                item.addEventListener('click', function() {
-                    nav(this.dataset.page);
-                });
-            });
-
+            document.querySelectorAll('#bottomNav .nav-item').forEach(item => item.addEventListener('click', function() { nav(this.dataset.page); }));
             nav('feed');
         }
 
         function nav(page) {
-            stopChatTimer();
-            currentPage = page;
-            currentChatId = null;
+            stopChatTimer(); currentPage = page; currentChatId = null;
             document.querySelectorAll('#bottomNav .nav-item').forEach(n => n.classList.remove('active'));
             const target = document.querySelector(`#bottomNav .nav-item[data-page="${page}"]`);
             if (target) target.classList.add('active');
-
             switch (page) {
                 case 'feed': loadFeed(); break;
                 case 'profile': loadProfilePage(); break;
                 case 'friends': loadFriends(); break;
                 case 'chats': loadChats(); break;
                 case 'more': loadMore(); break;
+                case 'moderation': loadModeration(); break;
                 case 'channels': loadChannels(); break;
                 case 'music': loadMusic(); break;
                 case 'verify': loadVerify(); break;
@@ -215,324 +176,125 @@
             if (posts && posts.length > 0) {
                 posts.forEach(p => {
                     const u = p.users || {};
-                    h += `
-                    <div class="card">
-                        <div class="post-header" id="postHeader-${p.user_id}">
-                            <div class="post-avatar"><i class="fas fa-user"></i></div>
-                            <div style="flex:1;">
-                                <strong>${u.full_name || '?'}</strong>
-                                ${u.is_owner ? '<i class="fas fa-crown badge-crown"></i>' : ''}
-                                ${u.verified ? '<i class="fas fa-check-circle badge-verify"></i>' : ''}
-                                <div style="font-size:0.7rem; color:var(--text-soft);">${timeAgo(p.created_at)}</div>
-                            </div>
-                            ${p.user_id === currentUser.id ? `<button class="danger small" id="btnDel-${p.id}"><i class="fas fa-trash"></i></button>` : ''}
-                        </div>
-                        <p style="white-space:pre-wrap; font-size:0.95rem;">${p.text || ''}</p>
-                        <div class="post-actions">
-                            <span id="btnLike-${p.id}"><i class="far fa-heart"></i> ${p.likes_count||0}</span>
-                            <span id="btnComm-${p.id}"><i class="far fa-comment"></i> ${p.comments_count||0}</span>
-                            <span id="btnRepost-${p.id}"><i class="fas fa-retweet"></i> ${p.reposts_count||0}</span>
-                        </div>
-                        <div class="comment-box" id="comments-${p.id}" style="display:none;">
-                            <div id="commentsList-${p.id}"></div>
-                            <div class="comment-input-row">
-                                <input id="commentInput-${p.id}" placeholder="Комментарий...">
-                                <button class="small" id="btnAddComm-${p.id}"><i class="fas fa-paper-plane"></i></button>
-                            </div>
-                        </div>
-                    </div>`;
+                    h += `<div class="card"><div class="post-header" id="ph-${p.user_id}"><div class="post-avatar"><i class="fas fa-user"></i></div><div style="flex:1;"><strong>${u.full_name||'?'}</strong>${u.is_owner?' <i class="fas fa-crown badge-crown"></i>':''}${u.verified?' <i class="fas fa-check-circle badge-verify"></i>':''}<div style="font-size:0.7rem; color:var(--text-soft);">${timeAgo(p.created_at)}</div></div>${p.user_id===currentUser.id?`<button class="danger small" id="bd-${p.id}"><i class="fas fa-trash"></i></button>`:''}</div><p style="white-space:pre-wrap; font-size:0.95rem;">${p.text||''}</p><div class="post-actions"><span id="bl-${p.id}"><i class="far fa-heart"></i> ${p.likes_count||0}</span><span id="bc-${p.id}"><i class="far fa-comment"></i> ${p.comments_count||0}</span><span id="br-${p.id}"><i class="fas fa-retweet"></i> ${p.reposts_count||0}</span></div><div class="comment-box" id="comments-${p.id}" style="display:none;"><div id="cl-${p.id}"></div><div class="comment-input-row"><input id="ci-${p.id}" placeholder="Комментарий..."><button class="small" id="ba-${p.id}"><i class="fas fa-paper-plane"></i></button></div></div></div>`;
                 });
-            } else {
-                h += '<div class="card"><p style="text-align:center; color:var(--text-soft);">Нет постов</p></div>';
-            }
+            } else h += '<div class="card"><p style="text-align:center;">Нет постов</p></div>';
             document.getElementById('mainContent').innerHTML = h;
-
             document.getElementById('btnCreatePost')?.addEventListener('click', createPost);
             posts?.forEach(p => {
-                document.getElementById('btnDel-'+p.id)?.addEventListener('click', () => deletePost(p.id));
-                document.getElementById('btnLike-'+p.id)?.addEventListener('click', () => likePost(p.id));
-                document.getElementById('btnComm-'+p.id)?.addEventListener('click', () => toggleComments(p.id));
-                document.getElementById('btnRepost-'+p.id)?.addEventListener('click', () => repostPost(p.id));
-                document.getElementById('btnAddComm-'+p.id)?.addEventListener('click', () => addComment(p.id));
-                document.getElementById('postHeader-'+p.user_id)?.addEventListener('click', () => viewUserProfile(p.user_id));
+                document.getElementById('bd-'+p.id)?.addEventListener('click', ()=>deletePost(p.id));
+                document.getElementById('bl-'+p.id)?.addEventListener('click', ()=>likePost(p.id));
+                document.getElementById('bc-'+p.id)?.addEventListener('click', ()=>toggleComments(p.id));
+                document.getElementById('br-'+p.id)?.addEventListener('click', ()=>repostPost(p.id));
+                document.getElementById('ba-'+p.id)?.addEventListener('click', ()=>addComment(p.id));
+                document.getElementById('ph-'+p.user_id)?.addEventListener('click', ()=>viewUserProfile(p.user_id));
             });
         }
 
-        async function createPost() {
-            const text = document.getElementById('postText')?.value.trim();
-            if (!text) return toast('Напишите текст');
-            await sb.from('posts').insert({ user_id: currentUser.id, text });
-            toast('Опубликовано!');
-            loadFeed();
-        }
-
-        async function deletePost(id) {
-            if (!confirm('Удалить?')) return;
-            await sb.from('posts').delete().eq('id', id);
-            toast('Удалён');
-            loadFeed();
-        }
-
-        async function likePost(id) {
-            const { data: ex } = await sb.from('likes').select('*').eq('user_id', currentUser.id).eq('post_id', id).single();
-            if (ex) {
-                await sb.from('likes').delete().eq('user_id', currentUser.id).eq('post_id', id);
-                await sb.rpc('decrement_likes', { post_id: id });
-            } else {
-                await sb.from('likes').insert({ user_id: currentUser.id, post_id: id });
-                await sb.rpc('increment_likes', { post_id: id });
-            }
-            loadFeed();
-        }
-
-        async function repostPost(id) {
-            const { data: orig } = await sb.from('posts').select('*').eq('id', id).single();
-            if (!orig) return;
-            await sb.from('posts').insert({ user_id: currentUser.id, text: orig.text, reposted_from: id });
-            await sb.rpc('increment_reposts', { post_id: id });
-            toast('Репост!');
-            loadFeed();
-        }
-
-        async function toggleComments(postId) {
-            const el = document.getElementById('comments-' + postId);
-            if (!el) return;
-            if (el.style.display === 'block') { el.style.display = 'none'; return; }
-            el.style.display = 'block';
-            const { data: comments } = await sb.from('comments').select('*, users!comments_user_id_fkey(*)').eq('post_id', postId).order('created_at', { ascending: true });
-            document.getElementById('commentsList-' + postId).innerHTML = (comments || []).map(c => `
-                <div class="comment"><div class="comment-avatar"><i class="fas fa-user"></i></div><div><strong>${c.users?.full_name || '?'}</strong>: ${c.text}</div></div>
-            `).join('') || '<p style="font-size:0.8rem;">Нет комментариев</p>';
-        }
-
-        async function addComment(postId) {
-            const input = document.getElementById('commentInput-' + postId);
-            if (!input || !input.value.trim()) return;
-            await sb.from('comments').insert({ user_id: currentUser.id, post_id: postId, text: input.value.trim() });
-            await sb.rpc('increment_comments', { post_id: postId });
-            input.value = '';
-            toggleComments(postId);
-            setTimeout(() => toggleComments(postId), 50);
-        }
+        async function createPost() { const t=document.getElementById('postText')?.value.trim(); if(!t) return toast('Напишите текст'); await sb.from('posts').insert({user_id:currentUser.id,text:t}); toast('Опубликовано!'); loadFeed(); }
+        async function deletePost(id) { if(!confirm('Удалить?')) return; await sb.from('posts').delete().eq('id',id); toast('Удалён'); loadFeed(); }
+        async function likePost(id) { const {data:ex}=await sb.from('likes').select('*').eq('user_id',currentUser.id).eq('post_id',id).single(); if(ex){await sb.from('likes').delete().eq('user_id',currentUser.id).eq('post_id',id); await sb.rpc('decrement_likes',{post_id:id});} else {await sb.from('likes').insert({user_id:currentUser.id,post_id:id}); await sb.rpc('increment_likes',{post_id:id});} loadFeed(); }
+        async function repostPost(id) { const {data:o}=await sb.from('posts').select('*').eq('id',id).single(); if(!o) return; await sb.from('posts').insert({user_id:currentUser.id,text:o.text,reposted_from:id}); await sb.rpc('increment_reposts',{post_id:id}); toast('Репост!'); loadFeed(); }
+        async function toggleComments(pid) { const el=document.getElementById('comments-'+pid); if(!el) return; if(el.style.display==='block'){el.style.display='none';return;} el.style.display='block'; const {data:c}=await sb.from('comments').select('*, users!comments_user_id_fkey(*)').eq('post_id',pid).order('created_at',{ascending:true}); document.getElementById('cl-'+pid).innerHTML=(c||[]).map(x=>`<div class="comment"><div class="comment-avatar"><i class="fas fa-user"></i></div><div><strong>${x.users?.full_name||'?'}</strong>: ${x.text}</div></div>`).join('')||'<p style="font-size:0.8rem;">Нет комментариев</p>'; }
+        async function addComment(pid) { const input=document.getElementById('ci-'+pid); if(!input||!input.value.trim()) return; await sb.from('comments').insert({user_id:currentUser.id,post_id:pid,text:input.value.trim()}); await sb.rpc('increment_comments',{post_id:pid}); input.value=''; toggleComments(pid); setTimeout(()=>toggleComments(pid),50); }
 
         // ==================== ПРОФИЛЬ ====================
-        function loadProfilePage() {
-            const p = currentUser.profile || {};
-            document.getElementById('mainContent').innerHTML = `
-            <div class="card" style="text-align:center;">
-                <div style="font-size:4rem;"><i class="fas fa-user-circle"></i></div>
-                <h2>${p.full_name || '?'}</h2>
-                <p style="color:var(--text-soft);">@${p.username || ''}</p>
-                <p>${p.bio || ''}</p>
-                ${p.is_owner ? '<p class="badge-crown"><i class="fas fa-crown"></i> Владелец</p>' : ''}
-                <button class="secondary full" id="btnEditProfile" style="margin-top:8px;">Редактировать</button>
-                <button class="danger full" id="btnLogout" style="margin-top:8px;">Выйти</button>
-            </div>`;
-            document.getElementById('btnEditProfile').addEventListener('click', editProfile);
-            document.getElementById('btnLogout').addEventListener('click', doLogout);
-        }
-
-        function editProfile() {
-            const p = currentUser.profile || {};
-            const name = prompt('Имя:', p.full_name);
-            if (!name) return;
-            const bio = prompt('О себе:', p.bio || '');
-            sb.from('users').update({ full_name: name, bio }).eq('id', currentUser.id).then(() => {
-                currentUser.profile.full_name = name;
-                currentUser.profile.bio = bio;
-                toast('Обновлено!');
-                loadProfilePage();
-            });
-        }
+        function loadProfilePage() { const p=currentUser.profile||{}; document.getElementById('mainContent').innerHTML=`<div class="card" style="text-align:center;"><div style="font-size:4rem;"><i class="fas fa-user-circle"></i></div><h2>${p.full_name||'?'}</h2><p style="color:var(--text-soft);">@${p.username||''}</p><p>${p.bio||''}</p>${p.is_owner?'<p class="badge-crown"><i class="fas fa-crown"></i> Владелец</p>':''}<button class="secondary full" id="be" style="margin-top:8px;">Редактировать</button><button class="danger full" id="blo" style="margin-top:8px;">Выйти</button></div>`; document.getElementById('be').addEventListener('click',editProfile); document.getElementById('blo').addEventListener('click',doLogout); }
+        function editProfile() { const p=currentUser.profile||{}; const n=prompt('Имя:',p.full_name); if(!n) return; const b=prompt('О себе:',p.bio||''); sb.from('users').update({full_name:n,bio:b}).eq('id',currentUser.id).then(()=>{currentUser.profile.full_name=n; currentUser.profile.bio=b; toast('Обновлено!'); loadProfilePage();}); }
 
         // ==================== ДРУЗЬЯ ====================
-        async function loadFriends() {
-            const { data: all } = await sb.from('users').select('*').neq('id', currentUser.id).order('full_name');
-            const { data: mf } = await sb.from('friends').select('friend_id').eq('user_id', currentUser.id);
-            const friendIds = new Set((mf || []).map(f => f.friend_id));
-            window._all = all || [];
-            window._fids = friendIds;
+        async function loadFriends() { const {data:all}=await sb.from('users').select('*').neq('id',currentUser.id).order('full_name'); const {data:mf}=await sb.from('friends').select('friend_id').eq('user_id',currentUser.id); const fids=new Set((mf||[]).map(f=>f.friend_id)); window._all=all||[]; window._fids=fids; document.getElementById('mainContent').innerHTML='<h2>👥 Пользователи</h2><input id="su" placeholder="🔍 Поиск..." style="margin-bottom:10px;"><div id="ul"></div>'; document.getElementById('su').addEventListener('input',()=>{const q=document.getElementById('su').value.toLowerCase(); renderUsersList(window._all.filter(u=>u.full_name.toLowerCase().includes(q)||u.username.toLowerCase().includes(q)));}); renderUsersList(window._all); }
+        function renderUsersList(users) { const list=document.getElementById('ul'); if(!list) return; list.innerHTML=users.map(u=>`<div class="card user-row"><div id="ui-${u.id}" style="display:flex;align-items:center;gap:10px;flex:1;"><div class="post-avatar"><i class="fas fa-user"></i></div><div><strong>${u.full_name}</strong><div style="font-size:0.75rem;color:var(--text-soft);">@${u.username}</div></div></div><button class="small ${window._fids.has(u.id)?'secondary':'success'}" id="bf-${u.id}">${window._fids.has(u.id)?'Удалить':'Добавить'}</button></div>`).join(''); users.forEach(u=>{document.getElementById('ui-'+u.id)?.addEventListener('click',()=>viewUserProfile(u.id)); document.getElementById('bf-'+u.id)?.addEventListener('click',()=>toggleFriend(u.id));}); }
+        async function toggleFriend(fid) { if(window._fids.has(fid)){await sb.from('friends').delete().eq('user_id',currentUser.id).eq('friend_id',fid); window._fids.delete(fid);} else {await sb.from('friends').insert({user_id:currentUser.id,friend_id:fid}); window._fids.add(fid);} renderUsersList(window._all); }
+        async function viewUserProfile(uid) { if(uid===currentUser.id){nav('profile');return;} const {data:u}=await sb.from('users').select('*').eq('id',uid).single(); if(!u) return; const {data:posts}=await sb.from('posts').select('*').eq('user_id',uid).order('created_at',{ascending:false}); const isF=window._fids?.has(uid); document.getElementById('mainContent').innerHTML=`<div class="card" style="text-align:center;"><div style="font-size:4rem;"><i class="fas fa-user-circle"></i></div><h2>${u.full_name}${u.is_owner?' <i class="fas fa-crown badge-crown"></i>':''}</h2><p style="color:var(--text-soft);">@${u.username}</p><p>${u.bio||''}</p><button class="small ${isF?'secondary':'success'}" id="btf">${isF?'Удалить':'Добавить'}</button><button class="small" id="bsc" style="margin-left:6px;"><i class="fas fa-comment"></i> Написать</button><button class="secondary full" id="bb" style="margin-top:10px;">← Назад</button></div><h3>Посты</h3>${(posts||[]).map(p=>`<div class="card"><p>${p.text||''}</p><div style="font-size:0.7rem;">${timeAgo(p.created_at)}</div></div>`).join('')||'<p>Нет постов</p>'}`; document.getElementById('btf').addEventListener('click',async()=>{await toggleFriend(uid); viewUserProfile(uid);}); document.getElementById('bsc').addEventListener('click',()=>startChat(uid,u.full_name)); document.getElementById('bb').addEventListener('click',()=>nav('friends')); }
 
-            let h = '<h2>👥 Пользователи</h2><input id="searchUser" placeholder="🔍 Поиск..." style="margin-bottom:10px;"><div id="usersList"></div>';
-            document.getElementById('mainContent').innerHTML = h;
-            document.getElementById('searchUser').addEventListener('input', () => {
-                const q = document.getElementById('searchUser').value.toLowerCase();
-                renderUsersList(window._all.filter(u => u.full_name.toLowerCase().includes(q) || u.username.toLowerCase().includes(q)));
-            });
-            renderUsersList(window._all);
-        }
+        // ==================== ЧАТЫ ====================
+        async function loadChats() { stopChatTimer(); const {data:chats}=await sb.from('chats').select('*').contains('participants',[currentUser.id]).order('created_at',{ascending:false}); if(!chats||chats.length===0){document.getElementById('mainContent').innerHTML='<div class="info-box">Нет чатов.<br><br>📌 Друзья → профиль → <b>Написать</b></div><button class="secondary full" onclick="nav(\'friends\')" style="margin-top:8px;">👥 К друзьям</button>'; return;} let h='<div class="chat-container"><div class="chat-list" id="clist"></div><div class="chat-messages" id="cmsg"><p style="text-align:center;padding:20px;">Выберите чат</p></div><div class="chat-input-row" id="cinput" style="display:none;"></div></div>'; document.getElementById('mainContent').innerHTML=h; document.getElementById('clist').innerHTML=chats.map(c=>`<div class="chat-list-item" data-cid="${c.id}" id="ci-${c.id}"><i class="fas fa-comments"></i> ${c.name||'Чат'}</div>`).join(''); chats.forEach(c=>document.getElementById('ci-'+c.id)?.addEventListener('click',()=>openChat(c.id))); }
+        async function startChat(uid,uname) { stopChatTimer(); const {data:ex}=await sb.from('chats').select('*').contains('participants',[currentUser.id,uid]).single(); if(ex){nav('chats'); setTimeout(()=>openChat(ex.id),300); return;} const {data:chat,error}=await sb.from('chats').insert({type:'dm',name:uname||'Чат',owner_id:currentUser.id,participants:[currentUser.id,uid]}).select().single(); if(error) return toast('Ошибка'); toast('Чат создан!'); nav('chats'); setTimeout(()=>openChat(chat.id),300); }
+        function openChat(cid) { stopChatTimer(); currentChatId=cid; document.querySelectorAll('.chat-list-item').forEach(el=>el.classList.remove('active')); document.getElementById('ci-'+cid)?.classList.add('active'); document.getElementById('cinput').style.display='flex'; document.getElementById('cinput').innerHTML='<input id="mi" placeholder="Сообщение..."><button class="small" id="bsm"><i class="fas fa-paper-plane"></i></button>'; document.getElementById('bsm').addEventListener('click',sendMessage); document.getElementById('mi').addEventListener('keydown',e=>{if(e.key==='Enter')sendMessage();}); refreshMessages(cid); chatTimer=setInterval(()=>refreshMessages(cid),2000); }
+        async function refreshMessages(cid) { const {data:msgs}=await sb.from('messages').select('*, users!messages_from_user_id_fkey(*)').eq('chat_id',cid).order('created_at',{ascending:true}); const c=document.getElementById('cmsg'); if(!c) return; c.innerHTML=(msgs||[]).map(m=>`<div class="msg ${m.from_user_id===currentUser.id?'sent':'received'}">${m.from_user_id!==currentUser.id?`<strong style="font-size:0.7rem;">${m.users?.full_name||'?'}</strong><br>`:''}${m.text}</div>`).join('')||'<p style="text-align:center;">Нет сообщений</p>'; c.scrollTop=c.scrollHeight; }
+        async function sendMessage() { const input=document.getElementById('mi'); if(!input||!input.value.trim()||!currentChatId) return; const text=input.value.trim(); input.value=''; await sb.from('messages').insert({chat_id:currentChatId,from_user_id:currentUser.id,text}); refreshMessages(currentChatId); }
 
-        function renderUsersList(users) {
-            const list = document.getElementById('usersList');
-            if (!list) return;
-            list.innerHTML = users.map(u => `
-                <div class="card user-row">
-                    <div id="ui-${u.id}" style="display:flex; align-items:center; gap:10px; flex:1;">
-                        <div class="post-avatar"><i class="fas fa-user"></i></div>
-                        <div><strong>${u.full_name}</strong><div style="font-size:0.75rem; color:var(--text-soft);">@${u.username}</div></div>
-                    </div>
-                    <button class="small ${window._fids.has(u.id) ? 'secondary' : 'success'}" id="bf-${u.id}">${window._fids.has(u.id) ? 'Удалить' : 'Добавить'}</button>
-                </div>
-            `).join('');
-            users.forEach(u => {
-                document.getElementById('ui-'+u.id)?.addEventListener('click', () => viewUserProfile(u.id));
-                document.getElementById('bf-'+u.id)?.addEventListener('click', () => toggleFriend(u.id));
-            });
-        }
-
-        async function toggleFriend(fid) {
-            if (window._fids.has(fid)) {
-                await sb.from('friends').delete().eq('user_id', currentUser.id).eq('friend_id', fid);
-                window._fids.delete(fid);
-            } else {
-                await sb.from('friends').insert({ user_id: currentUser.id, friend_id: fid });
-                window._fids.add(fid);
-            }
-            renderUsersList(window._all);
-        }
-
-        async function viewUserProfile(uid) {
-            if (uid === currentUser.id) { nav('profile'); return; }
-            const { data: u } = await sb.from('users').select('*').eq('id', uid).single();
-            if (!u) return;
-            const { data: posts } = await sb.from('posts').select('*').eq('user_id', uid).order('created_at', { ascending: false });
-            const isF = window._fids?.has(uid);
-            document.getElementById('mainContent').innerHTML = `
-            <div class="card" style="text-align:center;">
-                <div style="font-size:4rem;"><i class="fas fa-user-circle"></i></div>
-                <h2>${u.full_name} ${u.is_owner ? '<i class="fas fa-crown badge-crown"></i>' : ''}</h2>
-                <p style="color:var(--text-soft);">@${u.username}</p>
-                <p>${u.bio || ''}</p>
-                <button class="small ${isF ? 'secondary' : 'success'}" id="btf">${isF ? 'Удалить' : 'Добавить'}</button>
-                <button class="small" id="bsc" style="margin-left:6px;"><i class="fas fa-comment"></i> Написать</button>
-                <button class="secondary full" id="bb" style="margin-top:10px;">← Назад</button>
-            </div>
-            <h3>Посты</h3>
-            ${(posts||[]).map(p => `<div class="card"><p>${p.text||''}</p><div style="font-size:0.7rem;">${timeAgo(p.created_at)}</div></div>`).join('') || '<p>Нет постов</p>'}
-            `;
-            document.getElementById('btf').addEventListener('click', async () => { await toggleFriend(uid); viewUserProfile(uid); });
-            document.getElementById('bsc').addEventListener('click', () => startChat(uid, u.full_name));
-            document.getElementById('bb').addEventListener('click', () => nav('friends'));
-        }
-
-        // ==================== ЧАТЫ (ОБЩИЕ) ====================
-        async function loadChats() {
-            stopChatTimer();
-            // Ищем чаты, где текущий пользователь в participants
-            const { data: chats } = await sb.from('chats').select('*').contains('participants', [currentUser.id]).order('created_at', { ascending: false });
-
-            if (!chats || chats.length === 0) {
-                document.getElementById('mainContent').innerHTML = `
-                <div class="info-box">У вас пока нет чатов.<br><br>📌 <b>Как начать:</b><br>1. Друзья → нажмите на друга<br>2. Нажмите <b>"Написать"</b><br>3. Чат появится здесь у обоих</div>
-                <button class="secondary full" onclick="nav('friends')" style="margin-top:8px;">👥 К друзьям</button>`;
-                return;
-            }
-
-            let h = '<div class="chat-container"><div class="chat-list" id="chatList"></div>';
-            h += '<div class="chat-messages" id="chatMessages"><p style="text-align:center; padding:20px;">Выберите чат</p></div>';
-            h += '<div class="chat-input-row" id="chatInput" style="display:none;"></div></div>';
-            document.getElementById('mainContent').innerHTML = h;
-
-            document.getElementById('chatList').innerHTML = chats.map(c => `
-                <div class="chat-list-item" data-cid="${c.id}" id="ci-${c.id}"><i class="fas fa-comments"></i> ${c.name||'Чат'}</div>
-            `).join('');
-            chats.forEach(c => document.getElementById('ci-'+c.id)?.addEventListener('click', () => openChat(c.id)));
-        }
-
-        async function startChat(uid, uname) {
-            stopChatTimer();
-            // Проверяем, есть ли уже общий чат
-            const { data: existing } = await sb.from('chats').select('*').contains('participants', [currentUser.id, uid]).single();
-            if (existing) {
-                nav('chats');
-                setTimeout(() => openChat(existing.id), 300);
-                return;
-            }
-
-            const { data: chat, error } = await sb.from('chats').insert({
-                type: 'dm', name: uname || 'Чат', owner_id: currentUser.id,
-                participants: [currentUser.id, uid]
-            }).select().single();
-
-            if (error) return toast('Ошибка: ' + error.message);
-            toast('Чат создан!');
-            nav('chats');
-            setTimeout(() => openChat(chat.id), 300);
-        }
-
-        function openChat(cid) {
-            stopChatTimer();
-            currentChatId = cid;
-            document.querySelectorAll('.chat-list-item').forEach(el => el.classList.remove('active'));
-            document.getElementById('ci-'+cid)?.classList.add('active');
-            document.getElementById('chatInput').style.display = 'flex';
-            document.getElementById('chatInput').innerHTML = '<input id="msgInput" placeholder="Сообщение..."><button class="small" id="bsm"><i class="fas fa-paper-plane"></i></button>';
-            document.getElementById('bsm').addEventListener('click', sendMessage);
-            document.getElementById('msgInput').addEventListener('keydown', e => { if (e.key==='Enter') sendMessage(); });
-            refreshMessages(cid);
-            chatTimer = setInterval(() => refreshMessages(cid), 2000);
-        }
-
-        async function refreshMessages(cid) {
-            const { data: msgs } = await sb.from('messages').select('*, users!messages_from_user_id_fkey(*)').eq('chat_id', cid).order('created_at', { ascending: true });
-            const c = document.getElementById('chatMessages');
-            if (!c) return;
-            c.innerHTML = (msgs||[]).map(m => `
-                <div class="msg ${m.from_user_id===currentUser.id ? 'sent' : 'received'}">
-                    ${m.from_user_id!==currentUser.id ? `<strong style="font-size:0.7rem;">${m.users?.full_name||'?'}</strong><br>` : ''}
-                    ${m.text}
-                </div>
-            `).join('') || '<p style="text-align:center;">Нет сообщений</p>';
-            c.scrollTop = c.scrollHeight;
-        }
-
-        async function sendMessage() {
-            const input = document.getElementById('msgInput');
-            if (!input || !input.value.trim() || !currentChatId) return;
-            const text = input.value.trim();
-            input.value = '';
-            await sb.from('messages').insert({ chat_id: currentChatId, from_user_id: currentUser.id, text });
-            refreshMessages(currentChatId);
-        }
-
-        // ==================== ОСТАЛЬНОЕ ====================
+        // ==================== ЕЩЁ + МОДЕРАЦИЯ ====================
         function loadMore() {
-            document.getElementById('mainContent').innerHTML = `
-            <div class="card" id="bch"><h3>📢 Каналы</h3></div>
-            <div class="card" id="bmu"><h3>🎵 Музыка</h3></div>
-            <div class="card" id="bve"><h3>✅ Верификация</h3></div>`;
+            let h = '<div class="card" id="bch"><h3>📢 Каналы</h3></div>';
+            h += '<div class="card" id="bmu"><h3>🎵 Музыка</h3></div>';
+            h += '<div class="card" id="bve"><h3>✅ Верификация</h3></div>';
+            if (currentUser.profile?.is_owner) {
+                h += '<div class="card" id="bmo" style="border:2px solid #f59e0b;"><h3>👑 Панель модерации</h3><p style="color:var(--text-soft);">Заявки на верификацию, жалобы</p></div>';
+            }
+            document.getElementById('mainContent').innerHTML = h;
             document.getElementById('bch').addEventListener('click', ()=>nav('channels'));
             document.getElementById('bmu').addEventListener('click', ()=>nav('music'));
             document.getElementById('bve').addEventListener('click', ()=>nav('verify'));
+            if (currentUser.profile?.is_owner) {
+                document.getElementById('bmo').addEventListener('click', ()=>nav('moderation'));
+            }
         }
 
-        function loadChannels() {
-            document.getElementById('mainContent').innerHTML = `<div class="card"><h2>Каналы</h2><button class="full" id="bcr">Создать</button><button class="secondary full" id="bbk" style="margin-top:8px;">← Назад</button></div>`;
-            document.getElementById('bcr').addEventListener('click', async ()=>{
-                const n=prompt('Название:'), t=prompt('Тематика:');
-                if(n&&t) { await sb.from('channels').insert({owner_id:currentUser.id,name:n,theme:t}); toast('Создан!'); }
+        async function loadModeration() {
+            const { data: verifications } = await sb.from('verification_requests').select('*, users!verification_requests_user_id_fkey(*)').order('created_at', { ascending: false });
+            const { data: reports } = await sb.from('reports').select('*').order('created_at', { ascending: false });
+
+            let h = '<h2>👑 Панель модерации</h2>';
+
+            // Заявки на верификацию
+            h += '<h3>📋 Заявки на верификацию</h3>';
+            if (verifications && verifications.length > 0) {
+                verifications.forEach(v => {
+                    const u = v.users || {};
+                    h += `
+                    <div class="card">
+                        <strong>${u.full_name || '?'}</strong> (@${u.username || ''})
+                        <p style="margin:4px 0;">${v.reason || ''}</p>
+                        <span class="badge badge-${v.status==='approved'?'approved':v.status==='rejected'?'rejected':'pending'}">${v.status==='approved'?'Одобрено':v.status==='rejected'?'Отклонено':'На проверке'}</span>
+                        ${v.status === 'pending' ? `
+                        <div style="margin-top:8px; display:flex; gap:6px;">
+                            <button class="success small" id="app-${v.id}">✓ Одобрить</button>
+                            <button class="danger small" id="rej-${v.id}">✗ Отклонить</button>
+                        </div>` : ''}
+                    </div>`;
+                });
+            } else {
+                h += '<p style="color:var(--text-soft);">Нет заявок</p>';
+            }
+
+            // Жалобы
+            h += '<h3 style="margin-top:16px;">🚩 Жалобы</h3>';
+            if (reports && reports.length > 0) {
+                reports.forEach(r => {
+                    h += `<div class="card"><p><strong>Тип:</strong> ${r.target_type}</p><p>${r.reason||''}</p><span class="badge badge-pending">${r.status||'pending'}</span></div>`;
+                });
+            } else {
+                h += '<p style="color:var(--text-soft);">Нет жалоб</p>';
+            }
+
+            h += '<button class="secondary full" onclick="nav(\'more\')" style="margin-top:12px;">← Назад</button>';
+            document.getElementById('mainContent').innerHTML = h;
+
+            // Обработчики для кнопок
+            verifications?.forEach(v => {
+                document.getElementById('app-'+v.id)?.addEventListener('click', () => approveVerification(v.id, v.user_id));
+                document.getElementById('rej-'+v.id)?.addEventListener('click', () => rejectVerification(v.id));
             });
-            document.getElementById('bbk').addEventListener('click', ()=>nav('more'));
         }
 
-        function loadMusic() {
-            document.getElementById('mainContent').innerHTML = `<div class="card"><h2>Музыка</h2><button class="full" id="bup">Загрузить</button><button class="secondary full" id="bbm" style="margin-top:8px;">← Назад</button></div>`;
-            document.getElementById('bup').addEventListener('click', async ()=>{
-                const a=prompt('Исполнитель:'), t=prompt('Название:');
-                if(a&&t) { await sb.from('music').insert({owner_id:currentUser.id,artist:a,title:t,status:'pending'}); toast('На проверке!'); }
-            });
-            document.getElementById('bbm').addEventListener('click', ()=>nav('more'));
+        async function approveVerification(verId, userId) {
+            await sb.from('verification_requests').update({ status: 'approved' }).eq('id', verId);
+            await sb.from('users').update({ verified: true }).eq('id', userId);
+            toast('✅ Верификация одобрена!');
+            loadModeration();
         }
 
-        function loadVerify() {
-            const p=currentUser.profile||{};
-            document.getElementById('mainContent').innerHTML = `<div class="card"><h2>Верификация</h2>${p.is_owner?'<p class="badge-crown">👑 Владелец</p>':p.verified?'<p class="badge-verify">✓ Верифицирован</p>':'<textarea id="vr" rows="3"></textarea><button class="full" id="brq" style="margin-top:8px;">Отправить</button>'}<button class="secondary full" id="bbv" style="margin-top:8px;">← Назад</button></div>`;
-            document.getElementById('brq')?.addEventListener('click', async ()=>{
-                const r=document.getElementById('vr')?.value.trim();
-                if(r) { await sb.from('verification_requests').insert({user_id:currentUser.id,reason:r,status:'pending'}); toast('Отправлено!'); }
-            });
-            document.getElementById('bbv').addEventListener('click', ()=>nav('more'));
+        async function rejectVerification(verId) {
+            await sb.from('verification_requests').update({ status: 'rejected' }).eq('id', verId);
+            toast('❌ Заявка отклонена');
+            loadModeration();
         }
+
+        function loadChannels() { document.getElementById('mainContent').innerHTML='<div class="card"><h2>Каналы</h2><button class="full" id="bcr">Создать</button><button class="secondary full" id="bbk" style="margin-top:8px;">← Назад</button></div>'; document.getElementById('bcr').addEventListener('click',async()=>{const n=prompt('Название:'),t=prompt('Тематика:'); if(n&&t){await sb.from('channels').insert({owner_id:currentUser.id,name:n,theme:t}); toast('Создан!');}}); document.getElementById('bbk').addEventListener('click',()=>nav('more')); }
+        function loadMusic() { document.getElementById('mainContent').innerHTML='<div class="card"><h2>Музыка</h2><button class="full" id="bup">Загрузить</button><button class="secondary full" id="bbm" style="margin-top:8px;">← Назад</button></div>'; document.getElementById('bup').addEventListener('click',async()=>{const a=prompt('Исполнитель:'),t=prompt('Название:'); if(a&&t){await sb.from('music').insert({owner_id:currentUser.id,artist:a,title:t,status:'pending'}); toast('На проверке!');}}); document.getElementById('bbm').addEventListener('click',()=>nav('more')); }
+        function loadVerify() { const p=currentUser.profile||{}; document.getElementById('mainContent').innerHTML=`<div class="card"><h2>Верификация</h2>${p.is_owner?'<p class="badge-crown">👑 Владелец</p>':p.verified?'<p class="badge-verify">✓ Верифицирован</p>':'<textarea id="vr" rows="3" placeholder="Почему вы должны получить галочку?"></textarea><button class="full" id="brq" style="margin-top:8px;">Отправить заявку</button>'}<button class="secondary full" id="bbv" style="margin-top:8px;">← Назад</button></div>`; document.getElementById('brq')?.addEventListener('click',async()=>{const r=document.getElementById('vr')?.value.trim(); if(r){await sb.from('verification_requests').insert({user_id:currentUser.id,reason:r,status:'pending'}); toast('Заявка отправлена! Владелец рассмотрит её.'); nav('more');}}); document.getElementById('bbv').addEventListener('click',()=>nav('more')); }
 
         async function doLogout() { stopChatTimer(); await sb.auth.signOut(); currentUser=null; renderLogin(); }
 
