@@ -1,65 +1,241 @@
-<!-- Навигация -->
-<nav class="nav-card">
-  <button class="nav-item active" onclick="switchTab(event, 'tab-profile')">👤 Моя страница</button>
-  <button class="nav-item" onclick="switchTab(event, 'tab-feed')">📰 Лента новостей</button>
-  <button class="nav-item" onclick="switchTab(event, 'tab-chats')">💬 Чаты</button>
-  <button class="nav-item" onclick="switchTab(event, 'tab-groups')">👥 Группы</button>
-  <button class="nav-item" onclick="switchTab(event, 'tab-settings')">⚙️ Настройки</button>
-</nav>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Godmode Profile</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-<!-- ВКЛАДКА 1: Профиль (Моя страница) -->
-<main id="tab-profile" class="tab-content active">
-  <div class="profile-card">
-    <div id="profile-banner" class="profile-banner"></div>
-    <div class="profile-content">
-      <button class="edit-btn" onclick="toggleUploadPanel()">✏️ Редактировать</button>
-      <div class="avatar-wrapper">
-        <img id="profile-avatar" class="profile-avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='%231a2035'></svg>" alt="Avatar">
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #0e1621;
+      color: #ffffff;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 460px;
+      background-color: #17212b;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* --- ХЕДЕР (ТЕЛЕГРАМ) --- */
+    .tg-header {
+      height: 56px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #17212b;
+      border-bottom: 1px solid #0e1621;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .tg-header-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    .tg-header-sub {
+      font-size: 13px;
+      color: #6c7883;
+    }
+
+    /* --- БАННЕР С ЗАГРУЗКОЙ --- */
+    .banner-container {
+      position: relative;
+      width: 100%;
+      height: 160px;
+      background-color: #242f3d;
+      background-size: cover;
+      background-position: center;
+      cursor: pointer;
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-end;
+      padding: 12px;
+    }
+
+    .banner-badge {
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(8px);
+      border-radius: 20px;
+      padding: 6px 12px;
+      font-size: 12px;
+      color: #24a1de;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* --- ИНФОРМАЦИЯ ПРОФИЛЯ --- */
+    .profile-section {
+      padding: 0 16px 16px 16px;
+      position: relative;
+    }
+
+    /* --- АВАТАРКА С ЗАГРУЗКОЙ --- */
+    .avatar-container {
+      position: relative;
+      width: 84px;
+      height: 84px;
+      margin-top: -42px;
+      margin-bottom: 12px;
+      cursor: pointer;
+    }
+
+    .avatar-img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #17212b;
+      background-color: #2b5278;
+      display: block;
+    }
+
+    .avatar-cam-icon {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      background: #24a1de;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #17212b;
+      font-size: 13px;
+    }
+
+    .user-name {
+      font-size: 20px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .user-status {
+      font-size: 13px;
+      color: #24a1de;
+      margin-top: 2px;
+    }
+
+    /* --- БЛОКИ ТЕЛЕГРАМ ИНФО --- */
+    .tg-list {
+      margin-top: 16px;
+      background-color: #17212b;
+      border-top: 8px solid #0e1621;
+    }
+
+    .tg-item {
+      padding: 14px 16px;
+      border-bottom: 1px solid #0e1621;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .tg-label {
+      font-size: 13px;
+      color: #6c7883;
+    }
+
+    .tg-value {
+      font-size: 15px;
+      color: #ffffff;
+      font-weight: 400;
+    }
+
+    .tg-value.link {
+      color: #24a1de;
+    }
+
+    /* Скрытые системные инпуты */
+    .hidden-input {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- Шапка TG -->
+    <header class="tg-header">
+      <div>
+        <div class="tg-header-title">GODMODE NETWORK</div>
+        <div class="tg-header-sub">Профиль пользователя</div>
       </div>
-      <h1 class="user-fullname">Алексей Смирнов</h1>
-      <div class="user-handle">@absolute_godmode</div>
-      <p class="user-bio">Создатель Godmode Network.<br>Разрабатываю крутые интерфейсы и сервисы.</p>
+    </header>
+
+    <!-- Баннер (Клик для загрузки) -->
+    <div id="profile-banner" class="banner-container" onclick="document.getElementById('banner-input').click()">
+      <div class="banner-badge">📷 Сменить баннер</div>
     </div>
+    <input type="file" id="banner-input" class="hidden-input" accept="image/*" onchange="previewImage(event, 'profile-banner')">
 
-    <!-- Загрузка фото -->
-    <div id="upload-panel" class="upload-panel">
-      <label class="upload-btn-label" for="banner-input">🖼 Загрузить баннер с телефона</label>
-      <input type="file" id="banner-input" class="hidden-input" accept="image/*" onchange="previewImage(event, 'profile-banner')">
-
-      <label class="upload-btn-label" for="avatar-input">📷 Загрузить аватарку с телефона</label>
+    <!-- Секция Профиля -->
+    <div class="profile-section">
+      <!-- Аватарка (Клик для загрузки) -->
+      <div class="avatar-container" onclick="document.getElementById('avatar-input').click()">
+        <img id="profile-avatar" class="avatar-img" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236c7883'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="Avatar">
+        <div class="avatar-cam-icon">📷</div>
+      </div>
       <input type="file" id="avatar-input" class="hidden-input" accept="image/*" onchange="previewImage(event, 'profile-avatar')">
+
+      <div class="user-name">Алексей Смирнов</div>
+      <div class="user-status">в сети</div>
+    </div>
+
+    <!-- Инфо-блоки в стиле TG -->
+    <div class="tg-list">
+      <div class="tg-item">
+        <div class="tg-value link">@absolute_godmode</div>
+        <div class="tg-label">Имя пользователя</div>
+      </div>
+
+      <div class="tg-item">
+        <div class="tg-value">Создатель Godmode Network. Разрабатываю крутые интерфейсы и сервисы.</div>
+        <div class="tg-label">О себе</div>
+      </div>
     </div>
   </div>
-</main>
 
-<!-- ВКЛАДКА 2: Лента новостей -->
-<section id="tab-feed" class="tab-content">
-  <div class="content-card">
-    <h2>Лента новостей</h2>
-    <p>Здесь будут отображаться посты и обновления.</p>
-  </div>
-</section>
+  <script>
+    // Моментальная подгрузка выбранного с телефона фото
+    function previewImage(event, targetId) {
+      const file = event.target.files[0];
+      if (!file) return;
 
-<!-- ВКЛАДКА 3: Чаты -->
-<section id="tab-chats" class="tab-content">
-  <div class="content-card">
-    <h2>Чаты</h2>
-    <p>Список ваших диалогов и сообщений.</p>
-  </div>
-</section>
+      const imageURL = URL.createObjectURL(file);
+      const targetElement = document.getElementById(targetId);
 
-<!-- ВКЛАДКА 4: Группы -->
-<section id="tab-groups" class="tab-content">
-  <div class="content-card">
-    <h2>Группы</h2>
-    <p>Ваши сообщества и каналы.</p>
-  </div>
-</section>
+      if (!targetElement) return;
 
-<!-- ВКЛАДКА 5: Настройки -->
-<section id="tab-settings" class="tab-content">
-  <div class="content-card">
-    <h2>Настройки</h2>
-    <p>Параметры аккаунта и интерфейса.</p>
-  </div>
-</section>
+      if (targetElement.tagName === 'IMG') {
+        targetElement.src = imageURL;
+      } else {
+        targetElement.style.backgroundImage = `url('${imageURL}')`;
+      }
+    }
+  </script>
+
+</body>
+</html>
