@@ -4,21 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Моя Соцсеть</title>
+    <!-- Подключаем библиотеку Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         body { background: #0f172a; color: #fff; padding-bottom: 60px; }
         
-        /* Шапка */
-        header { background: #1e293b; padding: 15px; text-align: center; font-weight: bold; font-size: 20px; border-bottom: 1px solid #334155; }
+        header { background: #1e293b; padding: 15px; text-align: center; font-weight: bold; font-size: 20px; border-bottom: 1px solid #334155; position: sticky; top: 0; z-index: 10; }
         
-        /* Лента постов */
-        .feed { max-width: 500px; margin: 20px auto; padding: 0 10px; }
-        .post { background: #1e293b; border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid #334155; }
-        .author { font-weight: bold; color: #38bdf8; margin-bottom: 8px; }
-        .content { line-height: 1.4; }
+        .feed { max-width: 500px; margin: 20px auto; padding: 0 12px; }
         
-        /* Кнопка создания поста */
-        .create-post { background: #38bdf8; color: #0f172a; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 16px; margin-bottom: 20px; }
+        /* Форма создания поста */
+        .post-form { background: #1e293b; border-radius: 12px; padding: 15px; margin-bottom: 20px; border: 1px solid #334155; }
+        .post-form input, .post-form textarea {
+            width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 10px; border-radius: 8px; margin-bottom: 10px; font-size: 14px; outline: none;
+        }
+        .post-form textarea { resize: vertical; min-height: 70px; }
+        .btn-submit { background: #38bdf8; color: #0f172a; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; }
+        .btn-submit:active { opacity: 0.8; }
+        
+        /* Карточка поста */
+        .post { background: #1e293b; border-radius: 12px; padding: 15px; margin-bottom: 12px; border: 1px solid #334155; word-wrap: break-word; }
+        .author { font-weight: bold; color: #38bdf8; margin-bottom: 6px; font-size: 15px; }
+        .time { font-size: 11px; color: #64748b; margin-bottom: 8px; }
+        .content { line-height: 1.4; font-size: 15px; }
+        .empty-msg { text-align: center; color: #64748b; margin-top: 30px; }
     </style>
 </head>
 <body>
@@ -26,13 +36,96 @@
     <header>Моя Соцсеть</header>
 
     <div class="feed">
-        <button class="create-post">+ Написать пост</button>
+        <!-- Форма для публикации -->
+        <div class="post-form">
+            <input type="text" id="authorInput" placeholder="Твой никнейм (например, @alex)" maxlength="20">
+            <textarea id="contentInput" placeholder="Что нового?"></textarea>
+            <button class="btn-submit" onclick="sendPost()">Опубликовать</button>
+        </div>
 
-        <div class="post">
-            <div class="author">@admin</div>
-            <div class="content">Привет всем! Это самый первый пост в моей собственной соцсети, созданной с телефона 🚀</div>
+        <!-- Контейнер для постов -->
+        <div id="postsContainer">
+            <div class="empty-msg">Загрузка постов...</div>
         </div>
     </div>
 
+    <script>
+        // Твои ключи Supabase
+        const SUPABASE_URL = 'https://rrkdqipflbnvfdnuqxkr.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_6GQ1XJCaQ50rSm5h57wvng_qdUN6ZAD';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // Функция загрузки постов
+        async function loadPosts() {
+            const { data, error } = await _supabase
+                .from('posts')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            const container = document.getElementById('postsContainer');
+            if (error) {
+                container.innerHTML = '<div class="empty-msg">Ошибка загрузки постов</div>';
+                return;
+            }
+
+            if (data.length === 0) {
+                container.innerHTML = '<div class="empty-msg">Пока нет ни одного поста. Будь первым!</div>';
+                return;
+            }
+
+            container.innerHTML = '';
+            data.forEach(post => {
+                const date = new Date(post.created_at).toLocaleString('ru-RU', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' });
+                
+                const postEl = document.createElement('div');
+                postEl.className = 'post';
+                postEl.innerHTML = `
+                    <div class="author">${escapeHtml(post.author)}</div>
+                    <div class="time">${date}</div>
+                    <div class="content">${escapeHtml(post.content)}</div>
+                `;
+                container.appendChild(postEl);
+            });
+        }
+
+        // Функция отправки поста
+        async function sendPost() {
+            const authorInput = document.getElementById('authorInput');
+            const contentInput = document.getElementById('contentInput');
+
+            let author = authorInput.value.trim();
+            const content = contentInput.value.trim();
+
+            if (!content) {
+                alert('Введи текст поста!');
+                return;
+            }
+
+            if (!author) {
+                author = '@аноним';
+            } else if (!author.startsWith('@')) {
+                author = '@' + author;
+            }
+
+            const { error } = await _supabase
+                .from('posts')
+                .insert([{ author: author, content: content }]);
+
+            if (error) {
+                alert('Ошибка при отправке: ' + error.message);
+            } else {
+                contentInput.value = '';
+                loadPosts();
+            }
+        }
+
+        // Защита от опасного кода
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        // Автозагрузка при старте
+        loadPosts();
+    </script>
 </body>
 </html>
