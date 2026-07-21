@@ -2,40 +2,29 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>InnoSphere</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root {
-            --bg: #f0f2f5;
-            --surface: #ffffff;
-            --primary: #4f46e5;
-            --text: #1e293b;
-            --text-soft: #64748b;
-            --border: #e2e8f0;
-            --danger: #ef4444;
-            --success: #10b981;
-            --radius: 16px;
-        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, sans-serif;
-            background: var(--bg);
-            color: var(--text);
+            background: #f0f2f5;
+            color: #1e293b;
             display: flex;
             justify-content: center;
             min-height: 100vh;
         }
-        .app-container {
+        .app {
             width: 100%;
             max-width: 480px;
             min-height: 100vh;
-            background: var(--bg);
+            background: #f0f2f5;
             display: flex;
             flex-direction: column;
         }
-        .auth-screen {
+        .screen {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -47,670 +36,244 @@
         .logo {
             font-size: 2.5rem;
             font-weight: 800;
-            color: var(--primary);
+            color: #4f46e5;
         }
-        .auth-form {
+        input {
             width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .auth-form input {
             padding: 16px;
             border-radius: 14px;
-            border: 2px solid var(--border);
+            border: 2px solid #e2e8f0;
             font-size: 1rem;
-            background: var(--surface);
-            color: var(--text);
-            width: 100%;
+            background: white;
         }
-        .auth-form button {
+        button {
+            width: 100%;
             padding: 16px;
             border-radius: 14px;
-            background: var(--primary);
+            background: #4f46e5;
             color: white;
             font-weight: 700;
             font-size: 1.1rem;
             border: none;
             cursor: pointer;
         }
-        .auth-form button:active {
-            opacity: 0.8;
-            transform: scale(0.98);
-        }
-        .auth-toggle {
-            color: var(--primary);
-            cursor: pointer;
-            font-weight: 600;
-            text-decoration: underline;
-        }
-        .error-box {
+        button:active { opacity: 0.8; }
+        .error {
             background: #fef2f2;
             border: 2px solid #ef4444;
             border-radius: 14px;
             padding: 16px;
             color: #dc2626;
-            font-size: 0.9rem;
-            word-break: break-word;
+            width: 100%;
         }
-        .success-box {
-            background: #f0fdf4;
-            border: 2px solid #22c55e;
-            border-radius: 14px;
-            padding: 16px;
-            color: #16a34a;
-            font-size: 0.9rem;
-        }
-        .info-box {
-            background: #eff6ff;
-            border: 2px solid #3b82f6;
-            border-radius: 14px;
-            padding: 16px;
-            color: #1d4ed8;
-            font-size: 0.85rem;
-        }
-        .mobile-header {
-            background: var(--surface);
+        .header {
+            background: white;
             padding: 14px 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid var(--border);
-        }
-        .mobile-header .logo {
-            font-size: 1.3rem;
             font-weight: 800;
-            color: var(--primary);
+            font-size: 1.3rem;
+            color: #4f46e5;
+            border-bottom: 1px solid #e2e8f0;
         }
-        .main-content {
+        .content {
             flex: 1;
-            overflow-y: auto;
             padding: 12px;
-            padding-bottom: 80px;
+            overflow-y: auto;
         }
-        .bottom-nav {
-            position: sticky;
-            bottom: 0;
-            background: var(--surface);
-            border-top: 1px solid var(--border);
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        .nav {
+            background: white;
+            border-top: 1px solid #e2e8f0;
             display: flex;
             justify-content: space-around;
             padding: 8px 4px 12px;
-            z-index: 100;
         }
-        .bottom-nav-item {
+        .nav-item {
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 4px;
             cursor: pointer;
-            color: var(--text-soft);
+            color: #64748b;
             font-size: 0.7rem;
             font-weight: 500;
         }
-        .bottom-nav-item i { font-size: 1.3rem; }
-        .bottom-nav-item.active { color: var(--primary); }
-        .card {
-            background: var(--surface);
-            border-radius: var(--radius);
-            padding: 16px;
-            margin-bottom: 12px;
-            border: 1px solid var(--border);
-        }
-        .post-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-        .post-header img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-        }
-        .post-actions {
-            display: flex;
-            gap: 24px;
-            margin-top: 12px;
-            color: var(--text-soft);
-        }
-        .post-actions span {
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        button {
-            padding: 10px 16px;
-            border-radius: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-            font-size: 0.9rem;
-            font-family: inherit;
-        }
-        button:active { opacity: 0.8; }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-secondary { background: #f1f5f9; color: var(--text); border: 1px solid var(--border); }
-        .btn-danger { background: var(--danger); color: white; }
-        .btn-success { background: var(--success); color: white; }
-        .btn-full { width: 100%; text-align: center; justify-content: center; display: flex; align-items: center; gap: 6px; }
+        .nav-item i { font-size: 1.3rem; }
+        .nav-item.active { color: #4f46e5; }
         textarea {
             width: 100%;
             padding: 12px;
             border-radius: 12px;
-            border: 1px solid var(--border);
+            border: 1px solid #e2e8f0;
             font-family: inherit;
             font-size: 0.9rem;
             resize: vertical;
         }
-        .verified-badge { color: #3b82f6; }
-        .owner-badge { color: #f59e0b; }
     </style>
 </head>
 <body>
-
-    <div class="app-container" id="appContainer">
-        <div id="authScreen" class="auth-screen"></div>
-        <div id="mainApp" style="display:none; flex:1; flex-direction:column;"></div>
-    </div>
-
-    <div id="toast" style="position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#1e293b; color:white; padding:12px 20px; border-radius:20px; z-index:999; display:none; font-size:0.9rem;"></div>
+    <div class="app" id="app"></div>
 
     <script>
-        // ==================== КОНФИГУРАЦИЯ ====================
         const SUPABASE_URL = 'https://byniblcezicrvyyqbafc.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_exBhK1ZwxY3uSoErm0jVFA_gR97KaAy';
+        const SUPABASE_KEY = 'sb_publishable_exBhK1ZwxY3uSoErm0jVFA_gR97KaAy';
         const OWNER_EMAIL = 'ilyabelyev344@gmail.com';
 
-        let supabase;
-        let currentUser = null;
-        let currentPage = 'feed';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        let user = null;
 
-        // Инициализация Supabase с проверкой
-        try {
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            console.log('✅ Supabase инициализирован');
-        } catch (e) {
-            console.error('❌ Ошибка Supabase:', e);
+        function showLogin(errorMsg) {
+            let html = '<div class="screen">';
+            html += '<div class="logo"><i class="fas fa-cube"></i> InnoSphere</div>';
+            if (errorMsg) html += `<div class="error">${errorMsg}</div>`;
+            html += `<input id="email" type="email" placeholder="Email" value="${OWNER_EMAIL}">`;
+            html += '<input id="pass" type="password" placeholder="Пароль" value="Assasin2)">';
+            html += '<button onclick="doLogin()">Войти</button>';
+            html += '<button onclick="showRegister()" style="background:#f1f5f9; color:#1e293b;">Регистрация</button>';
+            html += '</div>';
+            document.getElementById('app').innerHTML = html;
         }
 
-        // ==================== ОТЛАДКА ====================
-        function showDebug(msg, isError = false) {
-            const authScreen = document.getElementById('authScreen');
-            const debugDiv = document.createElement('div');
-            debugDiv.className = isError ? 'error-box' : 'info-box';
-            debugDiv.textContent = '🔍 ' + msg;
-            debugDiv.style.marginBottom = '10px';
-            authScreen.appendChild(debugDiv);
-            console.log(isError ? '❌' : '🔍', msg);
+        function showRegister(errorMsg) {
+            let html = '<div class="screen">';
+            html += '<div class="logo"><i class="fas fa-cube"></i> InnoSphere</div>';
+            if (errorMsg) html += `<div class="error">${errorMsg}</div>`;
+            html += '<input id="regName" placeholder="Полное имя" value="Основатель">';
+            html += '<input id="regUser" placeholder="Юзернейм" value="owner">';
+            html += `<input id="regEmail" type="email" placeholder="Email" value="${OWNER_EMAIL}">`;
+            html += '<input id="regPass" type="password" placeholder="Пароль" value="Assasin2)">';
+            html += '<button onclick="doRegister()">Зарегистрироваться</button>';
+            html += '<button onclick="showLogin()" style="background:#f1f5f9; color:#1e293b;">Войти</button>';
+            html += '</div>';
+            document.getElementById('app').innerHTML = html;
         }
 
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            toast.textContent = msg;
-            toast.style.display = 'block';
-            setTimeout(() => { toast.style.display = 'none'; }, 2500);
+        async function doLogin() {
+            const email = document.getElementById('email').value.trim();
+            const pass = document.getElementById('pass').value;
+            if (!email || !pass) return showLogin('Заполните все поля');
+
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
+            if (error) return showLogin('Ошибка: ' + error.message);
+            if (!data.user) return showLogin('Пользователь не найден');
+
+            user = data.user;
+            await loadProfile();
+            showFeed();
         }
 
-        // ==================== АВТОРИЗАЦИЯ ====================
-        function renderAuthScreen(mode = 'login', errorMsg = null) {
-            const authScreen = document.getElementById('authScreen');
-            let html = '<div class="logo"><i class="fas fa-cube"></i> InnoSphere</div>';
-
-            if (errorMsg) {
-                html += `<div class="error-box">❌ ${errorMsg}</div>`;
-            }
-
-            if (mode === 'login') {
-                html += `
-                <div class="auth-form">
-                    <h2 style="text-align:center;">Вход</h2>
-                    <input type="email" id="loginEmail" placeholder="Email" value="${OWNER_EMAIL}">
-                    <input type="password" id="loginPassword" placeholder="Пароль" value="Assasin2)">
-                    <button onclick="handleLogin()" class="btn-primary">Войти</button>
-                    <p style="text-align:center;">Нет аккаунта? <span class="auth-toggle" onclick="renderAuthScreen('register')">Регистрация</span></p>
-                </div>`;
-            } else {
-                html += `
-                <div class="auth-form">
-                    <h2 style="text-align:center;">Регистрация</h2>
-                    <input type="text" id="regFullName" placeholder="Полное имя" value="Основатель">
-                    <input type="text" id="regUsername" placeholder="Юзернейм" value="owner">
-                    <input type="email" id="regEmail" placeholder="Email" value="${OWNER_EMAIL}">
-                    <input type="password" id="regPassword" placeholder="Пароль" value="Assasin2)">
-                    <button onclick="handleRegister()" class="btn-primary">Зарегистрироваться</button>
-                    <p style="text-align:center;">Уже есть аккаунт? <span class="auth-toggle" onclick="renderAuthScreen('login')">Войти</span></p>
-                </div>`;
-            }
-
-            html += '<div class="info-box" style="margin-top:12px;">📱 Отладка: Проверьте консоль браузера (F12) для деталей</div>';
-            authScreen.innerHTML = html;
-        }
-
-        async function handleLogin() {
-            const email = document.getElementById('loginEmail').value.trim();
-            const password = document.getElementById('loginPassword').value;
-
-            if (!email || !password) {
-                return renderAuthScreen('login', 'Заполните email и пароль');
-            }
-
-            showDebug(`Попытка входа: ${email}`);
-
-            try {
-                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-
-                if (error) {
-                    showDebug(`Ошибка входа: ${error.message}`, true);
-                    return renderAuthScreen('login', error.message);
-                }
-
-                if (!data.user) {
-                    showDebug('Пользователь не найден в ответе', true);
-                    return renderAuthScreen('login', 'Пользователь не найден');
-                }
-
-                showDebug(`✅ Вход успешен! User ID: ${data.user.id}`);
-                currentUser = data.user;
-                await loadUserProfile();
-                showMainApp();
-            } catch (e) {
-                showDebug(`Критическая ошибка: ${e.message}`, true);
-                renderAuthScreen('login', 'Ошибка соединения: ' + e.message);
-            }
-        }
-
-        async function handleRegister() {
-            const fullName = document.getElementById('regFullName').value.trim();
-            const username = document.getElementById('regUsername').value.trim();
+        async function doRegister() {
+            const name = document.getElementById('regName').value.trim();
+            const username = document.getElementById('regUser').value.trim();
             const email = document.getElementById('regEmail').value.trim();
-            const password = document.getElementById('regPassword').value;
+            const pass = document.getElementById('regPass').value;
 
-            if (!fullName || !username || !email || !password) {
-                return renderAuthScreen('register', 'Заполните все поля');
+            if (!name || !username || !email || !pass) return showRegister('Заполните все поля');
+            if (pass.length < 6) return showRegister('Пароль минимум 6 символов');
+
+            const { data, error } = await supabase.auth.signUp({ email, password: pass });
+            if (error) {
+                if (error.message.includes('already')) return showLogin('Уже зарегистрирован. Войдите.');
+                return showRegister('Ошибка: ' + error.message);
             }
+            if (!data.user) return showRegister('Не удалось создать');
 
-            if (password.length < 6) {
-                return renderAuthScreen('register', 'Пароль должен быть минимум 6 символов');
-            }
+            const isOwner = (email === OWNER_EMAIL);
+            await supabase.from('users').insert({
+                id: data.user.id, email, username, full_name: name,
+                is_owner: isOwner, verified: isOwner
+            });
+            await supabase.from('user_settings').insert({ user_id: data.user.id });
 
-            showDebug(`Попытка регистрации: ${email}`);
+            user = data.user;
+            user.profile = { id: data.user.id, email, username, full_name: name, is_owner: isOwner, verified: isOwner };
+            showFeed();
+        }
 
-            try {
-                const { data, error } = await supabase.auth.signUp({ email, password });
+        async function loadProfile() {
+            const { data } = await supabase.from('users').select('*').eq('id', user.id).single();
+            if (data) user.profile = data;
+        }
 
-                if (error) {
-                    showDebug(`Ошибка регистрации: ${error.message}`, true);
+        function showFeed() {
+            let html = '<div class="header"><i class="fas fa-cube"></i> InnoSphere</div>';
+            html += '<div class="content" id="feedContent">Загрузка...</div>';
+            html += '<div class="nav">';
+            html += '<div class="nav-item active" onclick="loadFeed()"><i class="fas fa-newspaper"></i> Лента</div>';
+            html += '<div class="nav-item" onclick="showProfile()"><i class="fas fa-user"></i> Профиль</div>';
+            html += '<div class="nav-item" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> Выйти</div>';
+            html += '</div>';
+            document.getElementById('app').innerHTML = html;
+            loadFeed();
+        }
 
-                    if (error.message.includes('already registered') || error.message.includes('already exists')) {
-                        return renderAuthScreen('login', 'Этот email уже зарегистрирован. Войдите.');
-                    }
+        async function loadFeed() {
+            const { data: posts } = await supabase.from('posts').select('*, users(*)').order('created_at', { ascending: false }).limit(20);
+            let html = `
+            <div class="card">
+                <textarea id="postText" placeholder="Что у вас нового?" rows="3"></textarea>
+                <button onclick="createPost()" style="margin-top:8px;">Опубликовать</button>
+            </div>`;
 
-                    return renderAuthScreen('register', error.message);
-                }
-
-                if (!data.user) {
-                    showDebug('Пользователь не создан', true);
-                    return renderAuthScreen('register', 'Не удалось создать пользователя');
-                }
-
-                showDebug(`✅ Регистрация успешна! ID: ${data.user.id}`);
-
-                const isOwner = (email === OWNER_EMAIL);
-
-                // Создаём профиль
-                const { error: profileError } = await supabase.from('users').insert({
-                    id: data.user.id,
-                    email: email,
-                    username: username,
-                    full_name: fullName,
-                    is_owner: isOwner,
-                    verified: isOwner
+            if (posts && posts.length > 0) {
+                posts.forEach(p => {
+                    html += `
+                    <div class="card">
+                        <strong>${p.users?.full_name || 'Пользователь'}</strong>
+                        ${p.users?.verified ? '<span style="color:#3b82f6;"> ✓</span>' : ''}
+                        ${p.users?.is_owner ? '<span style="color:#f59e0b;"> 👑</span>' : ''}
+                        <p style="margin-top:8px; white-space:pre-wrap;">${p.text || ''}</p>
+                        <p style="font-size:0.75rem; color:#64748b; margin-top:4px;">❤️ ${p.likes_count || 0} | 💬 ${p.comments_count || 0}</p>
+                    </div>`;
                 });
-
-                if (profileError) {
-                    showDebug(`Ошибка создания профиля: ${profileError.message}`, true);
-                } else {
-                    showDebug('✅ Профиль создан');
-                }
-
-                // Создаём настройки
-                const { error: settingsError } = await supabase.from('user_settings').insert({
-                    user_id: data.user.id,
-                    dark_mode: false,
-                    notifications_enabled: true,
-                    profile_visibility: 'public',
-                    language: 'ru'
-                });
-
-                if (settingsError) {
-                    showDebug(`Ошибка настроек: ${settingsError.message}`, true);
-                }
-
-                if (isOwner) {
-                    showDebug('👑 Вы владелец соцсети!');
-                }
-
-                currentUser = data.user;
-                currentUser.profile = {
-                    id: data.user.id,
-                    email,
-                    username,
-                    full_name: fullName,
-                    is_owner: isOwner,
-                    verified: isOwner,
-                    avatar_url: 'https://i.pravatar.cc/150?img=5',
-                    banner_url: 'https://picsum.photos/480/140',
-                    bio: ''
-                };
-
-                showMainApp();
-            } catch (e) {
-                showDebug(`Критическая ошибка: ${e.message}`, true);
-                renderAuthScreen('register', 'Ошибка: ' + e.message);
+            } else {
+                html += '<div class="card"><p style="text-align:center; color:#64748b;">Нет постов. Создайте первый!</p></div>';
             }
+
+            document.getElementById('feedContent').innerHTML = html;
         }
 
-        async function loadUserProfile() {
-            try {
-                const { data, error } = await supabase.from('users').select('*').eq('id', currentUser.id).single();
-                if (data) {
-                    currentUser.profile = data;
-                    showDebug(`✅ Профиль загружен: ${data.full_name} (owner: ${data.is_owner})`);
-                } else if (error) {
-                    showDebug(`Ошибка загрузки профиля: ${error.message}`, true);
-                }
-            } catch (e) {
-                showDebug(`Ошибка: ${e.message}`, true);
-            }
-        }
-
-        function showMainApp() {
-            document.getElementById('authScreen').style.display = 'none';
-            const mainApp = document.getElementById('mainApp');
-            mainApp.style.display = 'flex';
-            mainApp.innerHTML = `
-                <div class="mobile-header">
-                    <div class="logo"><i class="fas fa-cube"></i> InnoSphere</div>
-                    <div style="color:var(--text-soft);">
-                        ${currentUser.profile?.is_owner ? '<i class="fas fa-crown owner-badge"></i> Владелец' : ''}
-                        ${currentUser.profile?.verified ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
-                    </div>
-                </div>
-                <div class="main-content" id="app"></div>
-                <div class="bottom-nav">
-                    <div class="bottom-nav-item active" data-page="feed" onclick="navigate('feed')">
-                        <i class="fas fa-newspaper"></i> Лента
-                    </div>
-                    <div class="bottom-nav-item" data-page="profile" onclick="navigate('profile')">
-                        <i class="fas fa-user"></i> Профиль
-                    </div>
-                    <div class="bottom-nav-item" data-page="friends" onclick="navigate('friends')">
-                        <i class="fas fa-user-friends"></i> Друзья
-                    </div>
-                    <div class="bottom-nav-item" data-page="chats" onclick="navigate('chats')">
-                        <i class="fas fa-comment-dots"></i> Чаты
-                    </div>
-                    <div class="bottom-nav-item" data-page="more" onclick="navigate('more')">
-                        <i class="fas fa-ellipsis-h"></i> Ещё
-                    </div>
-                </div>
-            `;
-            navigate('feed');
-        }
-
-        // ==================== НАВИГАЦИЯ ====================
-        function navigate(page) {
-            currentPage = page;
-            document.querySelectorAll('.bottom-nav-item').forEach(n => n.classList.remove('active'));
-            const target = document.querySelector(`.bottom-nav-item[data-page="${page}"]`);
-            if (target) target.classList.add('active');
-            renderPage(page);
-        }
-
-        async function renderPage(page) {
-            const app = document.getElementById('app');
-            const user = currentUser.profile || {};
-
-            switch (page) {
-                case 'feed':
-                    const { data: posts } = await supabase.from('posts').select('*, users!posts_user_id_fkey(*)').order('created_at', { ascending: false }).limit(20);
-                    let html = `
-                    <div class="card">
-                        <textarea id="postText" placeholder="Что у вас нового?" rows="3"></textarea>
-                        <button class="btn-primary btn-full" onclick="createPost()" style="margin-top:8px;">
-                            <i class="fas fa-paper-plane"></i> Опубликовать
-                        </button>
-                    </div>`;
-
-                    if (posts && posts.length > 0) {
-                        posts.forEach(p => {
-                            const u = p.users || {};
-                            html += `
-                            <div class="card">
-                                <div class="post-header">
-                                    <img src="${u.avatar_url || 'https://i.pravatar.cc/150?img=0'}" alt="avatar">
-                                    <div>
-                                        <strong>${u.full_name || 'Пользователь'}</strong>
-                                        ${u.verified ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
-                                        ${u.is_owner ? '<i class="fas fa-crown owner-badge"></i>' : ''}
-                                        <div style="font-size:0.75rem; color:var(--text-soft);">${timeAgo(p.created_at)}</div>
-                                    </div>
-                                </div>
-                                <p style="white-space:pre-wrap;">${p.text || ''}</p>
-                                <div class="post-actions">
-                                    <span onclick="likePost('${p.id}')"><i class="far fa-heart"></i> ${p.likes_count || 0}</span>
-                                    <span><i class="far fa-comment"></i> ${p.comments_count || 0}</span>
-                                    <span onclick="repostPost('${p.id}')"><i class="fas fa-retweet"></i> ${p.reposts_count || 0}</span>
-                                </div>
-                            </div>`;
-                        });
-                    } else {
-                        html += '<div class="card"><p style="text-align:center; color:var(--text-soft);">Нет постов. Создайте первый!</p></div>';
-                    }
-                    app.innerHTML = html;
-                    break;
-
-                case 'profile':
-                    const { data: myPosts } = await supabase.from('posts').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
-                    app.innerHTML = `
-                    <div class="card" style="text-align:center;">
-                        <img src="${user.avatar_url || 'https://i.pravatar.cc/150?img=5'}" width="80" height="80" style="border-radius:50%; margin-bottom:8px;">
-                        <h2>${user.full_name || 'Пользователь'}</h2>
-                        <p style="color:var(--text-soft);">@${user.username || ''}</p>
-                        <p>${user.bio || ''}</p>
-                        ${user.is_owner ? '<p class="owner-badge"><i class="fas fa-crown"></i> Владелец соцсети</p>' : ''}
-                        ${user.verified ? '<p class="verified-badge"><i class="fas fa-check-circle"></i> Верифицирован</p>' : ''}
-                        <p style="margin-top:8px;">Постов: ${myPosts?.length || 0}</p>
-                        <button class="btn-secondary btn-full" onclick="logout()" style="margin-top:12px;">
-                            <i class="fas fa-sign-out-alt"></i> Выйти
-                        </button>
-                    </div>
-                    <h3>Мои посты</h3>
-                    ${(myPosts || []).map(p => `
-                        <div class="card">
-                            <p style="white-space:pre-wrap;">${p.text || ''}</p>
-                            <div style="font-size:0.75rem; color:var(--text-soft);">${timeAgo(p.created_at)}</div>
-                        </div>
-                    `).join('') || '<p style="text-align:center; color:var(--text-soft);">Нет постов</p>'}
-                    `;
-                    break;
-
-                case 'friends':
-                    app.innerHTML = `
-                    <div class="card">
-                        <h2>Друзья</h2>
-                        <p style="text-align:center; color:var(--text-soft);">Список друзей появится здесь</p>
-                    </div>`;
-                    break;
-
-                case 'chats':
-                    app.innerHTML = `
-                    <div class="card">
-                        <h2>Чаты</h2>
-                        <p style="text-align:center; color:var(--text-soft);">Чаты появятся здесь</p>
-                        <button class="btn-primary btn-full" onclick="createChat()">Создать чат</button>
-                    </div>`;
-                    break;
-
-                case 'more':
-                    app.innerHTML = `
-                    <div class="card">
-                        <h2>Ещё</h2>
-                        <button class="btn-primary btn-full" onclick="navigate('channels')" style="margin-bottom:8px;">📢 Каналы</button>
-                        <button class="btn-primary btn-full" onclick="navigate('music')" style="margin-bottom:8px;">🎵 Музыка</button>
-                        <button class="btn-primary btn-full" onclick="navigate('verification')" style="margin-bottom:8px;">✅ Верификация</button>
-                        <button class="btn-secondary btn-full" onclick="navigate('feed')">← Назад</button>
-                    </div>`;
-                    break;
-
-                case 'channels':
-                    app.innerHTML = `
-                    <div class="card">
-                        <h2>📢 Каналы</h2>
-                        <p style="text-align:center;">Создавайте тематические каналы</p>
-                        <button class="btn-primary btn-full" onclick="createChannel()">Создать канал</button>
-                        <button class="btn-secondary btn-full" onclick="navigate('more')" style="margin-top:8px;">← Назад</button>
-                    </div>`;
-                    break;
-
-                case 'music':
-                    app.innerHTML = `
-                    <div class="card">
-                        <h2>🎵 Музыка</h2>
-                        <p style="text-align:center;">Загружайте любимые треки</p>
-                        <button class="btn-primary btn-full" onclick="uploadMusic()">Загрузить трек</button>
-                        <button class="btn-secondary btn-full" onclick="navigate('more')" style="margin-top:8px;">← Назад</button>
-                    </div>`;
-                    break;
-
-                case 'verification':
-                    app.innerHTML = `
-                    <div class="card">
-                        <h2>✅ Верификация</h2>
-                        ${user.is_owner ? '<p class="owner-badge">👑 Вы владелец — верификация не требуется</p>' : 
-                          user.verified ? '<p>Вы уже верифицированы!</p>' :
-                          '<textarea id="verReason" placeholder="Почему вы должны получить галочку?" rows="3"></textarea><button class="btn-primary btn-full" onclick="requestVerification()" style="margin-top:8px;">Отправить заявку</button>'}
-                        <button class="btn-secondary btn-full" onclick="navigate('more')" style="margin-top:8px;">← Назад</button>
-                    </div>`;
-                    break;
-            }
-        }
-
-        // ==================== ФУНКЦИИ ====================
         async function createPost() {
             const text = document.getElementById('postText')?.value.trim();
-            if (!text) return showToast('Напишите текст');
-            const { error } = await supabase.from('posts').insert({ user_id: currentUser.id, text });
-            if (error) return showToast('Ошибка: ' + error.message);
-            showToast('✅ Пост опубликован!');
-            navigate('feed');
+            if (!text) return alert('Напишите текст');
+            const { error } = await supabase.from('posts').insert({ user_id: user.id, text });
+            if (error) return alert('Ошибка: ' + error.message);
+            loadFeed();
         }
 
-        async function likePost(postId) {
-            const { data: existing } = await supabase.from('likes').select('*').eq('user_id', currentUser.id).eq('post_id', postId).single();
-            if (existing) {
-                await supabase.from('likes').delete().eq('user_id', currentUser.id).eq('post_id', postId);
-                await supabase.rpc('decrement_likes', { post_id: postId });
-            } else {
-                await supabase.from('likes').insert({ user_id: currentUser.id, post_id: postId });
-                await supabase.rpc('increment_likes', { post_id: postId });
-            }
-            showToast(existing ? '💔 Лайк убран' : '❤️ Лайк!');
-            navigate('feed');
+        function showProfile() {
+            const p = user.profile || {};
+            document.getElementById('feedContent').innerHTML = `
+            <div class="card" style="text-align:center;">
+                <h2>${p.full_name || 'Пользователь'}</h2>
+                <p style="color:#64748b;">@${p.username || ''}</p>
+                ${p.is_owner ? '<p style="color:#f59e0b;">👑 Владелец</p>' : ''}
+                ${p.verified ? '<p style="color:#3b82f6;">✓ Верифицирован</p>' : ''}
+            </div>`;
         }
 
-        async function repostPost(postId) {
-            const { data: original } = await supabase.from('posts').select('*').eq('id', postId).single();
-            if (!original) return;
-            await supabase.from('posts').insert({ user_id: currentUser.id, text: original.text, reposted_from: postId });
-            await supabase.rpc('increment_reposts', { post_id: postId });
-            showToast('🔄 Репост сделан!');
-            navigate('feed');
-        }
-
-        function createChat() {
-            const name = prompt('Название чата:');
-            if (!name) return;
-            supabase.from('chats').insert({ type: 'group', name, owner_id: currentUser.id }).then(() => {
-                showToast('Чат создан!');
-                navigate('chats');
-            });
-        }
-
-        function createChannel() {
-            const name = prompt('Название канала:');
-            if (!name) return;
-            const theme = prompt('Тематика:');
-            if (!theme) return;
-            supabase.from('channels').insert({ owner_id: currentUser.id, name, theme }).then(() => {
-                showToast('Канал создан!');
-                navigate('channels');
-            });
-        }
-
-        function uploadMusic() {
-            const artist = prompt('Исполнитель:');
-            const title = prompt('Название:');
-            if (!artist || !title) return;
-            supabase.from('music').insert({ owner_id: currentUser.id, artist, title, status: 'pending' }).then(() => {
-                showToast('Трек отправлен на проверку!');
-                navigate('music');
-            });
-        }
-
-        function requestVerification() {
-            const reason = document.getElementById('verReason')?.value.trim();
-            if (!reason) return showToast('Укажите причину');
-            supabase.from('verification_requests').insert({ user_id: currentUser.id, reason, status: 'pending' }).then(() => {
-                showToast('Заявка отправлена!');
-                navigate('verification');
-            });
-        }
-
-        async function logout() {
+        async function doLogout() {
             await supabase.auth.signOut();
-            currentUser = null;
-            document.getElementById('mainApp').style.display = 'none';
-            document.getElementById('authScreen').style.display = 'flex';
-            renderAuthScreen('login');
-            showToast('Вы вышли');
+            user = null;
+            showLogin();
         }
 
-        function timeAgo(dateStr) {
-            const date = new Date(dateStr);
-            const seconds = Math.floor((Date.now() - date) / 1000);
-            if (seconds < 60) return 'только что';
-            if (seconds < 3600) return Math.floor(seconds / 60) + ' мин';
-            if (seconds < 86400) return Math.floor(seconds / 3600) + ' ч';
-            return new Date(dateStr).toLocaleDateString('ru-RU');
-        }
-
-        // ==================== ПРОВЕРКА СЕССИИ ====================
-        async function checkSession() {
-            try {
-                const { data } = await supabase.auth.getSession();
-                if (data.session) {
-                    currentUser = data.session.user;
-                    await loadUserProfile();
-                    showMainApp();
-                } else {
-                    document.getElementById('authScreen').style.display = 'flex';
-                    renderAuthScreen('login');
-                }
-            } catch (e) {
-                document.getElementById('authScreen').style.display = 'flex';
-                renderAuthScreen('login', 'Ошибка соединения с сервером: ' + e.message);
+        // Проверка сессии при запуске
+        (async () => {
+            const { data } = await supabase.auth.getSession();
+            if (data.session) {
+                user = data.session.user;
+                await loadProfile();
+                showFeed();
+            } else {
+                showLogin();
             }
-        }
-
-        // ==================== ЗАПУСК ====================
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('🚀 InnoSphere запускается...');
-            console.log('📦 Supabase URL:', SUPABASE_URL);
-            checkSession();
-        });
+        })();
     </script>
 </body>
 </html>
