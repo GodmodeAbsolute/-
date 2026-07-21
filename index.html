@@ -117,15 +117,17 @@
         .toggle-switch.active { background:var(--primary); }
         .toggle-switch::after { content:''; position:absolute; top:3px; left:3px; width:24px; height:24px; background:#fff; border-radius:50%; transition:transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); box-shadow:var(--shadow-sm); }
         .toggle-switch.active::after { transform:translateX(20px); }
-        .profile-banner { width:100%; height:150px; object-fit:cover; border-radius:var(--radius-lg) var(--radius-lg) 0 0; background:linear-gradient(135deg,#6366f1,#8b5cf6,#a5b4fc); }
+        
+        /* Стили для баннера и гифки внутри него */
+        .profile-banner-wrap { width:100%; height:150px; position:relative; border-radius:var(--radius-lg) var(--radius-lg) 0 0; overflow:hidden; }
+        .profile-banner { width:100%; height:100%; object-fit:cover; background:linear-gradient(135deg,#6366f1,#8b5cf6,#a5b4fc); display:block; }
+        .banner-gif-badge { position:absolute; top:12px; right:12px; width:40px; height:40px; border-radius:50%; object-fit:cover; border:2px solid rgba(245, 158, 11, 0.9); box-shadow: 0 4px 12px rgba(0,0,0,0.4); background: rgba(0,0,0,0.3); z-index: 5; }
+
         .profile-avatar-lg { width:90px; height:90px; border-radius:50%; border:4px solid var(--surface); object-fit:cover; margin-top:-45px; position:relative; z-index:2; background:linear-gradient(135deg,#6366f1,#8b5cf6); display:flex; align-items:center; justify-content:center; font-size:2rem; color:#fff; font-weight:700; overflow:hidden; box-shadow:var(--shadow); }
         .profile-avatar-lg img { width:100%; height:100%; object-fit:cover; }
         .online-dot { width:14px; height:14px; background:var(--success); border-radius:50%; display:inline-block; border:3px solid var(--surface); position:absolute; bottom:2px; right:2px; z-index:3; animation:pulse 2s infinite; }
         @keyframes pulse { 0%,100%{transform:scale(1);opacity:1;} 50%{transform:scale(1.1);opacity:0.7;} }
         .owner-chip { background:linear-gradient(135deg,#f59e0b,#d97706); color:#fff; padding:4px 10px; border-radius:20px; font-size:0.7rem; font-weight:700; letter-spacing:0.5px; display:inline-flex; align-items:center; gap:4px; box-shadow:0 2px 6px rgba(245,158,11,0.3); }
-        
-        /* Стили для анимированной гифки-знака владения на баннере */
-        .owner-banner-badge { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid #f59e0b; box-shadow: 0 2px 8px rgba(245,158,11,0.4); display: inline-block; vertical-align: middle; margin-left: 6px; }
 
         .post-preview-img { max-width:100%; max-height:220px; border-radius:14px; margin-top:10px; object-fit:cover; box-shadow:var(--shadow-sm); }
         
@@ -265,7 +267,7 @@ async function loadFeed(){
     let h=`<div class="card"><textarea id="postText" placeholder="Что у вас нового?" rows="2" style="border:none;padding:4px 0;background:transparent;resize:none;width:100%;"></textarea><div id="postPreview"></div><div style="display:flex;gap:8px;margin-top:10px;"><button class="secondary small" id="btnAddImage"><i class="fas fa-image"></i> Фото</button><button class="full" id="btnCreatePost"><i class="fas fa-paper-plane"></i> Опубликовать</button></div><input type="file" id="postImageInput" accept="image/*" style="display:none;"></div>`;
     if(posts)posts.forEach(p=>{
         const u=p.users||{};
-        h+=`<div class="card"><div class="post-header" data-uid="${p.user_id}"><div class="post-avatar">${avHtml(u)}</div><div style="flex:1;"><strong>${escapeHTML(u.full_name||'?')}</strong>${u.verified?' <i class="fas fa-circle-check badge-verify"></i>':''}${u.is_owner?' <span class="owner-chip"><i class="fas fa-crown"></i> OWNER</span>':''}${u.is_owner?` <img src="https://i.pinterest.com/originals/52/63/0e/52630e633d1544a0429188e7ad183011.gif" class="owner-banner-badge" alt="owner gift">`:''}<div style="font-size:0.75rem;color:var(--text-tertiary);">${timeAgo(p.created_at)}</div></div>${p.user_id===currentUser.id?`<button class="ghost icon-only" data-del="${p.id}"><i class="fas fa-trash" style="color:var(--danger);"></i></button>`:''}</div><p style="white-space:pre-wrap;font-size:0.95rem;line-height:1.45;">${escapeHTML(p.text||'')}</p>${p.image_url?`<img src="${escapeHTML(p.image_url)}" class="post-image" alt="фото">`:''}<div class="post-actions"><span data-like="${p.id}"><i class="far fa-heart"></i> ${p.likes_count||0}</span><span data-comm="${p.id}"><i class="far fa-message"></i> ${p.comments_count||0}</span><span data-repost="${p.id}"><i class="fas fa-arrow-right-arrow-left"></i> ${p.reposts_count||0}</span></div><div class="comment-box" id="comments-${p.id}" style="display:none;"><div id="cl-${p.id}"></div><div class="comment-input-row"><input id="ci-${p.id}" placeholder="Комментарий..."><button class="ghost icon-only" data-addcomm="${p.id}"><i class="fas fa-paper-plane" style="color:var(--primary);"></i></button></div></div></div>`;
+        h+=`<div class="card"><div class="post-header" data-uid="${p.user_id}"><div class="post-avatar">${avHtml(u)}</div><div style="flex:1;"><strong>${escapeHTML(u.full_name||'?')}</strong>${u.verified?' <i class="fas fa-circle-check badge-verify"></i>':''}${u.is_owner?' <span class="owner-chip"><i class="fas fa-crown"></i> OWNER</span>':''}<div style="font-size:0.75rem;color:var(--text-tertiary);">${timeAgo(p.created_at)}</div></div>${p.user_id===currentUser.id?`<button class="ghost icon-only" data-del="${p.id}"><i class="fas fa-trash" style="color:var(--danger);"></i></button>`:''}</div><p style="white-space:pre-wrap;font-size:0.95rem;line-height:1.45;">${escapeHTML(p.text||'')}</p>${p.image_url?`<img src="${escapeHTML(p.image_url)}" class="post-image" alt="фото">`:''}<div class="post-actions"><span data-like="${p.id}"><i class="far fa-heart"></i> ${p.likes_count||0}</span><span data-comm="${p.id}"><i class="far fa-message"></i> ${p.comments_count||0}</span><span data-repost="${p.id}"><i class="fas fa-arrow-right-arrow-left"></i> ${p.reposts_count||0}</span></div><div class="comment-box" id="comments-${p.id}" style="display:none;"><div id="cl-${p.id}"></div><div class="comment-input-row"><input id="ci-${p.id}" placeholder="Комментарий..."><button class="ghost icon-only" data-addcomm="${p.id}"><i class="fas fa-paper-plane" style="color:var(--primary);"></i></button></div></div></div>`;
     });
     document.getElementById('mainContent').innerHTML=h||'<p style="text-align:center;color:var(--text-tertiary);padding:20px;">Пусто</p>';
     document.getElementById('btnCreatePost').onclick=createPost;
@@ -290,7 +292,31 @@ async function addComment(pid){const input=document.getElementById('ci-'+pid);if
 // ==================== ПРОФИЛЬ ====================
 function loadProfilePage(){
     const p=currentUser.profile||{};
-    let h=`<div class="card" style="padding:0;overflow:hidden;"><img src="${escapeHTML(p.banner_url||'https://picsum.photos/480/160')}" class="profile-banner" alt="banner"><div style="padding:0 18px;position:relative;"><div style="position:relative;display:inline-block;"><div class="profile-avatar-lg">${avHtml(p)}<span class="online-dot"></span></div></div></div><div style="padding:14px 18px 18px;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><h2 style="font-size:1.4rem;">${escapeHTML(p.full_name||'?')}</h2>${p.verified?'<i class="fas fa-circle-check badge-verify"></i>':''}${p.is_owner?'<span class="owner-chip"><i class="fas fa-crown"></i> OWNER</span>':''}${p.is_owner?`<img src="https://i.pinterest.com/originals/52/63/0e/52630e633d1544a0429188e7ad183011.gif" class="owner-banner-badge" alt="owner gift">`:''}</div><p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:8px;">@${escapeHTML(p.username||'')}</p>${p.bio?`<p style="margin:6px 0;font-size:0.95rem;">${escapeHTML(p.bio)}</p>`:'<p style="margin:6px 0;color:var(--text-tertiary);font-size:0.9rem;">Нет описания</p>'}${p.city?`<p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:14px;"><i class="fas fa-map-pin" style="color:var(--primary);"></i> ${escapeHTML(p.city)}</p>`:'<p style="font-size:0.85rem;color:var(--text-tertiary);margin-bottom:14px;"><i class="fas fa-map-pin"></i> Город не указан</p>'}<div style="display:flex;flex-direction:column;gap:8px;"><button class="secondary full" onclick="nav('editProfile')"><i class="fas fa-pen"></i> Редактировать</button><button class="danger full" id="btnLogout"><i class="fas fa-right-from-bracket"></i> Выйти</button></div></div></div>`;
+    let h=`<div class="card" style="padding:0;overflow:hidden;">
+        <div class="profile-banner-wrap">
+            <img src="${escapeHTML(p.banner_url||'https://picsum.photos/480/160')}" class="profile-banner" alt="banner">
+            ${p.is_owner ? `<img src="https://i.pinterest.com/originals/52/63/0e/52630e633d1544a0429188e7ad183011.gif" class="banner-gif-badge" alt="owner badge">` : ''}
+        </div>
+        <div style="padding:0 18px;position:relative;">
+            <div style="position:relative;display:inline-block;">
+                <div class="profile-avatar-lg">${avHtml(p)}<span class="online-dot"></span></div>
+            </div>
+        </div>
+        <div style="padding:14px 18px 18px;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                <h2 style="font-size:1.4rem;">${escapeHTML(p.full_name||'?')}</h2>
+                ${p.verified?'<i class="fas fa-circle-check badge-verify"></i>':''}
+                ${p.is_owner?'<span class="owner-chip"><i class="fas fa-crown"></i> OWNER</span>':''}
+            </div>
+            <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:8px;">@${escapeHTML(p.username||'')}</p>
+            ${p.bio?`<p style="margin:6px 0;font-size:0.95rem;">${escapeHTML(p.bio)}</p>`:'<p style="margin:6px 0;color:var(--text-tertiary);font-size:0.9rem;">Нет описания</p>'}
+            ${p.city?`<p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:14px;"><i class="fas fa-map-pin" style="color:var(--primary);"></i> ${escapeHTML(p.city)}</p>`:'<p style="font-size:0.85rem;color:var(--text-tertiary);margin-bottom:14px;"><i class="fas fa-map-pin"></i> Город не указан</p>'}
+            <div style="display:flex;flex-direction:column;gap:8px;">
+                <button class="secondary full" onclick="nav('editProfile')"><i class="fas fa-pen"></i> Редактировать</button>
+                <button class="danger full" id="btnLogout"><i class="fas fa-right-from-bracket"></i> Выйти</button>
+            </div>
+        </div>
+    </div>`;
     document.getElementById('mainContent').innerHTML=h;
     document.getElementById('btnLogout').onclick=doLogout;
 }
@@ -325,12 +351,32 @@ async function loadFriends(){
     document.getElementById('su').oninput=()=>{const q=document.getElementById('su').value.toLowerCase();renderUsersList(window._all.filter(u=>u.full_name.toLowerCase().includes(q)||u.username.toLowerCase().includes(q)));};
     renderUsersList(window._all);
 }
-function renderUsersList(users){document.getElementById('ul').innerHTML=users.map(u=>`<div class="card user-row"><div data-uuid="${u.id}" style="display:flex;align-items:center;gap:12px;flex:1;cursor:pointer;"><div class="post-avatar">${avHtml(u)}</div><div><strong>${escapeHTML(u.full_name)}</strong>${u.verified?' <i class="fas fa-circle-check badge-verify"></i>':''}${u.is_owner?' <span class="owner-chip"><i class="fas fa-crown"></i> OWNER</span>':''}${u.is_owner?` <img src="https://i.pinterest.com/originals/52/63/0e/52630e633d1544a0429188e7ad183011.gif" class="owner-banner-badge" alt="owner gift">`:''}<div style="font-size:0.85rem;color:var(--text-secondary);">@${escapeHTML(u.username)}</div></div></div><button class="small ${window._fids.has(u.id)?'secondary':'success'}" data-fid="${u.id}">${window._fids.has(u.id)?'<i class="fas fa-user-minus"></i>':'<i class="fas fa-user-plus"></i> Добавить'}</button></div>`).join('');}
+function renderUsersList(users){document.getElementById('ul').innerHTML=users.map(u=>`<div class="card user-row"><div data-uuid="${u.id}" style="display:flex;align-items:center;gap:12px;flex:1;cursor:pointer;"><div class="post-avatar">${avHtml(u)}</div><div><strong>${escapeHTML(u.full_name)}</strong>${u.verified?' <i class="fas fa-circle-check badge-verify"></i>':''}${u.is_owner?' <span class="owner-chip"><i class="fas fa-crown"></i> OWNER</span>':''}<div style="font-size:0.85rem;color:var(--text-secondary);">@${escapeHTML(u.username)}</div></div></div><button class="small ${window._fids.has(u.id)?'secondary':'success'}" data-fid="${u.id}">${window._fids.has(u.id)?'<i class="fas fa-user-minus"></i>':'<i class="fas fa-user-plus"></i> Добавить'}</button></div>`).join('');}
 async function toggleFriend(fid){if(window._fids.has(fid)){await sb.from('friends').delete().eq('user_id',currentUser.id).eq('friend_id',fid);window._fids.delete(fid);}else{await sb.from('friends').insert({user_id:currentUser.id,friend_id:fid});window._fids.add(fid);}renderUsersList(window._all);}
 async function viewUserProfile(uid){
     if(uid===currentUser.id){nav('profile');return;}
     const{data:u}=await sb.from('users').select('*').eq('id',uid).single();if(!u)return;
-    document.getElementById('mainContent').innerHTML=`<div class="card" style="padding:0;overflow:hidden;"><img src="${escapeHTML(u.banner_url||'')}" class="profile-banner"><div style="padding:0 18px;"><div class="profile-avatar-lg">${avHtml(u)}<span class="online-dot"></span></div><div style="display:flex;align-items:center;gap:6px;margin-top:10px;"><h2 style="font-size:1.4rem;">${escapeHTML(u.full_name)}</h2>${u.verified?'<i class="fas fa-circle-check badge-verify"></i>':''}${u.is_owner?'<span class="owner-chip"><i class="fas fa-crown"></i> OWNER</span>':''}${u.is_owner?`<img src="https://i.pinterest.com/originals/52/63/0e/52630e633d1544a0429188e7ad183011.gif" class="owner-banner-badge" alt="owner gift">`:''}</div><p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:8px;">@${escapeHTML(u.username)}</p>${u.bio?`<p style="margin:6px 0;">${escapeHTML(u.bio)}</p>`:''}${u.city?`<p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:14px;"><i class="fas fa-map-pin" style="color:var(--primary);"></i> ${escapeHTML(u.city)}</p>`:''}<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px;"><button class="full" onclick="startChat('${uid}','${escapeHTML(u.full_name)}')"><i class="fas fa-message"></i> Написать</button><button class="secondary full" onclick="nav('friends')"><i class="fas fa-arrow-left"></i> Назад</button></div></div></div>`;
+    document.getElementById('mainContent').innerHTML=`<div class="card" style="padding:0;overflow:hidden;">
+        <div class="profile-banner-wrap">
+            <img src="${escapeHTML(u.banner_url||'')}" class="profile-banner">
+            ${u.is_owner ? `<img src="https://i.pinterest.com/originals/52/63/0e/52630e633d1544a0429188e7ad183011.gif" class="banner-gif-badge">` : ''}
+        </div>
+        <div style="padding:0 18px;">
+            <div class="profile-avatar-lg">${avHtml(u)}<span class="online-dot"></span></div>
+            <div style="display:flex;align-items:center;gap:6px;margin-top:10px;">
+                <h2 style="font-size:1.4rem;">${escapeHTML(u.full_name)}</h2>
+                ${u.verified?'<i class="fas fa-circle-check badge-verify"></i>':''}
+                ${u.is_owner?'<span class="owner-chip"><i class="fas fa-crown"></i> OWNER</span>':''}
+            </div>
+            <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:8px;">@${escapeHTML(u.username)}</p>
+            ${u.bio?`<p style="margin:6px 0;">${escapeHTML(u.bio)}</p>`:''}
+            ${u.city?`<p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:14px;"><i class="fas fa-map-pin" style="color:var(--primary);"></i> ${escapeHTML(u.city)}</p>`:''}
+            <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px;">
+                <button class="full" onclick="startChat('${uid}','${escapeHTML(u.full_name)}')"><i class="fas fa-message"></i> Написать</button>
+                <button class="secondary full" onclick="nav('friends')"><i class="fas fa-arrow-left"></i> Назад</button>
+            </div>
+        </div>
+    </div>`;
 }
 
 // ==================== ЧАТЫ ====================
@@ -368,7 +414,7 @@ function toggleVoiceRecord(){if(isRecording){stopVoiceRecord();return;}if(!navig
 function stopVoiceRecord(){if(mediaRecorder&&isRecording){mediaRecorder.stop();isRecording=false;document.getElementById('btnVoice').innerHTML='<i class="fas fa-microphone" style="color:var(--text-secondary);"></i>';}}
 async function startChat(uid,uname){const{data:ex}=await sb.from('chats').select('*').contains('participants',[currentUser.id,uid]).single();if(ex){nav('chats');setTimeout(()=>openChat(ex.id),300);return;}const{data:chat}=await sb.from('chats').insert({type:'dm',name:uname,owner_id:currentUser.id,participants:[currentUser.id,uid]}).select().single();if(chat){nav('chats');setTimeout(()=>openChat(chat.id),300);}}
 
-// ==================== НАСТРОЙКИ С НОВЫМИ ИКОНКАМИ ====================
+// ==================== НАСТРОЙКИ ====================
 function loadSettings(){
     let h=`<div class="section-title"><i class="fas fa-gear"></i> Настройки</div>`;
     
