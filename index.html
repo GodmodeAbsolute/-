@@ -5,13 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Godmode</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💠</text></svg>">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --bg:#f5f5f5; --surface:#fff; --surface2:#f8f9fa; --primary:#6366f1; --primary-soft:#eef2ff; --text:#1a1a1a; --text-secondary:#6b7280; --text-tertiary:#9ca3af; --border:#e5e7eb; --danger:#ef4444; --success:#10b981; --radius-sm:10px; --radius:16px; --radius-lg:20px; --shadow-sm:0 1px 2px rgba(0,0,0,0.04); --shadow:0 1px 3px rgba(0,0,0,0.06); --shadow-lg:0 8px 24px rgba(0,0,0,0.08); }
         .dark { --bg:#0f0f0f; --surface:#1a1a1a; --surface2:#222; --primary:#818cf8; --primary-soft:#1e1b4b; --text:#f1f1f1; --text-secondary:#a1a1aa; --text-tertiary:#71717a; --border:#27272a; }
         * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,sans-serif; background:var(--bg); color:var(--text); display:flex; justify-content:center; min-height:100vh; min-height:100dvh; -webkit-tap-highlight-color:transparent; -webkit-font-smoothing:antialiased; transition:background 0.3s,color 0.3s; }
+        body { font-family:'Inter',-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,sans-serif; background:var(--bg); color:var(--text); display:flex; justify-content:center; min-height:100vh; min-height:100dvh; -webkit-tap-highlight-color:transparent; -webkit-font-smoothing:antialiased; transition:background 0.3s,color 0.3s; }
         .app { width:100%; max-width:480px; min-height:100vh; background:var(--bg); display:flex; flex-direction:column; }
         .screen-center { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; padding:24px; gap:14px; }
         .logo-icon { width:80px; height:80px; border-radius:22px; background:linear-gradient(135deg,#6366f1,#8b5cf6); display:flex; align-items:center; justify-content:center; box-shadow:0 8px 32px rgba(99,102,241,0.35); font-size:2.5rem; }
@@ -109,7 +110,7 @@ function avHtml(u){if(u?.avatar_url)return`<img src="${escapeHTML(u.avatar_url)}
 function escapeHTML(str){const div=document.createElement('div');div.textContent=str||'';return div.innerHTML;}
 function randAvatar(){return'https://i.pravatar.cc/150?img='+Math.floor(Math.random()*70);}
 
-// ==================== АВТОРИЗАЦИЯ (пустые поля) ====================
+// ==================== АВТОРИЗАЦИЯ ====================
 function renderLogin(err){
     let h='<div class="screen-center"><div class="logo-icon">💠</div><div class="logo-text">Godmode</div>';
     if(err)h+=`<div class="error-box">${escapeHTML(err)}</div>`;
@@ -161,7 +162,7 @@ function showMainApp(){
     h+='<button class="nav-item" data-page="friends"><i class="fas fa-users"></i>Друзья</button>';
     h+='<button class="nav-item" data-page="chats"><i class="fas fa-message"></i>Чаты</button>';
     h+='<button class="nav-item" data-page="profile"><i class="fas fa-circle-user"></i>Профиль</button>';
-    h+='<button class="nav-item" data-page="settings"><i class="fas fa-grid-2"></i>Ещё</button>';
+    h+='<button class="nav-item" data-page="settings"><i class="fas fa-bars"></i>Ещё</button>';
     h+='</div>';
     document.getElementById('app').innerHTML=h;
     document.getElementById('bottomNav').onclick=(e)=>{const btn=e.target.closest('.nav-item');if(btn)nav(btn.dataset.page);};
@@ -204,13 +205,13 @@ function globalClickHandler(e){
     if(t.closest('[data-rej]')){rejectVerification(t.closest('[data-rej]').dataset.rej);return;}
 }
 
-// ==================== ЛЕНТА С ФОТО ====================
+// ==================== ЛЕНТА ====================
 async function loadFeed(){
     const{data:posts}=await sb.from('posts').select('*, users!posts_user_id_fkey(*)').order('created_at',{ascending:false}).limit(30);
     let h=`<div class="card"><textarea id="postText" placeholder="Что у вас нового?" rows="2" style="border:none;padding:4px 0;background:transparent;resize:none;width:100%;"></textarea><div id="postPreview"></div><div style="display:flex;gap:8px;margin-top:8px;"><button class="secondary small" id="btnAddImage"><i class="fas fa-image"></i> Фото</button><button class="full" id="btnCreatePost"><i class="fas fa-paper-plane"></i> Опубликовать</button></div><input type="file" id="postImageInput" accept="image/*" style="display:none;"></div>`;
     if(posts)posts.forEach(p=>{
         const u=p.users||{};
-        h+=`<div class="card"><div class="post-header" data-uid="${p.user_id}"><div class="post-avatar">${avHtml(u)}</div><div style="flex:1;"><strong>${escapeHTML(u.full_name||'?')}</strong>${u.verified?' <i class="fas fa-circle-check badge-verify"></i>':''}${u.is_owner?' <span class="owner-chip"><i class="fas fa-crown"></i> OWNER</span>':''}<div style="font-size:0.75rem;color:var(--text-tertiary);">${timeAgo(p.created_at)}</div></div>${p.user_id===currentUser.id?`<button class="ghost icon-only" data-del="${p.id}"><i class="fas fa-trash" style="color:var(--danger);"></i></button>`:''}</div><p style="white-space:pre-wrap;font-size:0.95rem;">${escapeHTML(p.text||'')}</p>${p.image_url?`<img src="${escapeHTML(p.image_url)}" class="post-image" alt="фото">`:''}<div class="post-actions"><span data-like="${p.id}"><i class="far fa-heart"></i> ${p.likes_count||0}</span><span data-comm="${p.id}"><i class="far fa-message"></i> ${p.comments_count||0}</span><span data-repost="${p.id}"><i class="fas fa-arrow-right-arrow-left"></i> ${p.reposts_count||0}</span></div><div class="comment-box" id="comments-${p.id}" style="display:none;"><div id="cl-${p.id}"></div><div class="comment-input-row"><input id="ci-${p.id}" placeholder="Комментарий..."><button class="ghost icon-only" data-addcomm="${p.id}"><i class="fas fa-paper-plane" style="color:var(--primary);"></i></button></div></div></div>`;
+        h+=`<div class="card"><div class="post-header" data-uid="${p.user_id}"><div class="post-avatar">${avHtml(u)}</div><div style="flex:1;"><strong>${escapeHTML(u.full_name||'?')}</strong>${u.verified?' <i class="fas fa-circle-check badge-verify"></i>':''}${u.is_owner?' <span class="owner-chip"><i class="fas fa-crown"></i> OWNER</span>':''}<div style="font-size:0.75rem;color:var(--text-tertiary);">${timeAgo(p.created_at)}</div></div>${p.user_id===currentUser.id?`<button class="ghost icon-only" data-del="${p.id}"><i class="fas fa-trash" style="color:var(--danger);"></i></button>`:''}</div><p style="white-space:pre-wrap;font-size:0.95rem;">${escapeHTML(p.text||'')}</p>${p.image_url?`<img src="${escapeHTML(p.image_url)}" class="post-image" alt="фото">`:''}<div class="post-actions"><span data-like="${p.id}"><i class="far fa-heart"></i> ${p.likes_count||0}</span><span data-comm="${p.id}"><i class="far fa-message"></i> ${p.comments_count||0}</span><span data-repost="${p.id}"><i class="fas fa-retweet"></i> ${p.reposts_count||0}</span></div><div class="comment-box" id="comments-${p.id}" style="display:none;"><div id="cl-${p.id}"></div><div class="comment-input-row"><input id="ci-${p.id}" placeholder="Комментарий..."><button class="ghost icon-only" data-addcomm="${p.id}"><i class="fas fa-paper-plane" style="color:var(--primary);"></i></button></div></div></div>`;
     });
     document.getElementById('mainContent').innerHTML=h||'<p>Пусто</p>';
     document.getElementById('btnCreatePost').onclick=createPost;
@@ -232,7 +233,7 @@ async function repostPost(id){const{data:o}=await sb.from('posts').select('*').e
 async function toggleComments(pid){const el=document.getElementById('comments-'+pid);if(!el)return;if(el.style.display==='block'){el.style.display='none';return;}el.style.display='block';const{data:c}=await sb.from('comments').select('*, users!comments_user_id_fkey(*)').eq('post_id',pid).order('created_at',{ascending:true});document.getElementById('cl-'+pid).innerHTML=(c||[]).map(x=>`<div class="comment"><div class="comment-avatar">${avHtml(x.users)}</div><div><strong>${escapeHTML(x.users?.full_name||'?')}</strong>${x.users?.verified?' <i class="fas fa-circle-check badge-verify"></i>':''}<br>${escapeHTML(x.text)}</div></div>`).join('')||'<p>Нет комментариев</p>';}
 async function addComment(pid){const input=document.getElementById('ci-'+pid);if(!input||!input.value.trim())return;await sb.from('comments').insert({user_id:currentUser.id,post_id:pid,text:input.value.trim()});await sb.rpc('increment_comments',{post_id:pid});input.value='';toggleComments(pid);setTimeout(()=>toggleComments(pid),50);}
 
-// ==================== ПРОФИЛЬ (с bio и city) ====================
+// ==================== ПРОФИЛЬ ====================
 function loadProfilePage(){
     const p=currentUser.profile||{};
     let h=`<div class="card" style="padding:0;overflow:hidden;"><img src="${escapeHTML(p.banner_url||'https://picsum.photos/480/160')}" class="profile-banner" alt="banner"><div style="padding:0 16px;position:relative;"><div style="position:relative;display:inline-block;"><div class="profile-avatar-lg">${avHtml(p)}<span class="online-dot"></span></div></div></div><div style="padding:12px 16px 16px;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><h2>${escapeHTML(p.full_name||'?')}</h2>${p.verified?'<i class="fas fa-circle-check badge-verify"></i>':''}${p.is_owner?'<span class="owner-chip"><i class="fas fa-crown"></i> OWNER</span>':''}</div><p style="color:var(--text-secondary);">@${escapeHTML(p.username||'')}</p>${p.bio?`<p style="margin:4px 0;">${escapeHTML(p.bio)}</p>`:'<p style="margin:4px 0;color:var(--text-tertiary);">Нет описания</p>'}${p.city?`<p style="font-size:0.85rem;color:var(--text-tertiary);"><i class="fas fa-map-pin"></i> ${escapeHTML(p.city)}</p>`:'<p style="font-size:0.85rem;color:var(--text-tertiary);"><i class="fas fa-map-pin"></i> Не указан</p>'}<button class="secondary full" onclick="nav('editProfile')"><i class="fas fa-pen"></i> Редактировать</button><button class="danger full" id="btnLogout" style="margin-top:8px;"><i class="fas fa-right-from-bracket"></i> Выйти</button></div></div>`;
