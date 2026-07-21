@@ -72,10 +72,32 @@
     </div>
 
     <script>
+        // Автоочистка старого битого кеша
+        if (!localStorage.getItem('cache_fixed_v3')) {
+            localStorage.clear();
+            localStorage.setItem('cache_fixed_v3', 'true');
+        }
+
         const SUPABASE_URL = 'https://ТВОЙ_ПРОЕКТ.supabase.co';
         const SUPABASE_ANON_KEY = 'ТВОЙ_ANON_KEY';
         
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Защита сетевых запросов от невалидных символов в заголовках
+        const safeFetch = (url, options = {}) => {
+            if (options && options.headers) {
+                for (let key in options.headers) {
+                    if (typeof options.headers[key] === 'string') {
+                        options.headers[key] = options.headers[key].replace(/[^\x00-\x7F]/g, "");
+                    }
+                }
+            }
+            return fetch(url, options);
+        };
+
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: { persistSession: true, autoRefreshToken: true },
+            global: { fetch: safeFetch }
+        });
+
         let currentUser = null;
 
         async function init() {
