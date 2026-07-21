@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Social App</title>
-    <!-- Подключаем стили Tailwind CSS для быстрого и красивого интерфейса -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Подключаем клиент Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body { background-color: #0f172a; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
@@ -18,60 +16,53 @@
     <!-- ЭКРАН АВТОРИЗАЦИИ -->
     <div id="auth-screen" class="flex flex-col justify-center items-center h-full p-6">
         <div class="w-full max-w-sm bg-slate-900 p-6 rounded-2xl shadow-xl border border-slate-800">
-            <h1 class="text-2xl font-bold text-center mb-6 text-indigo-400">Вход в систему</h1>
-            <input type="email" id="email" placeholder="Email" class="w-full p-3 mb-4 bg-slate-800 border border-slate-700 rounded-xl focus:outline-none focus:border-indigo-500">
-            <input type="password" id="password" placeholder="Пароль" class="w-full p-3 mb-6 bg-slate-800 border border-slate-700 rounded-xl focus:outline-none focus:border-indigo-500">
-            <button onclick="handleAuth()" id="auth-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold p-3 rounded-xl transition">Войти / Регистрация</button>
+            <h1 class="text-2xl font-bold text-center mb-6 text-indigo-400">Вход / Регистрация</h1>
+            <input type="email" id="email" placeholder="Email" class="w-full p-3 mb-4 bg-slate-800 border border-slate-700 rounded-xl focus:outline-none focus:border-indigo-500 text-white">
+            <input type="password" id="password" placeholder="Пароль" class="w-full p-3 mb-6 bg-slate-800 border border-slate-700 rounded-xl focus:outline-none focus:border-indigo-500 text-white">
+            <button onclick="handleAuth()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold p-3 rounded-xl transition">Войти</button>
         </div>
     </div>
 
     <!-- ОСНОВНОЙ ИНТЕРФЕЙС -->
     <div id="app-screen" class="hidden-section flex flex-col h-full justify-between">
         
-        <!-- Верхняя шапка -->
         <header class="p-4 bg-slate-900 border-b border-slate-800 flex justify-between items-center">
             <h1 id="header-title" class="text-lg font-bold text-indigo-400">Лента</h1>
             <button onclick="logout()" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg text-slate-300">Выйти</button>
         </header>
 
-        <!-- Контент вкладок -->
         <main class="flex-1 overflow-y-auto p-4 relative" id="main-content">
             
-            <!-- Вкладка: Лента -->
+            <!-- Лента -->
             <div id="tab-feed" class="space-y-4">
                 <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800">
                     <textarea id="post-content" placeholder="Что нового?" class="w-full bg-transparent resize-none focus:outline-none text-slate-200 placeholder-slate-500" rows="3"></textarea>
                     <div class="flex justify-between items-center mt-3 pt-3 border-t border-slate-800">
-                        <input type="file" id="post-media" class="text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-950 file:text-indigo-300 hover:file:bg-indigo-900">
+                        <input type="file" id="post-media" class="text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-950 file:text-indigo-300">
                         <button onclick="createPost()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-sm font-medium transition">Опубликовать</button>
                     </div>
                 </div>
-                <div id="posts-container" class="space-y-4">
-                    <!-- Посты подгружаются динамически -->
-                </div>
+                <div id="posts-container" class="space-y-4"></div>
             </div>
 
-            <!-- Вкладка: Чат -->
+            <!-- Чат -->
             <div id="tab-chat" class="hidden-section flex flex-col h-full">
-                <div id="messages-container" class="flex-1 overflow-y-auto space-y-3 pb-4">
-                    <!-- Сообщения чата -->
-                </div>
+                <div id="messages-container" class="flex-1 overflow-y-auto space-y-3 pb-4"></div>
                 <div class="flex gap-2 pt-2 bg-slate-950">
-                    <input type="text" id="chat-input" placeholder="Сообщение..." class="flex-1 p-3 bg-slate-900 border border-slate-800 rounded-xl focus:outline-none focus:border-indigo-500 text-sm">
-                    <button onclick="sendMessage()" class="bg-indigo-600 hover:bg-indigo-500 px-4 rounded-xl text-white font-medium text-sm">Отправить</button>
+                    <input type="text" id="chat-input" placeholder="Сообщение..." class="flex-1 p-3 bg-slate-900 border border-slate-800 rounded-xl focus:outline-none focus:border-indigo-500 text-sm text-white">
+                    <button onclick="sendMessage()" class="bg-indigo-600 hover:bg-indigo-500 px-4 rounded-xl text-white font-medium text-sm">➤</button>
                 </div>
             </div>
 
-            <!-- Вкладка: Профиль -->
-            <div id="tab-profile" class="hidden-section text-center space-y-4">
-                <div class="w-24 h-24 bg-slate-800 rounded-full mx-auto flex items-center justify-center text-3xl font-bold text-indigo-400 border border-slate-700" id="profile-avatar">?</div>
+            <!-- Профиль -->
+            <div id="tab-profile" class="hidden-section text-center space-y-4 pt-10">
+                <div class="w-24 h-24 bg-indigo-950 border border-indigo-800 rounded-full mx-auto flex items-center justify-center text-3xl font-bold text-indigo-400" id="profile-avatar">?</div>
                 <h2 id="profile-email" class="text-lg font-semibold text-slate-200"></h2>
-                <p class="text-xs text-slate-500">Статус: Участник сообщества</p>
+                <p class="text-xs text-slate-500">Аккаунт активен</p>
             </div>
 
         </main>
 
-        <!-- Нижняя навигация (в стиле Telegram) -->
         <nav class="bg-slate-900 border-t border-slate-800 grid grid-cols-3 p-2 text-center text-xs">
             <button onclick="switchTab('feed')" id="nav-feed" class="py-2 text-indigo-400 font-medium">Лента</button>
             <button onclick="switchTab('chat')" id="nav-chat" class="py-2 text-slate-400 font-medium">Чат</button>
@@ -80,44 +71,37 @@
 
     </div>
 
-    <!-- СКРИПТ ЛОГИКИ -->
     <script>
-        // Инициализация Supabase (замени на свои ключи из панели Supabase)
         const SUPABASE_URL = 'https://ТВОЙ_ПРОЕКТ.supabase.co';
         const SUPABASE_ANON_KEY = 'ТВОЙ_ANON_KEY';
+        
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
         let currentUser = null;
 
-        // Проверка авторизации при загрузке
         async function init() {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            if (session) {
-                currentUser = session.user;
+            const { data } = await supabaseClient.auth.getSession();
+            if (data?.session) {
+                currentUser = data.session.user;
                 showApp();
             }
         }
 
         async function handleAuth() {
-            const email = document.getElementById('email').value;
+            const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
 
-            if (!email || !password) return alert('Заполни все поля!');
+            if (!email || !password) return alert('Введите email и пароль');
 
-            let { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+            let res = await supabaseClient.auth.signInWithPassword({ email, password });
             
-            if (error) {
-                // Если пользователь не найден — пробуем зарегистрировать
-                let { data: regData, error: regError } = await supabaseClient.auth.signUp({ email, password });
-                if (regError) return alert(regError.message);
-                if (regData.session) {
-                    currentUser = regData.session.user;
-                    showApp();
-                } else {
-                    alert('Проверь почту для подтверждения регистрации!');
-                }
-            } else if (data.session) {
-                currentUser = data.session.user;
+            if (res.error) {
+                res = await supabaseClient.auth.signUp({ email, password });
+                if (res.error) return alert(res.error.message);
+                alert('Регистрация успешна! Проверьте почту или войдите.');
+            }
+            
+            if (res.data?.session) {
+                currentUser = res.data.session.user;
                 showApp();
             }
         }
@@ -137,71 +121,62 @@
             location.reload();
         }
 
-        // Переключение вкладок
         function switchTab(tab) {
             ['feed', 'chat', 'profile'].forEach(t => {
                 document.getElementById(`tab-${t}`).classList.add('hidden-section');
-                document.getElementById(`nav-${t}`).classList.replace('text-indigo-400', 'text-slate-400');
+                document.getElementById(`nav-${t}`).className = 'py-2 text-slate-400 font-medium';
             });
             document.getElementById(`tab-${tab}`).classList.remove('hidden-section');
-            document.getElementById(`nav-${tab}`).classList.replace('text-slate-400', 'text-indigo-400');
+            document.getElementById(`nav-${tab}`).className = 'py-2 text-indigo-400 font-medium';
             
             const titles = { feed: 'Лента', chat: 'Общий чат', profile: 'Профиль' };
             document.getElementById('header-title').textContent = titles[tab];
         }
 
-        // --- ЛЕНТА ПОСТОВ ---
         async function createPost() {
-            const content = document.getElementById('post-content').value;
+            const content = document.getElementById('post-content').value.trim();
             const fileInput = document.getElementById('post-media');
             let mediaUrl = null;
 
             if (!content && fileInput.files.length === 0) return;
 
-            // Загрузка файла в Storage, если он выбран
             if (fileInput.files.length > 0) {
                 const file = fileInput.files[0];
-                const fileName = `${Date.now()}_${file.name}`;
-                const { data, error } = await supabaseClient.storage.from('media').upload(fileName, file);
-                if (!error) {
-                    const { data: publicURL } = supabaseClient.storage.from('media').getPublicUrl(fileName);
-                    mediaUrl = publicURL.publicUrl;
+                const cleanName = Date.now() + '_' + file.name.replace(/[^\w.-]/g, '');
+                const uploadRes = await supabaseClient.storage.from('media').upload(cleanName, file);
+                
+                if (!uploadRes.error) {
+                    const pubRes = supabaseClient.storage.from('media').getPublicUrl(cleanName);
+                    mediaUrl = pubRes.data.publicUrl;
                 }
             }
 
-            const { error } = await supabaseClient.from('posts').insert([
+            await supabaseClient.from('posts').insert([
                 { content, media_url: mediaUrl, user_id: currentUser.id, user_email: currentUser.email }
             ]);
 
-            if (error) {
-                alert(error.message);
-            } else {
-                document.getElementById('post-content').value = '';
-                fileInput.value = '';
-                loadPosts();
-            }
+            document.getElementById('post-content').value = '';
+            fileInput.value = '';
+            loadPosts();
         }
 
         async function loadPosts() {
-            const { data, error } = await supabaseClient.from('posts').select('*').order('created_at', { ascending: false });
+            const { data } = await supabaseClient.from('posts').select('*').order('created_at', { ascending: false });
             const container = document.getElementById('posts-container');
             container.innerHTML = '';
 
-            if (data) {
-                data.forEach(post => {
-                    let mediaHTML = post.media_url ? `<img src="${post.media_url}" class="mt-3 rounded-xl max-h-60 w-full object-cover">` : '';
-                    container.innerHTML += `
-                        <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800">
-                            <div class="text-xs text-indigo-400 font-medium mb-1">${post.user_email || 'Аноним'}</div>
-                            <p class="text-sm text-slate-200 whitespace-pre-wrap">${post.content || ''}</p>
-                            ${mediaHTML}
-                        </div>
-                    `;
-                });
-            }
+            (data || []).forEach(post => {
+                const mediaHTML = post.media_url ? `<img src="${post.media_url}" class="mt-3 rounded-xl max-h-60 w-full object-cover">` : '';
+                container.innerHTML += `
+                    <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800">
+                        <div class="text-xs text-indigo-400 font-medium mb-1">${post.user_email}</div>
+                        <p class="text-sm text-slate-200 whitespace-pre-wrap">${post.content || ''}</p>
+                        ${mediaHTML}
+                    </div>
+                `;
+            });
         }
 
-        // --- ЧАТ ---
         async function sendMessage() {
             const input = document.getElementById('chat-input');
             const message = input.value.trim();
@@ -221,27 +196,24 @@
         function renderMessages(messages) {
             const container = document.getElementById('messages-container');
             container.innerHTML = '';
-            if (messages) {
-                messages.forEach(msg => {
-                    const isMe = msg.user_id === currentUser.id;
-                    container.innerHTML += `
-                        <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
-                            <span class="text-[10px] text-slate-500 mb-0.5">${msg.user_email}</span>
-                            <div class="max-w-[80%] p-3 rounded-2xl text-sm ${isMe ? 'bg-indigo-600 text-white rounded-br-none' : 'bg-slate-900 text-slate-200 border border-slate-800 rounded-bl-none'}">
-                                ${msg.message}
-                            </div>
+            (messages || []).forEach(msg => {
+                const isMe = msg.user_id === currentUser.id;
+                container.innerHTML += `
+                    <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
+                        <span class="text-[10px] text-slate-500 mb-0.5">${msg.user_email}</span>
+                        <div class="max-w-[80%] p-3 rounded-2xl text-sm ${isMe ? 'bg-indigo-600 text-white rounded-br-none' : 'bg-slate-900 text-slate-200 border border-slate-800 rounded-bl-none'}">
+                            ${msg.message}
                         </div>
-                    `;
-                });
-                container.scrollTop = container.scrollHeight;
-            }
+                    </div>
+                `;
+            });
+            container.scrollTop = container.scrollHeight;
         }
 
-        // Realtime подписка на новые сообщения в чате
         function subscribeToMessages() {
             supabaseClient
                 .channel('public:messages')
-                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, () => {
                     loadMessages();
                 })
                 .subscribe();
