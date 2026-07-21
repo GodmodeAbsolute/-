@@ -1,39 +1,41 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Godmode Network</title>
+  <title>Telegram</title>
   
-  <!-- PWA мета-теги -->
   <link rel="manifest" href="manifest.json">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Godmode">
-  <link rel="apple-touch-icon" href="https://img.icons8.com/fluency/192/domain.png">
+  <meta name="apple-mobile-web-app-title" content="Telegram">
+  <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg">
 
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
   <style>
     :root {
-      --bg-main: #0b0f19;
-      --bg-card: #131b2e;
-      --accent-gradient: linear-gradient(135deg, #a855f7, #ec4899);
-      --badge-owner: linear-gradient(135deg, #e11d48, #9333ea);
-      --text-main: #f8fafc;
-      --text-muted: #64748b;
-      --transition-speed: 0.25s ease;
+      --tg-bg: #0e1621;
+      --tg-header-bg: #17212b;
+      --tg-sidebar: #17212b;
+      --tg-hover: #202b36;
+      --tg-border: #0f141c;
+      --tg-accent: #2481cc;
+      --tg-accent-hover: #1b6cae;
+      --tg-text: #f5f5f5;
+      --tg-text-muted: #707579;
+      --tg-bubble-out: #2b5278;
+      --tg-bubble-in: #182533;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
     
     body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background-color: #05070c;
-      color: var(--text-main);
+      font-family: 'Roboto', sans-serif;
+      background-color: #000;
+      color: var(--tg-text);
       display: flex;
       justify-content: center;
       min-height: 100vh;
@@ -41,408 +43,313 @@
 
     .app-container {
       width: 100%;
-      max-width: 460px;
-      background: var(--bg-main);
-      min-height: 100vh;
+      max-width: 480px;
+      background: var(--tg-bg);
+      height: 100vh;
       position: relative;
-      padding-bottom: 80px;
-      border-left: 1px solid rgba(255, 255, 255, 0.05);
-      border-right: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
 
-    .tab-content { animation: fadeIn var(--transition-speed); }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
+    /* Верхний бар */
     .tg-header {
-      height: 60px;
-      padding: 0 20px;
+      height: 56px;
+      background: var(--tg-header-bg);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      position: sticky;
-      top: 0;
-      background: rgba(11, 15, 25, 0.85);
-      backdrop-filter: blur(12px);
+      padding: 0 16px;
       z-index: 10;
+      border-bottom: 1px solid var(--tg-border);
     }
 
     .tg-header-title {
-      font-weight: 800;
       font-size: 18px;
-      letter-spacing: 0.5px;
-      background: var(--accent-gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      font-weight: 500;
+      color: var(--tg-text);
     }
 
-    .header-btn {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: #fff;
-      width: 38px;
-      height: 38px;
-      border-radius: 10px;
+    .icon-btn {
+      background: none;
+      border: none;
+      color: var(--tg-text-muted);
+      font-size: 20px;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 50%;
+    }
+    .icon-btn:hover { background: var(--tg-hover); color: var(--tg-text); }
+
+    /* Контент вкладки */
+    .tab-content {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    .hidden { display: none !important; }
+
+    /* Список чатов */
+    .chat-item {
       display: flex;
       align-items: center;
-      justify-content: center;
+      padding: 10px 16px;
+      gap: 12px;
       cursor: pointer;
-      transition: all var(--transition-speed);
+      transition: background 0.15s;
     }
+    .chat-item:hover { background: var(--tg-hover); }
 
-    .header-btn:active { transform: scale(0.92); background: rgba(255, 255, 255, 0.15); }
-
-    .banner {
-      width: 100%;
-      height: 160px;
-      background: linear-gradient(135deg, #1e1b4b, #311042);
-      background-size: cover;
-      background-position: center;
-      cursor: pointer;
-    }
-
-    .profile-sec { padding: 0 16px; position: relative; }
-
-    .avatar-wrapper {
-      position: relative;
-      width: 96px;
-      height: 96px;
-      margin-top: -48px;
-      display: inline-block;
-      cursor: pointer;
-    }
-
-    .avatar {
-      width: 100%;
-      height: 100%;
+    .chat-avatar {
+      width: 50px;
+      height: 50px;
       border-radius: 50%;
-      border: 4px solid var(--bg-main);
       object-fit: cover;
-      background: #1e293b;
-    }
-
-    .cam-badge {
-      position: absolute;
-      bottom: 2px;
-      right: 2px;
-      background: #d946ef;
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
+      background: #2b5278;
       display: flex;
       align-items: center;
       justify-content: center;
-      border: 2px solid var(--bg-main);
+      font-weight: 500;
+      font-size: 20px;
       color: #fff;
-      font-size: 13px;
-    }
-
-    .user-title {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 12px;
-      flex-wrap: wrap;
-    }
-
-    .user-name { font-size: 22px; font-weight: 800; color: #fff; }
-
-    .owner-tag {
-      background: var(--badge-owner);
-      color: #fff;
-      font-size: 10px;
-      font-weight: 800;
-      padding: 3px 8px;
-      border-radius: 6px;
-      letter-spacing: 0.5px;
-    }
-
-    .verified-icon { color: #38bdf8; font-size: 15px; }
-
-    .online-status {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 12px;
-      color: #10b981;
-      margin-top: 4px;
-      font-weight: 600;
-    }
-
-    .online-dot {
-      width: 7px;
-      height: 7px;
-      background: #10b981;
-      border-radius: 50%;
-      box-shadow: 0 0 8px #10b981;
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin: 18px 0;
-    }
-
-    .stat-card {
-      background: var(--bg-card);
-      padding: 14px 10px;
-      border-radius: 14px;
-      text-align: center;
-      border: 1px solid rgba(255,255,255,0.03);
-    }
-
-    .stat-num { font-size: 18px; font-weight: 800; color: #fff; }
-    .stat-lbl { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-
-    .info-card {
-      background: var(--bg-card);
-      border-radius: 16px;
-      padding: 14px 16px;
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      border: 1px solid rgba(255,255,255,0.03);
-    }
-
-    .info-icon-box {
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
-      background: rgba(255,255,255,0.04);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
       flex-shrink: 0;
     }
 
-    .info-text-val { font-size: 14px; font-weight: 700; color: #f1f5f9; line-height: 1.3; }
-    .info-text-lbl { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-
-    .post-box, .post-card {
-      background: var(--bg-card);
-      border-radius: 16px;
-      padding: 14px;
-      margin: 12px 16px;
-      border: 1px solid rgba(255,255,255,0.03);
+    .chat-info {
+      flex: 1;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      padding-bottom: 10px;
     }
+    .chat-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+    .chat-name { font-weight: 500; font-size: 16px; color: var(--tg-text); }
+    .chat-time { font-size: 12px; color: var(--tg-text-muted); }
+    .chat-preview { font-size: 14px; color: var(--tg-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px; }
 
-    textarea, input {
-      width: 100%;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      color: #fff;
-      padding: 12px;
-      border-radius: 10px;
-      margin-bottom: 10px;
+    /* Профиль (Экран канала / Юзера) */
+    .profile-header-bg {
+      height: 140px;
+      background: var(--tg-accent);
+      position: relative;
+    }
+    .profile-details {
+      padding: 0 16px;
+      position: relative;
+      margin-bottom: 20px;
+    }
+    .profile-avatar-large {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 3px solid var(--tg-bg);
+      object-fit: cover;
+      margin-top: -40px;
+      background: #2b5278;
+    }
+    .profile-name { font-size: 20px; font-weight: 700; margin-top: 8px; display: flex; align-items: center; gap: 6px; }
+    .profile-username { color: var(--tg-text-muted); font-size: 14px; margin-top: 2px; }
+    .profile-bio { font-size: 14px; margin-top: 12px; color: var(--tg-text); line-height: 1.4; }
+
+    /* Посты (Лента канала) */
+    .post-card {
+      background: var(--tg-header-bg);
+      padding: 12px 16px;
+      margin-bottom: 8px;
+    }
+    .post-header { display: flex; justify-content: space-between; font-size: 12px; color: var(--tg-text-muted); margin-bottom: 6px; }
+    .post-text { font-size: 14px; color: var(--tg-text); line-height: 1.4; }
+
+    /* Поле ввода поста/сообщения */
+    .composer {
+      padding: 10px 16px;
+      background: var(--tg-header-bg);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      border-top: 1px solid var(--tg-border);
+    }
+    .composer input, .composer textarea {
+      flex: 1;
+      background: var(--tg-bg);
+      border: none;
+      color: var(--tg-text);
+      padding: 10px 14px;
+      border-radius: 20px;
       outline: none;
+      font-size: 14px;
       font-family: inherit;
     }
-
-    .btn-main {
-      width: 100%;
-      background: var(--accent-gradient);
-      border: none;
+    .send-btn {
+      background: var(--tg-accent);
       color: #fff;
-      padding: 12px;
-      border-radius: 10px;
-      font-weight: 700;
+      border: none;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
     }
+    .send-btn:active { background: var(--tg-accent-hover); }
 
-    .nav-bar {
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      max-width: 460px;
-      height: 60px;
-      background: rgba(11, 15, 25, 0.95);
-      backdrop-filter: blur(12px);
-      border-top: 1px solid rgba(255,255,255,0.05);
+    /* Нижняя навигация Telegram */
+    .tg-nav {
+      height: 52px;
+      background: var(--tg-header-bg);
+      border-top: 1px solid var(--tg-border);
       display: flex;
       justify-content: space-around;
       align-items: center;
-      z-index: 20;
+      z-index: 10;
     }
-
-    .nav-item {
-      color: var(--text-muted);
+    .tg-nav-item {
+      flex: 1;
       background: none;
       border: none;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 600;
+      color: var(--tg-text-muted);
+      font-size: 11px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 3px;
+      gap: 2px;
+      cursor: pointer;
+      font-weight: 500;
     }
+    .tg-nav-item.active { color: var(--tg-accent); }
+    .tg-nav-item span { font-size: 18px; }
 
-    .nav-item.active { color: #a855f7; font-weight: 800; }
-
+    /* Модальные окна */
     .modal {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.85);
-      backdrop-filter: blur(6px);
+      position: fixed; inset: 0; background: rgba(0,0,0,0.7);
       display: none; align-items: center; justify-content: center; z-index: 100;
     }
     .modal.active { display: flex; }
-    .modal-content {
-      background: #0f172a;
-      padding: 22px;
-      border-radius: 20px;
-      width: 90%;
-      max-width: 400px;
-      border: 1px solid rgba(255,255,255,0.08);
+    .modal-box {
+      background: var(--tg-header-bg);
+      padding: 24px;
+      border-radius: 14px;
+      width: 85%;
+      max-width: 360px;
     }
+    .modal-box h3 { margin-bottom: 16px; font-weight: 500; }
+    .modal-box input, .modal-box textarea {
+      width: 100%; background: var(--tg-bg); border: 1px solid var(--tg-border);
+      color: #fff; padding: 10px 12px; border-radius: 8px; margin-bottom: 12px; outline: none; font-family: inherit;
+    }
+    .btn-tg {
+      width: 100%; background: var(--tg-accent); border: none; color: #fff;
+      padding: 10px; border-radius: 8px; font-weight: 500; cursor: pointer;
+    }
+    .btn-tg:active { background: var(--tg-accent-hover); }
 
-    .hidden { display: none !important; }
-
-    .auth-toggle { display: flex; gap: 8px; margin-bottom: 14px; }
-    .auth-toggle button {
-      flex: 1; padding: 10px; background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08); color: var(--text-muted);
-      border-radius: 10px; cursor: pointer; font-weight: 600;
-    }
-    .auth-toggle button.active {
-      background: rgba(255,255,255,0.15);
-      color: #fff;
-      border-color: #a855f7;
-    }
+    .badge-verified { color: var(--tg-accent); font-size: 15px; }
   </style>
 </head>
 <body>
 
 <div class="app-container">
+  
+  <!-- ШАПКА -->
   <header class="tg-header">
-    <div class="tg-header-title">GODMODE NETWORK</div>
-    <div style="display:flex; gap:8px;">
-      <button class="header-btn" title="Редактировать" onclick="openModal('modal-edit')">✏️</button>
-      <button class="header-btn" title="Выйти" onclick="logout()">🚪</button>
+    <div id="header-title" class="tg-header-title">Чаты</div>
+    <div style="display:flex; gap:4px;">
+      <button class="icon-btn" onclick="openModal('modal-edit')" title="Изменить профиль">✏️</button>
+      <button class="icon-btn" onclick="logout()" title="Выйти">🚪</button>
     </div>
   </header>
 
-  <div id="tab-profile" class="tab-content">
-    <div id="banner" class="banner" onclick="document.getElementById('banner-file').click()"></div>
-    <input type="file" id="banner-file" class="hidden" accept="image/*" onchange="uploadImg(event, 'banner')">
-
-    <div class="profile-sec">
-      <div class="avatar-wrapper" onclick="document.getElementById('avatar-file').click()">
-        <img id="avatar" class="avatar" src="">
-        <div class="cam-badge">📷</div>
-      </div>
-      <input type="file" id="avatar-file" class="hidden" accept="image/*" onchange="uploadImg(event, 'avatar')">
-
-      <div class="user-title">
-        <span id="disp-fullname" class="user-name">Загрузка...</span>
-        <span id="disp-owner-badge" class="owner-tag hidden">OWNER</span>
-        <span id="disp-verified" class="verified-icon hidden">✔</span>
-      </div>
-
-      <div class="online-status">
-        <span class="online-dot"></span> в сети
-      </div>
-
-      <div class="stats">
-        <div class="stat-card"><div id="cnt-friends" class="stat-num">0</div><div class="stat-lbl">Друзей</div></div>
-        <div class="stat-card"><div id="cnt-subs" class="stat-num">0</div><div class="stat-lbl">Подписчиков</div></div>
-        <div class="stat-card"><div id="cnt-posts" class="stat-num">0</div><div class="stat-lbl">Постов</div></div>
-      </div>
-
-      <div class="info-card">
-        <div class="info-icon-box">👤</div>
-        <div>
-          <div id="disp-username" class="info-text-val">@...</div>
-          <div class="info-text-lbl">Имя пользователя</div>
+  <!-- ВКЛАДКА: ЧАТЫ -->
+  <div id="tab-chats" class="tab-content">
+    <div class="chat-item" onclick="alert('Диалоги в разработке')">
+      <div class="chat-avatar" style="background:#d75a4a;">T</div>
+      <div class="chat-info">
+        <div class="chat-row">
+          <span class="chat-name">Telegram Team</span>
+          <span class="chat-time">12:00</span>
         </div>
-      </div>
-
-      <div class="info-card">
-        <div class="info-icon-box">📄</div>
-        <div>
-          <div id="disp-bio" class="info-text-val">...</div>
-          <div class="info-text-lbl">О себе</div>
-        </div>
-      </div>
-
-      <div class="info-card">
-        <div class="info-icon-box">📍</div>
-        <div>
-          <div id="disp-city" class="info-text-val">...</div>
-          <div class="info-text-lbl">Город</div>
-        </div>
+        <div class="chat-preview">Добро пожаловать в мессенджер!</div>
       </div>
     </div>
+  </div>
 
-    <div class="post-box">
-      <textarea id="post-text" placeholder="Написать пост..." rows="2"></textarea>
-      <button class="btn-main" onclick="addPost()">Опубликовать</button>
+  <!-- ВКЛАДКА: ПРОФИЛЬ / КАНАЛ -->
+  <div id="tab-profile" class="tab-content hidden">
+    <div id="banner" class="profile-header-bg" onclick="document.getElementById('banner-file').click()"></div>
+    <input type="file" id="banner-file" class="hidden" accept="image/*" onchange="uploadImg(event, 'banner')">
+
+    <div class="profile-details">
+      <img id="avatar" class="profile-avatar-large" src="" onclick="document.getElementById('avatar-file').click()">
+      <input type="file" id="avatar-file" class="hidden" accept="image/*" onchange="uploadImg(event, 'avatar')">
+
+      <div class="profile-name">
+        <span id="disp-fullname">Загрузка...</span>
+        <span id="disp-verified" class="badge-verified hidden">✓</span>
+      </div>
+      <div id="disp-username" class="profile-username">@username</div>
+      <div id="disp-bio" class="profile-bio">Информация о профиле...</div>
+    </div>
+
+    <!-- Поле написания поста -->
+    <div class="composer">
+      <textarea id="post-text" placeholder="Сообщение..." rows="1"></textarea>
+      <button class="send-btn" onclick="addPost()">➤</button>
     </div>
 
     <div id="posts-list"></div>
   </div>
 
-  <div id="tab-friends" class="tab-content hidden" style="padding:20px;">
-    <h3>Друзья</h3>
-    <p style="color:var(--text-muted); font-size:13px; margin-top:10px;">У вас пока нет добавленных друзей.</p>
+  <!-- ВКЛАДКА: НАСТРОЙКИ -->
+  <div id="tab-settings" class="tab-content hidden" style="padding:16px;">
+    <h3 style="margin-bottom: 16px; font-weight:500;">Настройки</h3>
+    <button class="btn-tg" style="background:#e11d48;" onclick="logout()">Выйти из аккаунта</button>
   </div>
 
-  <div id="tab-chats" class="tab-content hidden" style="padding:20px;">
-    <h3>Сообщения</h3>
-    <p style="color:var(--text-muted); font-size:13px; margin-top:10px;">Диалоги отсутствуют.</p>
-  </div>
-
-  <div id="tab-settings" class="tab-content hidden" style="padding:20px;">
-    <h3 style="margin-bottom:15px;">Настройки</h3>
-    <button class="btn-main" style="background:#e11d48;" onclick="logout()">Выйти из аккаунта</button>
-  </div>
-
-  <nav class="nav-bar">
-    <button class="nav-item active" onclick="switchTab('profile', this)"><span>👤</span>Профиль</button>
-    <button class="nav-item" onclick="switchTab('friends', this)"><span>👥</span>Друзья</button>
-    <button class="nav-item" onclick="switchTab('chats', this)"><span>💬</span>Чаты</button>
-    <button class="nav-item" onclick="switchTab('settings', this)"><span>⚙️</span>Настройки</button>
+  <!-- НИЖНЯЯ ПАНЕЛЬ TELEGRAM -->
+  <nav class="tg-nav">
+    <button class="tg-nav-item" onclick="switchTab('chats', 'Чаты', this)"><span>💬</span>Чаты</button>
+    <button class="tg-nav-item active" onclick="switchTab('profile', 'Профиль', this)"><span>👤</span>Профиль</button>
+    <button class="tg-nav-item" onclick="switchTab('settings', 'Настройки', this)"><span>⚙️</span>Настройки</button>
   </nav>
+
 </div>
 
+<!-- МОДАЛКА ВХОДА / РЕГИСТРАЦИИ -->
 <div id="modal-auth" class="modal">
-  <div class="modal-content">
-    <div class="auth-toggle">
-      <button id="btn-mode-login" class="active" onclick="setAuthMode('login')">Вход</button>
-      <button id="btn-mode-reg" onclick="setAuthMode('reg')">Регистрация</button>
+  <div class="modal-box">
+    <div style="display:flex; gap:8px; margin-bottom:16px;">
+      <button class="btn-tg" id="btn-mode-login" onclick="setAuthMode('login')">Вход</button>
+      <button class="btn-tg" id="btn-mode-reg" style="background:var(--tg-hover);" onclick="setAuthMode('reg')">Регистрация</button>
     </div>
-
     <div id="reg-name-field" class="hidden">
-      <input type="text" id="auth-name" placeholder="Имя и Фамилия">
+      <input type="text" id="auth-name" placeholder="Имя">
     </div>
     <input type="text" id="auth-nick" placeholder="Юзернейм (@username)">
     <input type="password" id="auth-pass" placeholder="Пароль">
-
-    <button class="btn-main" id="btn-auth-submit" onclick="handleAuth()">Войти</button>
+    <button class="btn-tg" id="btn-auth-submit" onclick="handleAuth()">Войти</button>
   </div>
 </div>
 
+<!-- МОДАЛКА РЕДАКТИРОВАНИЯ -->
 <div id="modal-edit" class="modal">
-  <div class="modal-content">
-    <h3 style="margin-bottom:12px;">Редактировать профиль</h3>
+  <div class="modal-box">
+    <h3>Изменить профиль</h3>
     <input type="text" id="edit-fullname" placeholder="Имя">
     <textarea id="edit-bio" placeholder="О себе" rows="2"></textarea>
-    <input type="text" id="edit-city" placeholder="Город">
-    <button class="btn-main" onclick="saveProfile()">Сохранить</button>
-    <button class="header-btn" style="width:100%; margin-top:8px; border-radius:10px;" onclick="closeModal('modal-edit')">Отмена</button>
+    <button class="btn-tg" onclick="saveProfile()">Сохранить</button>
+    <button class="btn-tg" style="background:transparent; color:var(--tg-text-muted); margin-top:8px;" onclick="closeModal('modal-edit')">Отмена</button>
   </div>
 </div>
 
 <script>
+  // ЗАМЕНИТЬ НА СВОИ ДАННЫЕ SUPABASE
   const SUPABASE_URL = 'ТВОЙ_SUPABASE_URL';
   const SUPABASE_KEY = 'ТВОЙ_SUPABASE_ANON_KEY';
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  const DEFAULT_AVATAR = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='%2364748b'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/></svg>";
+  const DEFAULT_AVATAR = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='%23ffffff'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/></svg>";
 
   let currentAuthMode = 'login';
   let currentUser = null;
@@ -482,14 +389,16 @@
 
   function setAuthMode(mode) {
     currentAuthMode = mode;
+    const btnLogin = document.getElementById('btn-mode-login');
+    const btnReg = document.getElementById('btn-mode-reg');
     if (mode === 'login') {
-      document.getElementById('btn-mode-login').classList.add('active');
-      document.getElementById('btn-mode-reg').classList.remove('active');
+      btnLogin.style.background = 'var(--tg-accent)';
+      btnReg.style.background = 'var(--tg-hover)';
       document.getElementById('reg-name-field').classList.add('hidden');
       document.getElementById('btn-auth-submit').innerText = 'Войти';
     } else {
-      document.getElementById('btn-mode-reg').classList.add('active');
-      document.getElementById('btn-mode-login').classList.remove('active');
+      btnReg.style.background = 'var(--tg-accent)';
+      btnLogin.style.background = 'var(--tg-hover)';
       document.getElementById('reg-name-field').classList.remove('hidden');
       document.getElementById('btn-auth-submit').innerText = 'Зарегистрироваться';
     }
@@ -498,54 +407,27 @@
   async function handleAuth() {
     const rawNick = document.getElementById('auth-nick').value;
     const pass = document.getElementById('auth-pass').value.trim();
-
     if (!rawNick || !pass) return alert('Заполните все поля!');
     const nick = normalizeUsername(rawNick);
 
     if (currentAuthMode === 'login') {
       const { data, error } = await supabaseClient
-        .from('profiles')
-        .select('*')
-        .eq('username', nick)
-        .single();
-
+        .from('profiles').select('*').eq('username', nick).single();
       if (!data || error) return alert('Пользователь не найден!');
       if (data.password !== pass) return alert('Неверный пароль!');
-      
       currentUser = data;
     } else {
       const name = document.getElementById('auth-name').value.trim();
       if (!name) return alert('Введите имя!');
+      const { data: existing } = await supabaseClient.from('profiles').select('username').eq('username', nick).single();
+      if (existing) return alert('Этот юзернейм занят!');
 
-      const { data: existing } = await supabaseClient
-        .from('profiles')
-        .select('username')
-        .eq('username', nick)
-        .single();
-
-      if (existing) return alert('Этот юзернейм уже занят!');
-
-      const newUserData = {
-        username: nick,
-        password: pass,
-        fullname: name,
-        bio: 'Пользователь Godmode Network',
-        city: 'Москва',
-        is_owner: nick === '@absolute_godmode',
-        is_verified: nick === '@absolute_godmode',
-        friends: [],
-        subscribers: [],
-        avatar: DEFAULT_AVATAR,
-        banner: '',
-        posts: []
+      currentUser = {
+        username: nick, password: pass, fullname: name,
+        bio: 'Мессенджер Telegram', is_verified: nick === '@absolute_godmode',
+        avatar: DEFAULT_AVATAR, banner: '', posts: []
       };
-
-      const { error: insError } = await supabaseClient
-        .from('profiles')
-        .insert([newUserData]);
-
-      if (insError) return alert('Ошибка регистрации в базе: ' + insError.message);
-      currentUser = newUserData;
+      await supabaseClient.from('profiles').insert([currentUser]);
     }
 
     localStorage.setItem('godmode_active_nick', currentUser.username);
@@ -556,43 +438,23 @@
   function logout() {
     localStorage.removeItem('godmode_active_nick');
     currentUser = null;
-    document.getElementById('auth-nick').value = '';
-    document.getElementById('auth-pass').value = '';
     openModal('modal-auth');
   }
 
   async function saveUserData() {
-    if (!currentUser || !currentUser.username) return;
-    await supabaseClient
-      .from('profiles')
-      .update({
-        fullname: currentUser.fullname,
-        bio: currentUser.bio,
-        city: currentUser.city,
-        avatar: currentUser.avatar,
-        banner: currentUser.banner,
-        posts: currentUser.posts
-      })
-      .eq('username', currentUser.username);
+    if (!currentUser) return;
+    await supabaseClient.from('profiles').update({
+      fullname: currentUser.fullname, bio: currentUser.bio,
+      avatar: currentUser.avatar, banner: currentUser.banner, posts: currentUser.posts
+    }).eq('username', currentUser.username);
   }
 
   function renderProfile() {
     if (!currentUser) return;
-
-    document.getElementById('disp-fullname').innerText = currentUser.fullname || 'Без имени';
-    document.getElementById('disp-username').innerText = currentUser.username || '@username';
-    document.getElementById('disp-bio').innerText = currentUser.bio || 'Нет описания';
-    document.getElementById('disp-city').innerText = currentUser.city || 'Не указан';
-
-    document.getElementById('cnt-friends').innerText = currentUser.friends ? currentUser.friends.length : 0;
-    document.getElementById('cnt-subs').innerText = currentUser.subscribers ? currentUser.subscribers.length : 0;
-
-    if (currentUser.is_owner) {
-      document.getElementById('disp-owner-badge').classList.remove('hidden');
-    } else {
-      document.getElementById('disp-owner-badge').classList.add('hidden');
-    }
-
+    document.getElementById('disp-fullname').innerText = currentUser.fullname;
+    document.getElementById('disp-username').innerText = currentUser.username;
+    document.getElementById('disp-bio').innerText = currentUser.bio || '';
+    
     if (currentUser.is_verified) {
       document.getElementById('disp-verified').classList.remove('hidden');
     } else {
@@ -600,21 +462,15 @@
     }
 
     document.getElementById('avatar').src = currentUser.avatar || DEFAULT_AVATAR;
-    
     if (currentUser.banner) {
       document.getElementById('banner').style.backgroundImage = `url('${currentUser.banner}')`;
-    } else {
-      document.getElementById('banner').style.backgroundImage = 'none';
     }
-
     renderPosts();
   }
 
   async function saveProfile() {
     currentUser.fullname = document.getElementById('edit-fullname').value.trim();
     currentUser.bio = document.getElementById('edit-bio').value.trim();
-    currentUser.city = document.getElementById('edit-city').value.trim();
-
     await saveUserData();
     renderProfile();
     closeModal('modal-edit');
@@ -636,10 +492,8 @@
   async function addPost() {
     const txt = document.getElementById('post-text').value.trim();
     if (!txt) return;
-    
     if (!currentUser.posts) currentUser.posts = [];
     currentUser.posts.unshift({ text: txt, date: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
-    
     document.getElementById('post-text').value = '';
     await saveUserData();
     renderPosts();
@@ -647,42 +501,39 @@
 
   function renderPosts() {
     const posts = currentUser.posts || [];
-    document.getElementById('cnt-posts').innerText = posts.length;
     const container = document.getElementById('posts-list');
-    
     if (posts.length === 0) {
-      container.innerHTML = '<p style="padding:0 16px; color:var(--text-muted); font-size:13px;">Постов пока нет.</p>';
+      container.innerHTML = '<p style="padding:16px; color:var(--tg-text-muted); font-size:13px; text-align:center;">Нет записей</p>';
       return;
     }
     container.innerHTML = posts.map(p => `
       <div class="post-card">
-        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-          <b style="font-size:13px;">${currentUser.fullname}</b>
-          <span style="font-size:11px; color:var(--text-muted);">${p.date}</span>
+        <div class="post-header">
+          <span>${currentUser.fullname}</span>
+          <span>${p.date}</span>
         </div>
-        <p style="font-size:14px; color:#e2e8f0;">${p.text}</p>
+        <div class="post-text">${p.text}</div>
       </div>
     `).join('');
   }
 
-  function switchTab(tab, btn) {
-    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  function switchTab(tab, title, btn) {
+    document.querySelectorAll('.tg-nav-item').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-
     document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
     document.getElementById(`tab-${tab}`).classList.remove('hidden');
+    document.getElementById('header-title').innerText = title;
   }
 
   function openModal(id) {
     if (id === 'modal-edit' && currentUser) {
       document.getElementById('edit-fullname').value = currentUser.fullname || '';
       document.getElementById('edit-bio').value = currentUser.bio || '';
-      document.getElementById('edit-city').value = currentUser.city || '';
     }
     document.getElementById(id).classList.add('active');
   }
 
-  closeModal = (id) => document.getElementById(id).classList.remove('active');
+  function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 </script>
 </body>
 </html>
