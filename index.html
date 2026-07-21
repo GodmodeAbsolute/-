@@ -1,236 +1,50 @@
 <!DOCTYPE html>
-<html lang="ru" class="dark">
+<html lang="ru">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Godmode Network</title>
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            brand: 'var(--brand-color, #8b5cf6)',
-            'brand-hover': 'var(--brand-hover-color, #7c3aed)',
-          }
-        }
-      }
-    }
-  </script>
-  <link rel="stylesheet" href="./style.css">
+  <title>Профиль пользователя</title>
+  <!-- Подключение CSS из папки css -->
+  <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col">
+<body>
 
-  <!-- Шапка -->
-  <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-brand flex items-center justify-center font-bold text-xl text-white shadow-lg shadow-brand/20">
-          G
-        </div>
-        <span class="font-extrabold text-xl tracking-wider text-white">GODMODE <span class="text-brand">NETWORK</span></span>
-      </div>
-      <div class="flex items-center gap-3">
-        <button id="headerAvatarBtn" onclick="showTab('profile')" class="flex items-center gap-2 p-1.5 rounded-lg hover:bg-slate-800 transition">
-          <img id="headerAvatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" class="w-8 h-8 rounded-full object-cover">
-          <span id="headerName" class="text-sm font-medium pr-1">Алексей</span>
-        </button>
+  <div class="container">
+    <!-- ПРЕВЬЮ ПРОФИЛЯ -->
+    <div class="profile-card">
+      <!-- Баннер -->
+      <div id="profile-banner" class="banner-box"></div>
+      
+      <div class="profile-info">
+        <!-- Аватарка с дефолтной иконкой -->
+        <img id="profile-avatar" class="avatar-img" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='%2371717a'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-3.8-1.04-4.83-2.61.02-1.61 3.22-2.49 4.83-2.49 1.6 0 4.8 0.88 4.83 2.49C15.8 18.96 14.03 20 12 20z'/></svg>" alt="Аватар">
+        
+        <h2 class="user-name">Пользователь</h2>
+        <p class="user-tag">@username</p>
       </div>
     </div>
-  </header>
 
-  <!-- Основной контейнер -->
-  <div class="max-w-7xl mx-auto px-4 py-6 flex-1 grid grid-cols-1 md:grid-cols-12 gap-6 w-full">
+    <!-- БЛОК ЗАГРУЗКИ ФАЙЛОВ -->
+    <div class="upload-section">
+      <h3>Загрузка с устройства</h3>
 
-    <!-- Левая панель (Навигация) -->
-    <aside class="md:col-span-3">
-      <nav class="bg-slate-900 border border-slate-800 rounded-2xl p-3 sticky top-22 flex flex-col gap-1">
-        <button onclick="showTab('profile')" class="nav-btn active" data-tab="profile">
-          <span>👤</span> Моя страница
-        </button>
-        <button onclick="showTab('feed')" class="nav-btn" data-tab="feed">
-          <span>📰</span> Лента новостей
-        </button>
-        <button onclick="showTab('chats')" class="nav-btn" data-tab="chats">
-          <span>💬</span> Чаты
-        </button>
-        <button onclick="showTab('groups')" class="nav-btn" data-tab="groups">
-          <span>👥</span> Группы
-        </button>
-        <button onclick="showTab('settings')" class="nav-btn" data-tab="settings">
-          <span>⚙️</span> Настройки
-        </button>
-      </nav>
-    </aside>
-
-    <!-- Центральная колонка -->
-    <main class="md:col-span-6 space-y-6">
-
-      <!-- ВКЛАДКА: ПРОФИЛЬ -->
-      <section id="tab-profile" class="tab-content">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
-          <div class="h-44 bg-slate-800 relative group">
-            <img id="profileCover" src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1000&auto=format&fit=crop&q=80" class="w-full h-full object-cover">
-          </div>
-
-          <div class="px-6 pb-6 relative">
-            <div class="flex justify-between items-end -mt-16 mb-4">
-              <div class="relative">
-                <img id="profileAvatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80" class="w-28 h-28 rounded-2xl object-cover border-4 border-slate-900 shadow-xl">
-              </div>
-              <button onclick="showTab('settings')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-sm font-semibold rounded-xl transition border border-slate-700">
-                ✏️ Редактировать
-              </button>
-            </div>
-
-            <div>
-              <h1 id="profileFullName" class="text-2xl font-bold text-white">Алексей Смирнов</h1>
-              <p id="profileHandle" class="text-brand text-sm font-medium mb-3">@absolute_godmode</p>
-              <p id="profileBio" class="text-slate-300 text-sm mb-4">Создатель Godmode Network. Разрабатываю крутые интерфейсы и сервисы.</p>
-
-              <div class="grid grid-cols-2 gap-3 bg-slate-950/60 p-3 rounded-xl border border-slate-800/80 text-sm">
-                <div><span class="text-slate-500">Возраст:</span> <span id="profileAge" class="font-medium text-slate-200">22 года</span></div>
-                <div><span class="text-slate-500">Город:</span> <span id="profileCity" class="font-medium text-slate-200">Москва</span></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg mt-6">
-          <textarea id="profilePostInput" rows="2" placeholder="Что у вас нового?" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm focus:outline-none focus:border-brand transition resize-none"></textarea>
-          <div class="flex justify-end mt-2">
-            <button onclick="addPost('profile')" class="px-4 py-2 bg-brand hover:bg-brand-hover text-white text-sm font-semibold rounded-xl transition shadow-lg shadow-brand/20">Опубликовать</button>
-          </div>
-        </div>
-
-        <div id="profileFeed" class="space-y-4 mt-6"></div>
-      </section>
-
-      <!-- ВКЛАДКА: ЛЕНТА -->
-      <section id="tab-feed" class="tab-content hidden">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg">
-          <textarea id="globalPostInput" rows="2" placeholder="Поделиться записью в ленте..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm focus:outline-none focus:border-brand transition resize-none"></textarea>
-          <div class="flex justify-end mt-2">
-            <button onclick="addPost('global')" class="px-4 py-2 bg-brand hover:bg-brand-hover text-white text-sm font-semibold rounded-xl transition">Поделиться</button>
-          </div>
-        </div>
-        <div id="globalFeed" class="space-y-4 mt-6"></div>
-      </section>
-
-      <!-- ВКЛАДКА: ЧАТЫ -->
-      <section id="tab-chats" class="tab-content hidden">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl h-[500px] flex overflow-hidden shadow-xl">
-          <div class="w-1/3 border-r border-slate-800 p-3 space-y-2">
-            <input type="text" placeholder="Поиск..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs focus:outline-none">
-            <div class="p-2 bg-slate-800/60 rounded-xl cursor-pointer flex items-center gap-2">
-              <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center font-bold">G</div>
-              <div>
-                <p class="text-xs font-semibold">Общий чат</p>
-                <p class="text-[10px] text-slate-400">Привет всем!</p>
-              </div>
-            </div>
-          </div>
-          <div class="w-2/3 flex flex-col justify-between p-4 bg-slate-950/40">
-            <div class="border-b border-slate-800 pb-2 text-sm font-semibold">Общий чат</div>
-            <div class="flex-1 py-4 text-center text-xs text-slate-500">Сообщений пока нет. Напишите первым!</div>
-            <div class="flex gap-2">
-              <input type="text" placeholder="Написать сообщение..." class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none">
-              <button class="px-3 py-2 bg-brand text-white rounded-xl text-xs font-semibold">Отправить</button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ВКЛАДКА: ГРУППЫ -->
-      <section id="tab-groups" class="tab-content hidden">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 text-center shadow-lg">
-          <h3 class="text-lg font-bold mb-2">Группы и Сообщества</h3>
-          <p class="text-sm text-slate-400">Раздел в разработке. Скоро здесь появятся публичные каналы и паблики!</p>
-        </div>
-      </section>
-
-      <!-- ВКЛАДКА: НАСТРОЙКИ -->
-      <section id="tab-settings" class="tab-content hidden space-y-6">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg space-y-4">
-          <h2 class="text-lg font-bold text-white border-b border-slate-800 pb-3">Настройки профиля</h2>
-          
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="text-xs text-slate-400 mb-1 block">Имя</label>
-              <input type="text" id="editFirstName" class="input-field" value="Алексей">
-            </div>
-            <div>
-              <label class="text-xs text-slate-400 mb-1 block">Фамилия</label>
-              <input type="text" id="editLastName" class="input-field" value="Смирнов">
-            </div>
-          </div>
-
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="text-xs text-slate-400 mb-1 block">Возраст</label>
-              <input type="text" id="editAge" class="input-field" value="22 года">
-            </div>
-            <div>
-              <label class="text-xs text-slate-400 mb-1 block">Город проживания</label>
-              <input type="text" id="editCity" class="input-field" value="Москва">
-            </div>
-          </div>
-
-          <div>
-            <label class="text-xs text-slate-400 mb-1 block">Ссылка на аватар (URL)</label>
-            <input type="text" id="editAvatarUrl" class="input-field" value="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80">
-          </div>
-
-          <div>
-            <label class="text-xs text-slate-400 mb-1 block">Ссылка на баннер (URL)</label>
-            <input type="text" id="editCoverUrl" class="input-field" value="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1000&auto=format&fit=crop&q=80">
-          </div>
-
-          <div>
-            <label class="text-xs text-slate-400 mb-1 block">О себе (Био)</label>
-            <textarea id="editBio" rows="2" class="input-field resize-none">Создатель Godmode Network. Разрабатываю крутые интерфейсы и сервисы.</textarea>
-          </div>
-
-          <button onclick="saveSettings()" class="w-full py-2.5 bg-brand hover:bg-brand-hover text-white text-sm font-semibold rounded-xl transition shadow-lg shadow-brand/20">
-            Сохранить изменения
-          </button>
-        </div>
-
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg space-y-3">
-          <h2 class="text-lg font-bold text-white border-b border-slate-800 pb-3">Кастомизация темы</h2>
-          <p class="text-xs text-slate-400">Выберите акцентный цвет интерфейса:</p>
-          <div class="flex gap-3">
-            <button onclick="setTheme('#8b5cf6', '#7c3aed')" class="w-8 h-8 rounded-full bg-violet-600 border-2 border-white/20 hover:scale-110 transition"></button>
-            <button onclick="setTheme('#3b82f6', '#2563eb')" class="w-8 h-8 rounded-full bg-blue-600 border-2 border-white/20 hover:scale-110 transition"></button>
-            <button onclick="setTheme('#10b981', '#059669')" class="w-8 h-8 rounded-full bg-emerald-600 border-2 border-white/20 hover:scale-110 transition"></button>
-            <button onclick="setTheme('#ef4444', '#dc2626')" class="w-8 h-8 rounded-full bg-red-600 border-2 border-white/20 hover:scale-110 transition"></button>
-          </div>
-        </div>
-      </section>
-
-    </main>
-
-    <!-- Правая панель -->
-    <aside class="md:col-span-3 space-y-6">
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg space-y-3">
-        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Рекомендации</h3>
-        <div class="space-y-3 text-sm">
-          <div class="flex items-center justify-between">
-            <span class="font-medium">Tondukh Vape</span>
-            <button class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1 rounded-lg">Читать</button>
-          </div>
-          <div class="flex items-center justify-between">
-            <span class="font-medium">IT News & Dev</span>
-            <button class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1 rounded-lg">Читать</button>
-          </div>
-        </div>
+      <!-- Загрузка баннера -->
+      <div class="form-group">
+        <label>Баннер профиля:</label>
+        <label for="banner-input" class="custom-file-btn">📁 Выбрать баннер с телефона</label>
+        <input type="file" id="banner-input" class="file-input" accept="image/*" onchange="previewImage(event, 'profile-banner')">
       </div>
-    </aside>
 
+      <!-- Загрузка аватарки -->
+      <div class="form-group">
+        <label>Аватарка:</label>
+        <label for="avatar-input" class="custom-file-btn">📷 Выбрать фото профиля</label>
+        <input type="file" id="avatar-input" class="file-input" accept="image/*" onchange="previewImage(event, 'profile-avatar')">
+      </div>
+    </div>
   </div>
 
-  <script src="./app.js"></script>
+  <!-- Подключение JS из папки js -->
+  <script src="js/script.js"></script>
 </body>
 </html>
