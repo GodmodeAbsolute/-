@@ -133,6 +133,26 @@
       cursor: pointer;
     }
 
+    .auth-toggle {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .auth-toggle button {
+      flex: 1;
+      padding: 8px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--text-muted);
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .auth-toggle button.active {
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+      font-weight: bold;
+    }
+
     .nav-bar {
       position: fixed;
       bottom: 0;
@@ -149,7 +169,7 @@
     .nav-item.active { color: #fff; font-weight: 700; }
 
     .modal {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+      position: fixed; inset: 0; background: rgba(0,0,0,0.85);
       display: none; align-items: center; justify-content: center; z-index: 100;
     }
     .modal.active { display: flex; }
@@ -171,7 +191,7 @@
   <!-- ВКЛАДКА ПРОФИЛЬ -->
   <div id="tab-profile">
     <div id="banner" class="banner" onclick="document.getElementById('banner-file').click()">
-      <span style="background:rgba(0,0,0,0.6); font-size:11px; padding:4px 8px; border-radius:6px;">📷 Нажмите для смены баннера</span>
+      <span style="background:rgba(0,0,0,0.6); font-size:11px; padding:4px 8px; border-radius:6px;">📷 Изменить баннер</span>
     </div>
     <input type="file" id="banner-file" class="hidden" accept="image/*" onchange="uploadImg(event, 'banner')">
 
@@ -179,8 +199,8 @@
       <img id="avatar" class="avatar" src="https://via.placeholder.com/150" onclick="document.getElementById('avatar-file').click()">
       <input type="file" id="avatar-file" class="hidden" accept="image/*" onchange="uploadImg(event, 'avatar')">
 
-      <h2 id="disp-fullname" style="margin-top:8px;">Гость</h2>
-      <div id="disp-username" style="color:var(--text-muted); font-size:14px;">@guest</div>
+      <h2 id="disp-fullname" style="margin-top:8px;">Загрузка...</h2>
+      <div id="disp-username" style="color:var(--text-muted); font-size:14px;">@username</div>
       <p id="disp-bio" style="margin-top:6px; font-size:13px; color:#cbd5e1;">Описание не заполнено</p>
 
       <div class="stats">
@@ -210,13 +230,21 @@
   </nav>
 </div>
 
-<!-- МОДАЛКА ВХОДА -->
+<!-- МОДАЛКА ВХОДА / РЕГИСТРАЦИИ -->
 <div id="modal-auth" class="modal active">
   <div class="modal-content">
-    <h3 style="margin-bottom:12px;">Вход / Регистрация</h3>
-    <input type="text" id="auth-name" placeholder="Имя и Фамилия">
-    <input type="text" id="auth-nick" placeholder="Юзернейм (например @godmode)">
-    <button class="btn-main" onclick="login()">Войти</button>
+    <div class="auth-toggle">
+      <button id="btn-mode-login" class="active" onclick="setAuthMode('login')">Вход</button>
+      <button id="btn-mode-reg" onclick="setAuthMode('reg')">Регистрация</button>
+    </div>
+
+    <div id="reg-name-field" class="hidden">
+      <input type="text" id="auth-name" placeholder="Имя и Фамилия">
+    </div>
+    <input type="text" id="auth-nick" placeholder="Юзернейм (например @absolute_godmode)">
+    <input type="password" id="auth-pass" placeholder="Пароль">
+
+    <button class="btn-main" id="btn-auth-submit" onclick="handleAuth()">Войти</button>
   </div>
 </div>
 
@@ -225,7 +253,6 @@
   <div class="modal-content">
     <h3 style="margin-bottom:12px;">Редактировать профиль</h3>
     <input type="text" id="edit-fullname" placeholder="Имя">
-    <input type="text" id="edit-username" placeholder="Юзернейм">
     <textarea id="edit-bio" placeholder="О себе" rows="2"></textarea>
     <button class="btn-main" onclick="saveProfile()">Сохранить</button>
     <button class="btn-sm" style="width:100%; margin-top:8px;" onclick="closeModal('modal-edit')">Отмена</button>
@@ -233,72 +260,138 @@
 </div>
 
 <script>
-  let state = {
-    user: null,
+  let currentAuthMode = 'login';
+  let currentUser = null;
+
+  // Базовый профиль Владельца
+  const OWNER_ACCOUNT = {
+    username: '@absolute_godmode',
+    password: 'Assasin2)',
+    fullname: 'ABSOLUTE GODMODE',
+    bio: 'Создатель и Владелец платформы',
+    avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
+    banner: '',
     posts: []
   };
 
   window.onload = () => {
-    const savedData = localStorage.getItem('godmode_app');
-    if (savedData) {
-      state = JSON.parse(savedData);
-      if (state.user) {
-        closeModal('modal-auth');
-        renderProfile();
-      }
-    }
+    initDatabase();
+    checkAuthSession();
   };
 
-  function saveData() {
-    localStorage.setItem('godmode_app', JSON.stringify(state));
+  function initDatabase() {
+    let users = JSON.parse(localStorage.getItem('godmode_users') || '{}');
+    // Всегда гаррантируем наличие профиля владельца в базе
+    if (!users['@absolute_godmode']) {
+      users['@absolute_godmode'] = OWNER_ACCOUNT;
+      localStorage.setItem('godmode_users', JSON.stringify(users));
+    }
   }
 
-  function login() {
-    const name = document.getElementById('auth-name').value.trim();
-    let nick = document.getElementById('auth-nick').value.trim();
-    if (!name || !nick) return alert('Заполните поля!');
+  function checkAuthSession() {
+    const sessionNick = localStorage.getItem('godmode_session');
+    if (sessionNick) {
+      const users = JSON.parse(localStorage.getItem('godmode_users') || '{}');
+      if (users[sessionNick]) {
+        currentUser = users[sessionNick];
+        closeModal('modal-auth');
+        renderProfile();
+        return;
+      }
+    }
+    openModal('modal-auth');
+  }
 
+  function setAuthMode(mode) {
+    currentAuthMode = mode;
+    if (mode === 'login') {
+      document.getElementById('btn-mode-login').classList.add('active');
+      document.getElementById('btn-mode-reg').classList.remove('active');
+      document.getElementById('reg-name-field').classList.add('hidden');
+      document.getElementById('btn-auth-submit').innerText = 'Войти';
+    } else {
+      document.getElementById('btn-mode-reg').classList.add('active');
+      document.getElementById('btn-mode-login').classList.remove('active');
+      document.getElementById('reg-name-field').classList.remove('hidden');
+      document.getElementById('btn-auth-submit').innerText = 'Зарегистрироваться';
+    }
+  }
+
+  function handleAuth() {
+    let nick = document.getElementById('auth-nick').value.trim();
+    const pass = document.getElementById('auth-pass').value.trim();
+
+    if (!nick || !pass) return alert('Заполните все поля!');
     if (!nick.startsWith('@')) nick = '@' + nick;
 
-    state.user = {
-      fullname: name,
-      username: nick,
-      bio: 'Разработчик / Создатель',
-      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
-      banner: ''
-    };
-    saveData();
+    let users = JSON.parse(localStorage.getItem('godmode_users') || '{}');
+
+    if (currentAuthMode === 'login') {
+      if (!users[nick]) {
+        return alert('Пользователь с таким юзернеймом не найден!');
+      }
+      if (users[nick].password !== pass) {
+        return alert('Неверный пароль!');
+      }
+      currentUser = users[nick];
+    } else {
+      const name = document.getElementById('auth-name').value.trim();
+      if (!name) return alert('Введите имя и фамилию!');
+      if (users[nick]) return alert('Этот юзернейм уже занят!');
+
+      currentUser = {
+        username: nick,
+        password: pass,
+        fullname: name,
+        bio: 'Новый пользователь',
+        avatar: 'https://via.placeholder.com/150',
+        banner: '',
+        posts: []
+      };
+      users[nick] = currentUser;
+      localStorage.setItem('godmode_users', JSON.stringify(users));
+    }
+
+    localStorage.setItem('godmode_session', nick);
     closeModal('modal-auth');
     renderProfile();
   }
 
   function logout() {
-    state.user = null;
-    saveData();
+    localStorage.removeItem('godmode_session');
+    currentUser = null;
+    document.getElementById('auth-nick').value = '';
+    document.getElementById('auth-pass').value = '';
     openModal('modal-auth');
   }
 
+  function saveUserData() {
+    let users = JSON.parse(localStorage.getItem('godmode_users') || '{}');
+    users[currentUser.username] = currentUser;
+    localStorage.setItem('godmode_users', JSON.stringify(users));
+  }
+
   function renderProfile() {
-    if (!state.user) return;
-    document.getElementById('disp-fullname').innerText = state.user.fullname;
-    document.getElementById('disp-username').innerText = state.user.username;
-    document.getElementById('disp-bio').innerText = state.user.bio || 'Нет описания';
+    if (!currentUser) return;
+    document.getElementById('disp-fullname').innerText = currentUser.fullname;
+    document.getElementById('disp-username').innerText = currentUser.username;
+    document.getElementById('disp-bio').innerText = currentUser.bio || 'Нет описания';
     
-    if (state.user.avatar) document.getElementById('avatar').src = state.user.avatar;
-    if (state.user.banner) document.getElementById('banner').style.backgroundImage = `url('${state.user.banner}')`;
+    document.getElementById('avatar').src = currentUser.avatar || 'https://via.placeholder.com/150';
+    if (currentUser.banner) {
+      document.getElementById('banner').style.backgroundImage = `url('${currentUser.banner}')`;
+    } else {
+      document.getElementById('banner').style.backgroundImage = 'none';
+    }
 
     renderPosts();
   }
 
   function saveProfile() {
-    let newNick = document.getElementById('edit-username').value.trim();
-    if (!newNick.startsWith('@')) newNick = '@' + newNick;
+    currentUser.fullname = document.getElementById('edit-fullname').value.trim();
+    currentUser.bio = document.getElementById('edit-bio').value.trim();
 
-    state.user.fullname = document.getElementById('edit-fullname').value.trim();
-    state.user.username = newNick;
-    state.user.bio = document.getElementById('edit-bio').value.trim();
-
-    saveData();
+    saveUserData();
     renderProfile();
     closeModal('modal-edit');
   }
@@ -308,9 +401,9 @@
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (evt) => {
-      if (type === 'avatar') state.user.avatar = evt.target.result;
-      if (type === 'banner') state.user.banner = evt.target.result;
-      saveData();
+      if (type === 'avatar') currentUser.avatar = evt.target.result;
+      if (type === 'banner') currentUser.banner = evt.target.result;
+      saveUserData();
       renderProfile();
     };
     reader.readAsDataURL(file);
@@ -319,23 +412,28 @@
   function addPost() {
     const txt = document.getElementById('post-text').value.trim();
     if (!txt) return;
-    state.posts.unshift({ text: txt, date: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
+    
+    if (!currentUser.posts) currentUser.posts = [];
+    currentUser.posts.unshift({ text: txt, date: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
+    
     document.getElementById('post-text').value = '';
-    saveData();
+    saveUserData();
     renderPosts();
   }
 
   function renderPosts() {
-    document.getElementById('cnt-posts').innerText = state.posts.length;
+    const posts = currentUser.posts || [];
+    document.getElementById('cnt-posts').innerText = posts.length;
     const container = document.getElementById('posts-list');
-    if (state.posts.length === 0) {
+    
+    if (posts.length === 0) {
       container.innerHTML = '<p style="padding:0 20px; color:var(--text-muted); font-size:13px;">Постов пока нет.</p>';
       return;
     }
-    container.innerHTML = state.posts.map(p => `
+    container.innerHTML = posts.map(p => `
       <div class="post-card">
-        <div style="display:flex; justify-space-between; margin-bottom:6px;">
-          <b style="font-size:13px;">${state.user.fullname}</b>
+        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+          <b style="font-size:13px;">${currentUser.fullname}</b>
           <span style="font-size:11px; color:var(--text-muted);">${p.date}</span>
         </div>
         <p style="font-size:14px;">${p.text}</p>
@@ -357,9 +455,8 @@
 
   function openModal(id) {
     if (id === 'modal-edit') {
-      document.getElementById('edit-fullname').value = state.user.fullname;
-      document.getElementById('edit-username').value = state.user.username;
-      document.getElementById('edit-bio').value = state.user.bio;
+      document.getElementById('edit-fullname').value = currentUser.fullname;
+      document.getElementById('edit-bio').value = currentUser.bio;
     }
     document.getElementById(id).classList.add('active');
   }
