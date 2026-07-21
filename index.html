@@ -1,292 +1,65 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Godmode Network</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+<!-- Навигация -->
+<nav class="nav-card">
+  <button class="nav-item active" onclick="switchTab(event, 'tab-profile')">👤 Моя страница</button>
+  <button class="nav-item" onclick="switchTab(event, 'tab-feed')">📰 Лента новостей</button>
+  <button class="nav-item" onclick="switchTab(event, 'tab-chats')">💬 Чаты</button>
+  <button class="nav-item" onclick="switchTab(event, 'tab-groups')">👥 Группы</button>
+  <button class="nav-item" onclick="switchTab(event, 'tab-settings')">⚙️ Настройки</button>
+</nav>
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background-color: #080a12;
-      color: #ffffff;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    /* ХЕДЕР */
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 0;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .logo-icon {
-      width: 42px;
-      height: 42px;
-      background: linear-gradient(135deg, #a855f7, #6366f1);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-      font-size: 22px;
-    }
-
-    .brand-title {
-      font-weight: 800;
-      font-size: 18px;
-      letter-spacing: 0.5px;
-    }
-
-    .brand-sub {
-      color: #8b5cf6;
-      font-weight: 700;
-      font-size: 14px;
-      letter-spacing: 1px;
-    }
-
-    .user-badge {
-      font-size: 15px;
-      font-weight: 500;
-      color: #e2e8f0;
-    }
-
-    /* МЕНЮ НАВИГАЦИИ */
-    .nav-card {
-      background-color: #111526;
-      border: 1px solid #1e243b;
-      border-radius: 20px;
-      padding: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .nav-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 16px;
-      border-radius: 14px;
-      color: #94a3b8;
-      text-decoration: none;
-      font-size: 15px;
-      font-weight: 500;
-    }
-
-    .nav-item.active {
-      background: linear-gradient(90deg, #8b5cf6, #7c3aed);
-      color: #ffffff;
-      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
-    }
-
-    /* КАРТОЧКА ПРОФИЛЯ */
-    .profile-card {
-      background-color: #111526;
-      border: 1px solid #1e243b;
-      border-radius: 24px;
-      overflow: hidden;
-      position: relative;
-    }
-
-    /* Баннер профиля */
-    .profile-banner {
-      width: 100%;
-      height: 140px;
-      background-color: #1a2035;
-      background-size: cover;
-      background-position: center;
-    }
-
-    .profile-content {
-      padding: 0 16px 20px 16px;
-      position: relative;
-    }
-
-    /* Аватарка */
-    .avatar-wrapper {
-      position: relative;
-      width: 90px;
-      height: 90px;
-      margin-top: -45px;
-      margin-bottom: 12px;
-    }
-
-    .profile-avatar {
-      width: 100%;
-      height: 100%;
-      border-radius: 20px;
-      background-color: #1a2035;
-      border: 4px solid #111526;
-      object-fit: cover;
-      display: block;
-    }
-
-    /* Кнопка Редактировать */
-    .edit-btn {
-      position: absolute;
-      right: 16px;
-      top: -20px;
-      background: #1e2640;
-      border: 1px solid #334155;
-      color: #ffffff;
-      padding: 10px 18px;
-      border-radius: 12px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .user-fullname {
-      font-size: 22px;
-      font-weight: 800;
-      margin-bottom: 4px;
-    }
-
-    .user-handle {
-      color: #8b5cf6;
-      font-size: 14px;
-      font-weight: 600;
-      margin-bottom: 12px;
-    }
-
-    .user-bio {
-      color: #94a3b8;
-      font-size: 14px;
-      line-height: 1.4;
-    }
-
-    /* СКРЫТАЯ ПАНЕЛЬ ЗАГРУЗКИ */
-    .upload-panel {
-      display: none; /* Открывается при клике на Редактировать */
-      padding: 16px;
-      background-color: #0b0e1a;
-      border-top: 1px solid #1e243b;
-      gap: 12px;
-      flex-direction: column;
-    }
-
-    .upload-panel.active {
-      display: flex;
-    }
-
-    .upload-btn-label {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      background: #1e243b;
-      color: #cbd5e1;
-      border: 1px dashed #6366f1;
-      padding: 12px;
-      border-radius: 12px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    /* Прячем стандартный инпут выбора файла */
-    .hidden-input {
-      display: none;
-    }
-  </style>
-</head>
-<body>
-
-  <!-- Хедер -->
-  <header class="header">
-    <div class="brand">
-      <div class="logo-icon">G</div>
-      <div>
-        <div class="brand-title">GODMODE</div>
-        <div class="brand-sub">NETWORK</div>
-      </div>
-    </div>
-    <div class="user-badge">Алексей</div>
-  </header>
-
-  <!-- Навигация -->
-  <nav class="nav-card">
-    <a href="#" class="nav-item active">👤 Моя страница</a>
-    <a href="#" class="nav-item">📰 Лента новостей</a>
-    <a href="#" class="nav-item">💬 Чаты</a>
-    <a href="#" class="nav-item">👥 Группы</a>
-    <a href="#" class="nav-item">⚙️ Настройки</a>
-  </nav>
-
-  <!-- Карточка профиля -->
-  <main class="profile-card">
-    <!-- Баннер -->
+<!-- ВКЛАДКА 1: Профиль (Моя страница) -->
+<main id="tab-profile" class="tab-content active">
+  <div class="profile-card">
     <div id="profile-banner" class="profile-banner"></div>
-
     <div class="profile-content">
-      <!-- Кнопка редактирования -->
       <button class="edit-btn" onclick="toggleUploadPanel()">✏️ Редактировать</button>
-
-      <!-- Аватарка -->
       <div class="avatar-wrapper">
         <img id="profile-avatar" class="profile-avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='%231a2035'></svg>" alt="Avatar">
       </div>
-
       <h1 class="user-fullname">Алексей Смирнов</h1>
       <div class="user-handle">@absolute_godmode</div>
       <p class="user-bio">Создатель Godmode Network.<br>Разрабатываю крутые интерфейсы и сервисы.</p>
     </div>
 
-    <!-- Всплывающая панель загрузки фото с телефона -->
+    <!-- Загрузка фото -->
     <div id="upload-panel" class="upload-panel">
-      <label class="upload-btn-label" for="banner-input">
-        🖼 Загрузить баннер с телефона
-      </label>
+      <label class="upload-btn-label" for="banner-input">🖼 Загрузить баннер с телефона</label>
       <input type="file" id="banner-input" class="hidden-input" accept="image/*" onchange="previewImage(event, 'profile-banner')">
 
-      <label class="upload-btn-label" for="avatar-input">
-        📷 Загрузить аватарку с телефона
-      </label>
+      <label class="upload-btn-label" for="avatar-input">📷 Загрузить аватарку с телефона</label>
       <input type="file" id="avatar-input" class="hidden-input" accept="image/*" onchange="previewImage(event, 'profile-avatar')">
     </div>
-  </main>
+  </div>
+</main>
 
-  <script>
-    // Тоггл панели загрузки по кнопке "Редактировать"
-    function toggleUploadPanel() {
-      const panel = document.getElementById('upload-panel');
-      panel.classList.toggle('active');
-    }
+<!-- ВКЛАДКА 2: Лента новостей -->
+<section id="tab-feed" class="tab-content">
+  <div class="content-card">
+    <h2>Лента новостей</h2>
+    <p>Здесь будут отображаться посты и обновления.</p>
+  </div>
+</section>
 
-    // Загрузка фото с устройства
-    function previewImage(event, targetId) {
-      const file = event.target.files[0];
-      if (!file) return;
+<!-- ВКЛАДКА 3: Чаты -->
+<section id="tab-chats" class="tab-content">
+  <div class="content-card">
+    <h2>Чаты</h2>
+    <p>Список ваших диалогов и сообщений.</p>
+  </div>
+</section>
 
-      const imageURL = URL.createObjectURL(file);
-      const targetElement = document.getElementById(targetId);
+<!-- ВКЛАДКА 4: Группы -->
+<section id="tab-groups" class="tab-content">
+  <div class="content-card">
+    <h2>Группы</h2>
+    <p>Ваши сообщества и каналы.</p>
+  </div>
+</section>
 
-      if (targetElement.tagName === 'IMG') {
-        targetElement.src = imageURL;
-      } else {
-        targetElement.style.backgroundImage = `url('${imageURL}')`;
-      }
-    }
-  </script>
-
-</body>
-</html>
+<!-- ВКЛАДКА 5: Настройки -->
+<section id="tab-settings" class="tab-content">
+  <div class="content-card">
+    <h2>Настройки</h2>
+    <p>Параметры аккаунта и интерфейса.</p>
+  </div>
+</section>
